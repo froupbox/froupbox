@@ -1,0 +1,30 @@
+#big unnessecary folders
+.dropbox
+.DS_Store
+.vs
+/.vscode
+/node_modules
+offline/node_modules
+#unneeded mod inheritance
+/website/**/beepbox*.js.map
+/website/beepbox_offline.html
+/website/jummbox_offline.html
+#for github pages / live editor
+/editor/*.js
+/player/*.js
+/synth/*.js
+/global/*.js
+/editor/*.js.map
+/player/*.js.map
+/synth/*.js.map
+/global/*.js.map
+#unsure
+/**/*.ts.bak
+/**/*.html.bak
+#for offline
+/build
+/scripts/build/
+/to_deploy/
+#for deployment
+deployFiles.sh
+pm2handler.cjs

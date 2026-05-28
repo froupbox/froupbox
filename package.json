@@ -1,0 +1,53 @@
+{
+	"name": "froupbox",
+	"version": "1.0",
+	"description": "froupbox is a mod of various BeepBox mods that aims to advance their capabilities.",
+	"author": "Pastenkopie",
+	"license": "MIT",
+	"homepage": "https://placeholder.github.io/froupbox/website/",
+	"type": "module",
+	"main": "main.js",
+	"icon": "path.join(__dirname, 'icon.ico')",
+	"scripts": {
+		"build": "rsbuild build",
+    	"dev": "rsbuild dev",
+    	"preview": "rsbuild preview",
+    	"build-all": "npm run build-synth && npm run build-player && npm run build-editor",
+		"build-synth": "bash ./scripts/compile_beepbox_synth.sh",
+		"build-player": "bash ./scripts/compile_beepbox_player.sh",
+		"build-editor": "bash ./scripts/compile_beepbox_editor.sh",
+		"build-offline": "bash ./scripts/compile_beepbox_offline.sh",
+		"build-offline-html": "bash ./scripts/compile_beepbox_offline_html.sh",
+		"deploy-files": "bash ./scripts/deploy_files.sh",
+		"start": "electron ./to_deploy",
+		"package": "electron-packager ./to_deploy --platform=darwin,linux,win32 --arch=ia32,x64 --asar --overwrite && npm run build-offline-html",
+		"package-host": "electron-packager ./to_deploy froupbox --asar --overwrite && npm run build-offline-html",
+		"live_editor": "echo 'run `npm run dev` instead'",
+		"let": "npm run live_editor_typeless"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/placeholder/froupbox.git"
+	},
+	"devDependencies": {
+		"@electron/packager": "^18.0.0",
+		"@rollup/plugin-node-resolve": "^15.1.0",
+		"electron": "^33.0.0",
+		"rollup": "^2.79.1",
+		"rollup-plugin-sourcemaps": "^0.6.3",
+		"terser": "^5.19.2",
+		"typescript": "^5.4.5"
+	},
+	"dependencies": {
+		"@rsbuild/core": "^2.0.3",
+		"@types/jquery": "^3.5.30",
+		"@types/select2": "^4.0.63",
+		"electron": "^29.1.1",
+		"electron-packager": "^17.1.2",
+		"esbuild": "^0.25.5",
+		"express": "^4.21.2",
+		"imperative-html": "^0.1.1",
+		"js-xxhash": "^4.0.0",
+		"select2": "^4.0.13"
+	}
+}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>froupbox Patch Notes</title>
+    <meta name="application-name" content="froupbox" />
+    <meta name="apple-mobile-web-app-title" content="froupbox">
+    <meta name="description"
+        content="froupbox is a mod of various BeepBox mods that aims to advance their capabilities." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#247d1d" />
+    <meta name="msapplication-TileColor" content="#247d1d" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+    <meta property="og:image" content="https://placeholder.github.io/froupbox/icon_shadow_192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./icon_32.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link href="https://fonts.googleapis.com/css?family=B612" rel="stylesheet" media="none"
+        onload="if (this.media != 'all') this.media='all';" /> <!-- this is a trick to load CSS asynchronously. -->
+    <style type="text/css">
+        html {
+            background: var(--page-margin, black);
+            overflow-x: hidden;
+            font-size: large;
+            font-family: 'B612', sans-serif;
+            line-height: 1.3;
+            color: var(--primary-text, white);
+        }
+
+        body {
+            margin: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            align-content: center;
+        }
+
+        h1 {
+            font-size: 1.7rem;
+            text-align: center;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            -webkit-text-stroke-width: 0;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            -webkit-text-stroke-width: 0;
+			/* color: #FF8EC5; */
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            -webkit-text-stroke-width: 0;
+        }
+
+        a {
+            color: var(--link-accent, #e81bda);
+        }
+
+        a:hover {
+            color: var(--link-accent, #71eee5);
+        }
+
+        p {
+            color: var(--secondary-text, rgb(193, 193, 193));
+            margin-top: -1em;
+        }
+
+        a.link {
+            color: var(--secondary-text, rgb(193, 193, 193));
+            margin-left: 2em
+        }
+
+        a.link:hover {
+            color: var(--secondary-text, rgb(233, 233, 233));
+        }
+
+        @media (min-width: 1100px) {
+            body {
+                width: 1100px;
+                align-items: start;
+                align-content: start;
+            }
+            h2 {
+                border-left: white solid 4px;
+                padding-left: 8px;
+            }
+        }
+
+        #popup {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #247d1d;
+            color: white;
+            margin-top: 15px;
+            padding: 10px 15px;
+            font-weight: bold;
+            border-radius: 4px;
+            opacity: 0;
+            transform: translateX(-100%); 
+            transition: all 0.5s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        #popup.show {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+    </style>
+    </body>
+    <h1>
+        <a>Patch Notes (in reverse chronological order);</a>
+    </h1>
+
+    <h2>Version 1.0<a class="link">⤳</a></h2>
+    <h3>
+        <ul>
+            <li></li>
+        </ul>
+    </h3>
+    <p></p>
+
+    <div id="popup">Copied link!</div>
+    <script>
+        const headers = document.getElementsByClassName("link");
+        for(const header of headers) {
+            const updateVersion = header.parentElement.innerText.match(/v|Version [\d\.]+/)[0].replace(/v|Version /, "");
+            console.log(updateVersion);
+            header.name = updateVersion;
+            header.addEventListener("click", () => linkTo(updateVersion));
+            header.title = "Copy link to " + updateVersion;
+        }
+
+        function linkTo(update) {
+            window.history.replaceState(null, "", location.pathname + "#" + update);
+            navigator.clipboard.writeText(window.location).then(() => {
+                const popup = document.getElementById("popup");
+                popup.classList.add("show");
+                setTimeout(() => {
+                    popup.classList.remove("show");
+                }, 2000);
+            });
+        }
+    </script>
+    </body>
+</html>

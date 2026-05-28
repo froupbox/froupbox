@@ -1,0 +1,13 @@
+[package]
+name = "rust_dsp"
+version = "0.1.0"
+edition = "2024"
+authors = ["cyexclam <cypherfn@proton.me>"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+console_error_panic_hook = "0.1.7"
+js-sys = "0.3.97"
+wasm-bindgen = "0.2.120"

@@ -1,0 +1,20 @@
+{
+  "name": "rust_dsp",
+  "type": "module",
+  "collaborators": [
+    "cyexclam <cypherfn@proton.me>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "rust_dsp_bg.wasm",
+    "rust_dsp.js",
+    "rust_dsp_bg.js",
+    "rust_dsp.d.ts"
+  ],
+  "main": "rust_dsp.js",
+  "types": "rust_dsp.d.ts",
+  "sideEffects": [
+    "./rust_dsp.js",
+    "./snippets/*"
+  ]
+}
