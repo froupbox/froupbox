@@ -1,27 +1,29 @@
 import type { RsbuildConfig, EnvironmentConfig } from "@rsbuild/core";
 import { env } from "node:process";
 
+const isOfflineBuild = process.env.OFFLINE_BUILD;
+
 export default {
   mode: env.NODE_ENV as any,
   environments: {
     editor: {
       source: { entry: { index: "./editor/main.ts" } },
-      html: { template: "website/index.html", title: "froupbox" },
-      output: { distPath: "dist/" },
+      html: { template: "website/index.html", title: "StarBox" },
+      output: { distPath: "dist/", assetPrefix: "." },
       tools: { rspack: { output: { filename: "beepbox_editor.min.js" } } },
     },
     player: {
       source: { entry: { index: "./player/main.ts" } },
       html: {
         template: "website/player/index.html",
-        title: "froupbox Song Player",
+        title: "StarBox Song Player",
       },
       output: { distPath: "dist/player/", assetPrefix: "." },
       tools: { rspack: { output: { filename: "beepbox_player.min.js" } } },
     },
     synth: {
       source: { entry: { index: "./synth/synth.ts" } },
-      output: { distPath: "dist/" },
+      output: { distPath: "dist/", assetPrefix: "." },
       tools: {
         htmlPlugin: false,
         rspack: { output: { filename: "beepbox_synth.min.js" } },
@@ -30,7 +32,7 @@ export default {
   },
   source: {
     define: {
-      OFFLINE: false,
+      OFFLINE: isOfflineBuild,
     },
   },
   splitChunks: false,
