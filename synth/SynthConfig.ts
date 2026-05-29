@@ -1258,6 +1258,17 @@ export class Config {
         { name: "FART",             voices: 2, spread: 13,       offset: -5,      expression: 1.0,   sign: -3   },
         //for modbox; voices = riffapp, spread = intervals, offset = offsets, expression = volume, and sign = signs
     ]);
+    public static readonly unisonCapableInstruments: ReadonlySet<InstrumentType> = new Set([
+      InstrumentType.chip,
+      InstrumentType.customChipWave,
+      InstrumentType.harmonics,
+      InstrumentType.pickedString,
+      InstrumentType.spectrum,
+      InstrumentType.pwm,
+      InstrumentType.noise,
+      InstrumentType.drumset,
+      InstrumentType.fm,
+    ]);
     public static readonly effectNames: ReadonlyArray<string> = ["reverb", "chorus", "panning", "distortion", "bitcrusher", "note filter", "echo", "pitch shift", "detune", "vibrato", "transition type", "chord type", "note range", "ring mod", "granular", "phaser", "", "invert wave", "compressor"];
     public static readonly effectOrder: ReadonlyArray<EffectType> = [EffectType.panning, EffectType.transition, EffectType.chord, EffectType.pitchShift, EffectType.detune, EffectType.vibrato, EffectType.noteFilter, EffectType.granular, EffectType.distortion, EffectType.bitcrusher, EffectType.chorus, EffectType.echo, EffectType.reverb, EffectType.ringModulation, EffectType.phaser, EffectType.invertWave, EffectType.compressor, EffectType.noteRange];
     public static readonly noteSizeMax: number = 6;
