@@ -1714,6 +1714,7 @@ export class Instrument {
     public phaserMix: number = Config.phaserMixRange - 1;
     public phaserFeedback: number = 0;
     public phaserStages: number = 2;
+    public phaserDisperse: boolean = false;
     
     public invertWave: boolean = false;
 
@@ -3866,8 +3867,16 @@ export class Song {
                 if (effectsIncludePhaser(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.phaserFreq]);
                     buffer.push(base64IntToCharCode[instrument.phaserFeedback]);
-                    buffer.push(base64IntToCharCode[instrument.phaserStages]);
+                    // previous max stages was 32; thus, use 63 as a marker for the extended (12-bit) phaser stage number
+                    if(instrument.phaserStages < 63) {
+                      buffer.push(base64IntToCharCode[instrument.phaserStages]);
+                    } else {
+                      buffer.push(base64IntToCharCode[63]);
+                      buffer.push(base64IntToCharCode[instrument.phaserStages >> 6]);
+                      buffer.push(base64IntToCharCode[instrument.phaserStages & 0x3f]);
+                    }
                     buffer.push(base64IntToCharCode[instrument.phaserMix]);
+                    buffer.push(base64IntToCharCode[+instrument.phaserDisperse]);
                 }
 
                 if (effectsIncludeInvertWave(instrument.effects)) {
@@ -5667,7 +5676,14 @@ export class Song {
                         instrument.phaserFreq = clamp(0, Config.phaserFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.phaserFeedback = clamp(0, Config.phaserFeedbackRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.phaserStages = clamp(0, Config.phaserMaxStages + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]); 
+                        if (instrument.phaserStages === 63) { // previous max stages was 32; thus, use 63 as a marker for the extended (12-bit) phaser stage number
+                          instrument.phaserStages = clamp(0, Config.phaserMaxStages + 1,
+                            base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6 | 
+                            base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                          ); 
+                        }
                         instrument.phaserMix = clamp(0, Config.phaserMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        instrument.phaserDisperse = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                     }
                     if(effectsIncludeInvertWave(instrument.effects)) {
                         instrument.invertWave = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
@@ -8781,6 +8797,7 @@ class InstrumentState {
     public phaserBreakCoefDelta: number = 0.0;
     public phaserStages: number = 0;
     public phaserStagesDelta: number = 0;
+    public phaserDisperse: boolean = false;
 
     public readonly spectrumWave: SpectrumWaveState = new SpectrumWaveState();
     public readonly harmonicsWave: HarmonicsWaveState = new HarmonicsWaveState();
@@ -9509,8 +9526,11 @@ class InstrumentState {
             const phaserStagesEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.phaserStages];
             const phaserStagesSlider: number = instrument.phaserStages;
             
-            let phaserStagesStart = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeStart));
-            let phaserStagesEnd = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeEnd));
+            // due to popular demand (only pasten really) the upper bound on phaser stages has been removed
+            // let phaserStagesStart = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeStart));
+            // let phaserStagesEnd = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeEnd));
+            let phaserStagesStart = Math.max(Config.phaserMinStages, phaserStagesSlider * phaserStagesEnvelopeStart);
+            let phaserStagesEnd = Math.max(Config.phaserMinStages, phaserStagesSlider * phaserStagesEnvelopeEnd);
 
             if (synth.isModActive(Config.modulators.dictionary["phaser stages"].index, channelIndex, instrumentIndex)) {
                 phaserStagesStart = Math.round(synth.getModValue(Config.modulators.dictionary["phaser stages"].index, channelIndex, instrumentIndex, false));
@@ -9519,6 +9539,8 @@ class InstrumentState {
 
             this.phaserStages = phaserStagesStart;
             this.phaserStagesDelta = (phaserStagesEnd - phaserStagesStart) / roundedSamplesPerTick;
+            
+            this.phaserDisperse = instrument.phaserDisperse;
         }
 
         if (usesReverb) {
@@ -14560,7 +14582,10 @@ export class Synth {
                             phaserSamples[stage] = phaserNextOutput;
                         }
                         const phaserOutput = phaserSamples[Math.max(0,phaserStagesInt - 1)];
-                        sample = sample + phaserOutput * phaserMix;
+                        if(instrumentState.phaserDisperse)
+                          sample = sample + (phaserOutput - sample) * phaserMix;
+                        else
+                          sample = sample + phaserOutput * phaserMix;
                         phaserFeedbackMult += phaserFeedbackMultDelta;
                         phaserBreakCoef += phaserBreakCoefDelta;
                         phaserMix += phaserMixDelta;

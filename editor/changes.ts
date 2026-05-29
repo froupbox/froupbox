@@ -2840,6 +2840,20 @@ export class ChangePhaserStages extends ChangeInstrumentSlider {
     }
 }
 
+export class ChangePhaserDisperse extends Change {
+    constructor(doc: SongDocument, newValue: boolean) {
+        super();
+        const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+        const oldValue = instrument.invertWave;
+
+        doc.notifier.changed();
+        if (oldValue != newValue) {
+            instrument.phaserDisperse = newValue;
+            instrument.preset = instrument.type;
+            this._didSomething();
+        }
+    }
+}
 
 export class ChangeStringSustain extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {

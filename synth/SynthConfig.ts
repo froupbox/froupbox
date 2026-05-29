@@ -977,7 +977,7 @@ export class Config {
     public static readonly phaserMinFreq:               number = 8.0; 
     public static readonly phaserMaxFreq:               number = 20000.0; 
     public static readonly phaserMinStages:             number = 0; 
-    public static readonly phaserMaxStages:             number = 32; 
+    public static readonly phaserMaxStages:             number = 256; 
     public static readonly beatsPerBarMin:              number = 1;
     public static readonly beatsPerBarMax:              number = 64;
     public static readonly barCountMin:                 number = 1;

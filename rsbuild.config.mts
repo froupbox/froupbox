@@ -4,7 +4,6 @@ import { env } from "node:process";
 const isOfflineBuild = process.env.OFFLINE_BUILD;
 
 export default {
-  mode: env.NODE_ENV as any,
   environments: {
     editor: {
       source: { entry: { index: "./editor/main.ts" } },

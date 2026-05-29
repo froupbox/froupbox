@@ -701,6 +701,12 @@ export class TipPrompt implements Prompt {
 					p(`The minimum value of this slider is 1, the reason being that 1 all-pass is the exact same as having no phaser at all, if there were 0 all-passes then the audio would cease to exist.`),
 				);
 			} break;
+			case "phaserDisperse": {
+				message = div(
+					h2("Phaser Disperse"),
+					p(`i dont wanna write documentation for this PASTEN DO THIS FOR ME PLEEEAAASE`),
+				);
+			} break;
 			case "upperNoteLimit": {
 				message = div(
 					h2("Upper Note Limit"),
