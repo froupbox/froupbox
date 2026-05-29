@@ -112,18 +112,18 @@ export class Knob {
     document.body.addEventListener("mousemove", this._whenMove);
     document.body.addEventListener("mouseup", this._whenChange);
     
-    this.bodyEl = div({ class: "sbk-body" }, div({ class: "sbk-nub" }));
+    this.bodyEl = div({ class: "knob-body" }, div({ class: "knob-nub" }));
     this.bodyEl.addEventListener("mousedown", this._whenDown)
-    this.valueEl = span({ class: "sb-value" });
+    this.valueEl = span({ class: "editor-value" });
     
     const valueComponents: any[] = [this.valueEl];
-    if (unit) valueComponents.push(span({ class: "sb-unit" }, unit));
+    if (unit) valueComponents.push(span({ class: "editor-unit" }, unit));
     
     this.container = div(
-      { class: "sbk" },
-      span({ class: "sbk-label" }, label),
+      { class: "knob" },
+      span({ class: "knob-label" }, label),
       this.bodyEl,
-      span({ class: "sbk-label" }, ...valueComponents),
+      span({ class: "knob-label" }, ...valueComponents),
     );
   }
 
@@ -201,18 +201,18 @@ export class LabeledSlider extends Slider {
     { label, vertical, unit, midTick }: LabeledeSliderOptions,
   ) {
     super(input, doc, getChange, midTick ?? false);
-    this.container.classList.add("sbls");
+    this.container.classList.add("lbsd");
     if (vertical) {
       input.classList.add("vertical");
     }
 
-    this._valueEl = span({ class: "sb-value" });
+    this._valueEl = span({ class: "editor-value" });
     const valueContainer = div(
-      { class: "sbls-label" },
+      { class: "lbsd-label" },
       this._valueEl,
-      span({ class: "sb-unit" }, unit),
+      span({ class: "editor-unit" }, unit),
     );
-    const labelEl = div({ class: "sbls-label" }, label);
+    const labelEl = div({ class: "lbsd-label" }, label);
 
     this.container.append(labelEl, valueContainer);
   }

@@ -4,7 +4,7 @@
 	"description": "froupbox is a mod of various BeepBox mods that aims to advance their capabilities.",
 	"author": "Pastenkopie",
 	"license": "MIT",
-	"homepage": "https://placeholder.github.io/froupbox/website/",
+	"homepage": "https://froupbox.github.io/",
 	"type": "module",
 	"main": "main.js",
 	"icon": "path.join(__dirname, 'icon.ico')",
@@ -27,7 +27,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/placeholder/froupbox.git"
+		"url": "git+https://github.com/froupbox/froupbox.git"
 	},
 	"devDependencies": {
 		"@electron/packager": "^18.0.0",

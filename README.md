@@ -1,7 +1,7 @@
 # froupbox
 
 froupbox is an online tool for sketching and sharing instrumental music.
-You can find it [here](https://github.com/placeholder/froupbox/).
+You can find it [here](https://github.com/froupbox/froupbox/).
 It is a modification of [Slarmoo's Box] (https://slarmoo.github.io/slarmoosbox/website/), which is a modification of [Ultrabox](https://ultraabox.github.io), which is a modification of [JummBox](https://github.com/jummbus/jummbox), which inturn is a modification of the [original BeepBox](https://beepbox.co).
 
 froupbox is a mod of various BeepBox mods that aims to advance their capabilities. Feel free to contribute!
@@ -25,7 +25,7 @@ The source code is available under the MIT license. The code is written in
 build this project, open a command line ([Git Bash](https://gitforwindows.org/)) and run:
 
 ```
-git clone https://github.com/placeholder/froupbox.git
+git clone https://github.com/froupbox/froupbox.git
 cd froupbox
 npm install
 npm run build

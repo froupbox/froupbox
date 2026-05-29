@@ -7,7 +7,7 @@ export default {
   environments: {
     editor: {
       source: { entry: { index: "./editor/main.ts" } },
-      html: { template: "website/index.html", title: "StarBox" },
+      html: { template: "website/index.html", title: "froupbox" },
       output: { distPath: "dist/", assetPrefix: "." },
       tools: { rspack: { output: { filename: "beepbox_editor.min.js" } } },
     },
@@ -15,7 +15,7 @@ export default {
       source: { entry: { index: "./player/main.ts" } },
       html: {
         template: "website/player/index.html",
-        title: "StarBox Song Player",
+        title: "froupbox Song Player",
       },
       output: { distPath: "dist/player/", assetPrefix: "." },
       tools: { rspack: { output: { filename: "beepbox_player.min.js" } } },

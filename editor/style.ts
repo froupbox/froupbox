@@ -1690,27 +1690,27 @@ li.select2-results__option[role=group] > strong:hover {
 	}
 }
 
-/* Shared StarBox styles */
+/* Shared editor styles */
 .beepboxEditor {
-  .sb-unit {
+  .editor-unit {
     font-size: smaller;
     color: ${ColorConfig.uiWidgetFocus};
   }
 
-  .sb-value {
+  .editor-value {
     color: ${ColorConfig.primaryText};
   }
 }
 
-/* StarBox Knob (SBK) styles */
-.beepboxEditor .sbk {
+/* Knob (KNOB) styles */
+.beepboxEditor .knob {
   height: 4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 
   gap: .1lh;
-  .sbk-body {
+  .knob-body {
     width: 1.5rem;
     aspect-ratio: 1 / 1;
     background: var(--ui-widget-background);
@@ -1718,7 +1718,7 @@ li.select2-results__option[role=group] > strong:hover {
     border: 2px solid var(--editor-background);
     cursor: pointer;
   }
-  .sbk-nub {
+  .knob-nub {
     margin: auto;
     background: currentColor;
     width: 2px;
@@ -1726,8 +1726,8 @@ li.select2-results__option[role=group] > strong:hover {
   }
 }
 
-/* StarBox Labeled Slider (SBLS) styles */
-.beepboxEditor .sbls {
+/* Labeled Slider (LBSD) styles */
+.beepboxEditor .lbsd {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1755,7 +1755,7 @@ li.select2-results__option[role=group] > strong:hover {
      	height: 6px;
     }
   }
-  .sbls-label {
+  .lbsd-label {
     text-align: center;
   }
 }
