@@ -64,7 +64,7 @@ handlers:
   secure: always
   redirect_http_response_code: 301
   http_headers:
-    Link: "<https://github.com/placeholder/froupbox/>; rel=\"canonical\"" 
+    Link: "<https://github.com/froupbox/froupbox/>; rel=\"canonical\"" 
 
 - url: /(.+/)*
   static_files: \1index.html
