@@ -2622,7 +2622,7 @@ export class Instrument {
             this.phaserFeedback = clamp(0, Config.phaserFeedbackRange, Math.round((Config.phaserFeedbackRange - 1) * (instrumentObject["phaserFeedback"] | 0) / 100));
         }
         if (instrumentObject["phaserStages2"] != undefined) {
-            this.phaserStages = clamp(0, Config.phaserMaxStages + 1, instrumentObject["phaserStages"]);
+            this.phaserStages = clamp(0, Config.phaserMaxStages + 1, instrumentObject["phaserStages2"]);
         } else if (instrumentObject["phaserStages"] != undefined) {
             this.phaserStages = clamp(0, Config.phaserMaxStages + 1, Math.round((Config.phaserMaxStages - 1) * (instrumentObject["phaserStages"] | 0) / 100));
         }
@@ -6782,25 +6782,31 @@ export class Song {
                 }
 
                 function sliceForSampleRate() {
+                    //should this be parseFloat or parseInt?
+                    //ig floats let you do decimals and such, but idk where that would be useful
+                    const sampleRate = parseFloat(url.slice(url.indexOf(",") + 1));
+                    if (isNaN(sampleRate))
+                        return;
+                    customSampleRate = clamp(8000, 96000 + 1, sampleRate);
                     urlSliced = url.slice(0, url.indexOf(","));
                     if (OFFLINE) {
                         parsedUrl = urlSliced;
                     } else {
                         parsedUrl = new URL(urlSliced);
                     }
-                    customSampleRate = clamp(8000, 96000 + 1, parseFloatWithDefault(url.slice(url.indexOf(",") + 1), 44100));
-                    //should this be parseFloat or parseInt?
-                    //ig floats let you do decimals and such, but idk where that would be useful
                 }
 
                 function sliceForRootKey() {
+                    const rootKey = parseFloat(url.slice(url.indexOf("!") + 1));
+                    if (isNaN(rootKey))
+                        return;
+                    customRootKey = rootKey;
                     urlSliced = url.slice(0, url.indexOf("!"));
                     if (OFFLINE) {
                         parsedUrl = urlSliced;
                     } else {
                         parsedUrl = new URL(urlSliced);
                     }
-                    customRootKey = parseFloatWithDefault(url.slice(url.indexOf("!") + 1), 60);
                 }
 
 
