@@ -2183,7 +2183,8 @@ export class Instrument {
             instrumentObject["phaserMix"] =  Math.round(100 *this.phaserMix/(Config.phaserMixRange - 1));
             instrumentObject["phaserFreq"] =  Math.round(100 *this.phaserFreq/(Config.phaserFreqRange - 1));
             instrumentObject["phaserFeedback"] =  Math.round(100 *this.phaserFeedback/(Config.phaserFeedbackRange - 1));
-            instrumentObject["phaserStages"] =  Math.round(100 *this.phaserStages/(Config.phaserMaxStages - 1));
+            instrumentObject["phaserStages2"] = this.phaserStages;
+            instrumentObject["phaserDisperse"] = this.phaserDisperse;
         }
         if (effectsIncludeDistortion(this.effects)) {
             instrumentObject["distortion"] = Math.round(100 * this.distortion / (Config.distortionRange - 1));
@@ -2620,8 +2621,13 @@ export class Instrument {
         if (instrumentObject["phaserFeedback"] != undefined) {
             this.phaserFeedback = clamp(0, Config.phaserFeedbackRange, Math.round((Config.phaserFeedbackRange - 1) * (instrumentObject["phaserFeedback"] | 0) / 100));
         }
-        if (instrumentObject["phaserStages"] != undefined) {
-            this.phaserStages = clamp(0, Config.phaserMaxStages, Math.round((Config.phaserMaxStages - 1) * (instrumentObject["phaserStages"] | 0) / 100));
+        if (instrumentObject["phaserStages2"] != undefined) {
+            this.phaserStages = clamp(0, Config.phaserMaxStages + 1, instrumentObject["phaserStages"]);
+        } else if (instrumentObject["phaserStages"] != undefined) {
+            this.phaserStages = clamp(0, Config.phaserMaxStages + 1, Math.round((Config.phaserMaxStages - 1) * (instrumentObject["phaserStages"] | 0) / 100));
+        }
+        if (typeof instrumentObject["phaserDisperse"] === "boolean") {
+            this.phaserDisperse = instrumentObject["phaserDisperse"];
         }
 
 
@@ -3867,14 +3873,10 @@ export class Song {
                 if (effectsIncludePhaser(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.phaserFreq]);
                     buffer.push(base64IntToCharCode[instrument.phaserFeedback]);
-                    // previous max stages was 32; thus, use 63 as a marker for the extended (12-bit) phaser stage number
-                    if(instrument.phaserStages < 63) {
-                      buffer.push(base64IntToCharCode[instrument.phaserStages]);
-                    } else {
-                      buffer.push(base64IntToCharCode[63]);
-                      buffer.push(base64IntToCharCode[instrument.phaserStages >> 6]);
-                      buffer.push(base64IntToCharCode[instrument.phaserStages & 0x3f]);
-                    }
+                    // previous max stages was 32; thus, use 63 as a marker for the new phaser format
+                    buffer.push(base64IntToCharCode[63]);
+                    buffer.push(base64IntToCharCode[instrument.phaserStages >> 6]);
+                    buffer.push(base64IntToCharCode[instrument.phaserStages & 0x3f]);
                     buffer.push(base64IntToCharCode[instrument.phaserMix]);
                     buffer.push(base64IntToCharCode[+instrument.phaserDisperse]);
                 }
@@ -5676,14 +5678,16 @@ export class Song {
                         instrument.phaserFreq = clamp(0, Config.phaserFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.phaserFeedback = clamp(0, Config.phaserFeedbackRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.phaserStages = clamp(0, Config.phaserMaxStages + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]); 
-                        if (instrument.phaserStages === 63) { // previous max stages was 32; thus, use 63 as a marker for the extended (12-bit) phaser stage number
+                        const newFormat = instrument.phaserStages === 63; // previous max stages was 32; thus, use 63 as a marker for the extended (12-bit) phaser stage number
+                        if (newFormat) {
                           instrument.phaserStages = clamp(0, Config.phaserMaxStages + 1,
                             base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6 | 
                             base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
-                          ); 
+                          );
                         }
                         instrument.phaserMix = clamp(0, Config.phaserMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                        instrument.phaserDisperse = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
+                      
+                        instrument.phaserDisperse = newFormat && base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                     }
                     if(effectsIncludeInvertWave(instrument.effects)) {
                         instrument.invertWave = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
@@ -8844,8 +8848,8 @@ class InstrumentState {
         }
         if (effectsIncludePhaser(instrument.effects)) {
             if (this.phaserSamples == null) {
-                this.phaserSamples = new Float32Array(Config.phaserMaxStages);
-                this.phaserPrevInputs = new Float32Array(Config.phaserMaxStages);
+                this.phaserSamples = new Float32Array(new ArrayBuffer(0, { maxByteLength: 2147483648 }));
+                this.phaserPrevInputs = new Float32Array(new ArrayBuffer(0, { maxByteLength: 2147483648 }));
             }
         }
         if (effectsIncludeGranular(instrument.effects)) {
@@ -14273,6 +14277,11 @@ export class Synth {
                 let phaserMix = +instrumentState.phaserMix;
                 const phaserBreakCoefDelta = +instrumentState.phaserBreakCoefDelta;
                 let phaserBreakCoef = +instrumentState.phaserBreakCoef;
+
+                if(phaserSamples.length !== phaserStagesInt) {
+                  phaserSamples.buffer.resize(phaserStagesInt * 4);
+                  phaserPrevInputs.buffer.resize(phaserStagesInt * 4);
+                }
                 `
             }
 
@@ -14590,7 +14599,7 @@ export class Synth {
                         phaserBreakCoef += phaserBreakCoefDelta;
                         phaserMix += phaserMixDelta;
                         phaserStages += phaserStagesDelta;
-                        /*phaserStagesInt = Math.floor(phaserStages);*/
+                        phaserStagesInt = Math.floor(phaserStages);
                     `
             }
 

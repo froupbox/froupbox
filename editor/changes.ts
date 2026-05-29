@@ -2844,7 +2844,7 @@ export class ChangePhaserDisperse extends Change {
     constructor(doc: SongDocument, newValue: boolean) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        const oldValue = instrument.invertWave;
+        const oldValue = instrument.phaserDisperse;
 
         doc.notifier.changed();
         if (oldValue != newValue) {
