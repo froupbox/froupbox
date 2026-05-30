@@ -98,6 +98,7 @@ export const enum DropdownID {
     Unison = 6,
     Envelope = 7,
     EnvelopeSettings = 8,
+    PhaserStages = 9,
 }
 
 export const enum EffectType {

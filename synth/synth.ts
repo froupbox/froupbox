@@ -1710,10 +1710,11 @@ export class Instrument {
     public reverb: number = 0;
     public echoSustain: number = 0;
     public echoDelay: number = 0;
-    public phaserFreq: number = 0;
     public phaserMix: number = Config.phaserMixRange - 1;
+    public phaserFreq: number = 0;
     public phaserFeedback: number = 0;
     public phaserStages: number = 2;
+    public clicklessStages: boolean = false;
     public phaserDisperse: boolean = false;
     
     public invertWave: boolean = false;
@@ -1844,11 +1845,13 @@ export class Instrument {
         this.grainSize = (Config.grainSizeMax - Config.grainSizeMin) / Config.grainSizeStep;
         this.grainAmounts = Config.grainAmountsMax;
         this.grainRange = 40;
-
+        
+        this.phaserMix = Config.phaserMixRange - 1;
         this.phaserFreq	= 0;
         this.phaserFeedback = 0;
         this.phaserStages = 2;
-        this.phaserMix = Config.phaserMixRange - 1;
+        this.clicklessStages = false;
+        this.phaserDisperse = false;
 
         this.invertWave = false;
         
@@ -2184,6 +2187,7 @@ export class Instrument {
             instrumentObject["phaserFreq"] =  Math.round(100 *this.phaserFreq/(Config.phaserFreqRange - 1));
             instrumentObject["phaserFeedback"] =  Math.round(100 *this.phaserFeedback/(Config.phaserFeedbackRange - 1));
             instrumentObject["phaserStages2"] = this.phaserStages;
+            instrumentObject["clicklessStages"] = this.clicklessStages;
             instrumentObject["phaserDisperse"] = this.phaserDisperse;
         }
         if (effectsIncludeDistortion(this.effects)) {
@@ -2974,6 +2978,13 @@ export class Instrument {
             }
             else {
                 this.clicklessTransition = false;
+            }
+
+            if (instrumentObject["clicklessStages"] != undefined) {
+                this.clicklessStages = instrumentObject["clicklessStages"];
+            }
+            else {
+                this.clicklessStages = false;
             }
 
             if (instrumentObject["aliases"] != undefined) {
@@ -3878,6 +3889,7 @@ export class Song {
                     buffer.push(base64IntToCharCode[instrument.phaserStages >> 6]);
                     buffer.push(base64IntToCharCode[instrument.phaserStages & 0x3f]);
                     buffer.push(base64IntToCharCode[instrument.phaserMix]);
+                    buffer.push(base64IntToCharCode[+instrument.clicklessStages]);
                     buffer.push(base64IntToCharCode[+instrument.phaserDisperse]);
                 }
 
@@ -5686,7 +5698,8 @@ export class Song {
                           );
                         }
                         instrument.phaserMix = clamp(0, Config.phaserMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                      
+
+                        instrument.clicklessStages = !newFormat || base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                         instrument.phaserDisperse = newFormat && base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                     }
                     if(effectsIncludeInvertWave(instrument.effects)) {
@@ -8807,6 +8820,7 @@ class InstrumentState {
     public phaserBreakCoefDelta: number = 0.0;
     public phaserStages: number = 0;
     public phaserStagesDelta: number = 0;
+    public clicklessStages: boolean = false;
     public phaserDisperse: boolean = false;
 
     public readonly spectrumWave: SpectrumWaveState = new SpectrumWaveState();
@@ -9536,12 +9550,9 @@ class InstrumentState {
             const phaserStagesEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.phaserStages];
             const phaserStagesSlider: number = instrument.phaserStages;
             
-            // due to popular demand (only pasten really) the upper bound on phaser stages has been removed
-            // let phaserStagesStart = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeStart));
-            // let phaserStagesEnd = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeEnd));
-            let phaserStagesStart = Math.max(Config.phaserMinStages, phaserStagesSlider * phaserStagesEnvelopeStart);
-            let phaserStagesEnd = Math.max(Config.phaserMinStages, phaserStagesSlider * phaserStagesEnvelopeEnd);
-
+            let phaserStagesStart = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeStart));
+            let phaserStagesEnd = Math.max(Config.phaserMinStages, Math.min(Config.phaserMaxStages, phaserStagesSlider * phaserStagesEnvelopeEnd));
+            
             if (synth.isModActive(Config.modulators.dictionary["phaser stages"].index, channelIndex, instrumentIndex)) {
                 phaserStagesStart = Math.round(synth.getModValue(Config.modulators.dictionary["phaser stages"].index, channelIndex, instrumentIndex, false));
                 phaserStagesEnd = Math.round(synth.getModValue(Config.modulators.dictionary["phaser stages"].index, channelIndex, instrumentIndex, false))
@@ -9550,6 +9561,7 @@ class InstrumentState {
             this.phaserStages = phaserStagesStart;
             this.phaserStagesDelta = (phaserStagesEnd - phaserStagesStart) / roundedSamplesPerTick;
             
+            this.clicklessStages = instrument.clicklessStages;
             this.phaserDisperse = instrument.phaserDisperse;
         }
 
@@ -14605,7 +14617,8 @@ export class Synth {
                         phaserBreakCoef += phaserBreakCoefDelta;
                         phaserMix += phaserMixDelta;
                         phaserStages += phaserStagesDelta;
-                        phaserStagesInt = Math.floor(phaserStages);
+                        if (!instrumentState.clicklessStages)
+                          phaserStagesInt = Math.floor(phaserStages);
                     `
             }
 

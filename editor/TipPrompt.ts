@@ -701,10 +701,17 @@ export class TipPrompt implements Prompt {
 					p(`The minimum value of this slider is 1, the reason being that 1 all-pass is the exact same as having no phaser at all, if there were 0 all-passes then the audio would cease to exist.`),
 				);
 			} break;
+			case "clicklessStages": {
+				message = div(
+					h2("Clickless Stages Modulation"),
+					p(`To improve performance, by default phaser stages are only used when needed. However, this can cause clicking artifacts when the amount of stages is modulated.`),
+					p(`This checkbox makes the amount of phaser stages used static, to combat the clicking.`),
+				);
+			} break;
 			case "phaserDisperse": {
 				message = div(
 					h2("Phaser Disperse"),
-					p(`i dont wanna write documentation for this PASTEN DO THIS FOR ME PLEEEAAASE`),
+					p(`Makes the phaser act as a disperser.`),
 				);
 			} break;
 			case "upperNoteLimit": {
