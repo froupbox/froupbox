@@ -5699,7 +5699,7 @@ export class Song {
                         }
                         instrument.phaserMix = clamp(0, Config.phaserMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
 
-                        instrument.clicklessStages = !newFormat || base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
+                        instrument.clicklessStages = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                         instrument.phaserDisperse = newFormat && base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                     }
                     if(effectsIncludeInvertWave(instrument.effects)) {
