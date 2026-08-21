@@ -7,13 +7,13 @@ export class ColourizerInstance {
     begin(start: ColourizerInstanceParams, end: ColourizerInstanceParams, sample_rate: number, run_length: number): void;
     constructor();
     process(buffer: DspBuffer): void;
-    set freqs(value: Float32Array);
 }
 
 export class ColourizerInstanceParams {
     free(): void;
     [Symbol.dispose](): void;
     constructor();
+    set freqs(value: Float32Array);
     mix: number;
     voices: number;
 }

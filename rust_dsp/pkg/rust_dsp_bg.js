@@ -35,14 +35,6 @@ export class ColourizerInstance {
         _assertClass(buffer, DspBuffer);
         wasm.colourizerinstance_process(this.__wbg_ptr, buffer.__wbg_ptr);
     }
-    /**
-     * @param {Float32Array} freqs
-     */
-    set freqs(freqs) {
-        const ptr0 = passArrayF32ToWasm0(freqs, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.colourizerinstance_set_freqs(this.__wbg_ptr, ptr0, len0);
-    }
 }
 if (Symbol.dispose) ColourizerInstance.prototype[Symbol.dispose] = ColourizerInstance.prototype.free;
 
@@ -62,6 +54,14 @@ export class ColourizerInstanceParams {
         this.__wbg_ptr = ret;
         ColourizerInstanceParamsFinalization.register(this, this.__wbg_ptr, this);
         return this;
+    }
+    /**
+     * @param {Float32Array} freqs
+     */
+    set freqs(freqs) {
+        const ptr0 = passArrayF32ToWasm0(freqs, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.colourizerinstanceparams_set_freqs(this.__wbg_ptr, ptr0, len0);
     }
     /**
      * @returns {number}

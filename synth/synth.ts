@@ -10300,14 +10300,91 @@ class InstrumentState {
         this.colorizer.free();
         this.colorizer = undefined;
       }
-      if (usesColorizer && this.colorizer)
+      if (usesColorizer && this.colorizer && synth.song)
       {
         const start = new rustDsp!.ColourizerInstanceParams(), end = new rustDsp!.ColourizerInstanceParams();
 
+        const song = synth.song;
+        // colorizer frequencies
+        if (instrument.colorizerChannel - 1 < song.pitchChannelCount && instrument.colorizerChannel > 0) {
+            const sourceChannel: Channel = song.channels[instrument.colorizerChannel - 1];
+            const pattern: Pattern | null = song.getPattern(instrument.colorizerChannel - 1, synth.bar);
+            const currentPart: number = synth.getCurrentPart();
+
+            let freqs: number[] = [];
+            let slideOffsetStart = 0;
+            let slideOffsetEnd = 0;
+
+            if (pattern != null) {
+                for (let i: number = 0; i < pattern.notes.length; i++) {
+                    const note = pattern.notes[i];
+                    if (note.start <= currentPart && note.end > currentPart) {
+                        freqs = note.pitches;
+
+                        const endPinIndex: number = note.getEndPinIndex(currentPart);
+                        const startPin: NotePin = note.pins[endPinIndex - 1];  
+                        const endPin: NotePin = note.pins[endPinIndex];
+                        const pinStart: number = (note.start + startPin.time) * Config.ticksPerPart;
+                        const pinEnd: number = (note.start + endPin.time) * Config.ticksPerPart;
+
+                        const tickTimeStart: number = currentPart * Config.ticksPerPart + synth.tick;
+                        const tickTimeEnd: number = tickTimeStart + 1.0;
+                        const pinRatioStart: number = Math.min(1.0, (tickTimeStart - pinStart) / (pinEnd - pinStart));
+                        const pinRatioEnd: number = Math.min(1.0, (tickTimeEnd - pinStart) / (pinEnd - pinStart));
+
+                        slideOffsetStart = startPin.interval + (endPin.interval - startPin.interval) * pinRatioStart;
+                        slideOffsetEnd = startPin.interval + (endPin.interval - startPin.interval) * pinRatioEnd;
+                    }
+                }
+            }
+
+            let songDetune: number = 0;
+            if (synth.isModActive(Config.modulators.dictionary["song detune"].index)) {
+                songDetune = 4 * synth.getModValue(Config.modulators.dictionary["song detune"].index);
+            }
+
+            const twelveEdoOffset: number = (song.key - 9 + song.octave * 12 + songDetune / 100) 
+                * (sourceChannel.equaveDivisions / 12) 
+                * (Math.log(2 / 1) / Math.log(sourceChannel.equaveNumerator / sourceChannel.equaveDenominator)
+            );
+
+            instrument.colorizerFrequenciesStart = new Array(freqs.length);
+            instrument.colorizerFrequenciesEnd = new Array(freqs.length);
+
+            for (let i: number = 0; i < instrument.colorizerFrequenciesStart.length; i++) {
+                const convertedFrequencyStart = Instrument.frequencyFromPitch(
+                    freqs[i] + slideOffsetStart - (sourceChannel.equaveDivisions * Config.pitchOctaves / 2) + twelveEdoOffset, 
+                    sourceChannel.equaveNumerator / sourceChannel.equaveDenominator, 
+                    sourceChannel.equaveDivisions
+                ); 
+                const convertedFrequencyEnd = Instrument.frequencyFromPitch(
+                    freqs[i] + slideOffsetEnd - (sourceChannel.equaveDivisions * Config.pitchOctaves / 2) + twelveEdoOffset, 
+                    sourceChannel.equaveNumerator / sourceChannel.equaveDenominator, 
+                    sourceChannel.equaveDivisions
+                ); 
+
+                if ((convertedFrequencyStart > colorizerValueToFreq(instrument.colorizerMinFreq))
+                    && (convertedFrequencyStart < colorizerValueToFreq(instrument.colorizerMaxFreq))
+                    && (convertedFrequencyEnd > colorizerValueToFreq(instrument.colorizerMinFreq))
+                    && (convertedFrequencyEnd < colorizerValueToFreq(instrument.colorizerMaxFreq))
+                ) {
+                    instrument.colorizerFrequenciesStart[i] = convertedFrequencyStart;
+                    instrument.colorizerFrequenciesEnd[i] = convertedFrequencyEnd;
+                } else {
+                    instrument.colorizerFrequenciesStart[i] = -1;
+                    instrument.colorizerFrequenciesEnd[i] = -1;
+                }
+            }
+        } else {
+            instrument.colorizerFrequenciesStart = [];
+            instrument.colorizerFrequenciesEnd = [];
+        }
+        
         [start.mix, end.mix] = getModifiedValues("colorizer mix", EnvelopeComputeIndex.colorizerMix, instrument.colorizerMix);
         [start.voices, end.voices] = getModifiedValues("colorizer color", EnvelopeComputeIndex.colorizerColor, instrument.colorizerColor);
 
-        this.colorizer.freqs = new Float32Array(instrument.colorizerFrequenciesStart);
+        start.freqs = new Float32Array(instrument.colorizerFrequenciesStart);
+        end.freqs = new Float32Array(instrument.colorizerFrequenciesEnd);
         this.colorizer.begin(start, end, samplesPerSecond, roundedSamplesPerTick);
       }
       
@@ -10851,12 +10928,12 @@ export class Synth {
     public heldMods: HeldMod[] = [];
     private wantToSkip: boolean = false;
     private playheadInternal: number = 0.0;
-    private bar: number = 0;
-    private prevBar: number | null = null;
-    private nextBar: number | null = null;
-    private beat: number = 0;
-    private part: number = 0;
-    private tick: number = 0;
+    public bar: number = 0;
+    public prevBar: number | null = null;
+    public nextBar: number | null = null;
+    public beat: number = 0;
+    public part: number = 0;
+    public tick: number = 0;
     public isAtStartOfTick: boolean = true;
     public isAtEndOfTick: boolean = true;
     public tickSampleCountdown: number = 0;
@@ -11695,89 +11772,6 @@ export class Synth {
         let limit: number = +this.limit;
         let skippedBars: number[] = [];
         let firstSkippedBufferIndex = -1;
-
-        // colorizer frequencies
-        for (let channelIndex: number = 0; channelIndex < song.pitchChannelCount; channelIndex++) {
-            const channel: Channel = song.channels[channelIndex];
-
-            for (let instrumentIndex: number = 0; instrumentIndex < channel.instruments.length; instrumentIndex++) {
-                const instrument: Instrument = channel.instruments[instrumentIndex];
-
-                if (instrument.colorizerChannel - 1 < song.pitchChannelCount && instrument.colorizerChannel > 0) {
-                    const sourceChannel: Channel = song.channels[instrument.colorizerChannel - 1];
-                    const pattern: Pattern | null = song.getPattern(instrument.colorizerChannel - 1, this.bar);
-                    const currentPart: number = this.getCurrentPart();
-
-                    let freqs: number[] = [];
-                    let slideOffsetStart = 0;
-                    let slideOffsetEnd = 0;
-
-                    if (playSong && pattern != null) {
-                        for (let i: number = 0; i < pattern.notes.length; i++) {
-                            const note = pattern.notes[i];
-                            if (note.start <= currentPart && note.end > currentPart) {
-                                freqs = note.pitches;
-
-                                const endPinIndex: number = note.getEndPinIndex(currentPart);
-                                const startPin: NotePin = note.pins[endPinIndex - 1];  
-                                const endPin: NotePin = note.pins[endPinIndex];
-                                const pinStart: number = (note.start + startPin.time) * Config.ticksPerPart;
-                                const pinEnd: number = (note.start + endPin.time) * Config.ticksPerPart;
-
-                                const tickTimeStart: number = currentPart * Config.ticksPerPart + this.tick;
-                                const tickTimeEnd: number = tickTimeStart + 1.0;
-                                const pinRatioStart: number = Math.min(1.0, (tickTimeStart - pinStart) / (pinEnd - pinStart));
-                                const pinRatioEnd: number = Math.min(1.0, (tickTimeEnd - pinStart) / (pinEnd - pinStart));
-
-                                slideOffsetStart = startPin.interval + (endPin.interval - startPin.interval) * pinRatioStart;
-                                slideOffsetEnd = startPin.interval + (endPin.interval - startPin.interval) * pinRatioEnd;
-                            }
-                        }
-                    }
-
-                    let songDetune: number = 0;
-                    if (this.isModActive(Config.modulators.dictionary["song detune"].index)) {
-                        songDetune = 4 * this.getModValue(Config.modulators.dictionary["song detune"].index);
-                    }
-
-                    const twelveEdoOffset: number = (song.key - 9 + song.octave * 12 + songDetune / 100) 
-                        * (sourceChannel.equaveDivisions / 12) 
-                        * (Math.log(2 / 1) / Math.log(sourceChannel.equaveNumerator / sourceChannel.equaveDenominator)
-                    );
-
-                    instrument.colorizerFrequenciesStart = new Array(freqs.length);
-                    instrument.colorizerFrequenciesEnd = new Array(freqs.length);
-
-                    for (let i: number = 0; i < instrument.colorizerFrequenciesStart.length; i++) {
-                        const convertedFrequencyStart = Instrument.frequencyFromPitch(
-                            freqs[i] + slideOffsetStart - (sourceChannel.equaveDivisions * Config.pitchOctaves / 2) + twelveEdoOffset, 
-                            sourceChannel.equaveNumerator / sourceChannel.equaveDenominator, 
-                            sourceChannel.equaveDivisions
-                        ); 
-                        const convertedFrequencyEnd = Instrument.frequencyFromPitch(
-                            freqs[i] + slideOffsetEnd - (sourceChannel.equaveDivisions * Config.pitchOctaves / 2) + twelveEdoOffset, 
-                            sourceChannel.equaveNumerator / sourceChannel.equaveDenominator, 
-                            sourceChannel.equaveDivisions
-                        ); 
-
-                        if ((convertedFrequencyStart > colorizerValueToFreq(instrument.colorizerMinFreq))
-                            && (convertedFrequencyStart < colorizerValueToFreq(instrument.colorizerMaxFreq))
-                            && (convertedFrequencyEnd > colorizerValueToFreq(instrument.colorizerMinFreq))
-                            && (convertedFrequencyEnd < colorizerValueToFreq(instrument.colorizerMaxFreq))
-                        ) {
-                            instrument.colorizerFrequenciesStart[i] = convertedFrequencyStart;
-                            instrument.colorizerFrequenciesEnd[i] = convertedFrequencyEnd;
-                        } else {
-                            instrument.colorizerFrequenciesStart[i] = -1;
-                            instrument.colorizerFrequenciesEnd[i] = -1;
-                        }
-                    }
-                } else {
-                    instrument.colorizerFrequenciesStart = [];
-                    instrument.colorizerFrequenciesEnd = [];
-                }
-            }
-        }
 
         let bufferIndex: number = 0;
         while (bufferIndex < outputBufferLength && !ended) {

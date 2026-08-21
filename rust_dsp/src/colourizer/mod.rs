@@ -7,22 +7,27 @@ use crate::{
     SamplePair,
     buffer::DspBuffer,
     flanger::{Flanger, FlangerParams},
-    util::{self, Interpolator, Zippable},
+    util::{self, Interpolator},
 };
 
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone)]
 pub struct ColourizerInstanceParams {
     pub mix: f32,
     pub voices: f32,
+    freqs: Vec<f32>,
 }
 #[wasm_bindgen]
 impl ColourizerInstanceParams {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Default::default()
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_freqs(&mut self, freqs: Vec<f32>) {
+        self.freqs = freqs;
     }
 }
 impl ColourizerInstanceParams {
@@ -38,24 +43,20 @@ impl ColourizerInstanceParams {
         }
     }
 }
-impl Zippable for ColourizerInstanceParams {
-    fn zip(&self, other: &Self, f: impl Fn(f32, f32) -> f32) -> Self {
-        Self {
-            mix: f(self.mix, other.mix),
-            voices: f(self.voices, other.voices),
-        }
-    }
-}
 
 #[wasm_bindgen]
 #[derive(Default)]
 pub struct ColourizerInstance {
-    freqs: Vec<f32>,
-    prev_freqs: Vec<f32>,
-    flangers: Vec<Flanger<SamplePair>>,
+    flangers: Vec<ColourizerFlanger>,
 
     output_buf: DspBuffer,
     mix_interp: Interpolator<f32>,
+}
+
+#[derive(Default)]
+struct ColourizerFlanger {
+    enabled: bool,
+    i: Flanger<SamplePair>,
 }
 
 const FREQ_MIN: f32 = 20.0;
@@ -67,18 +68,6 @@ impl ColourizerInstance {
         Default::default()
     }
 
-    #[wasm_bindgen(setter)]
-    pub fn set_freqs(&mut self, freqs: Vec<f32>) {
-        self.prev_freqs.resize(freqs.len(), f32::NAN);
-        self.freqs = freqs;
-
-        // don't shrink self.flangers; those are expensive to create and thus keep them in the pool
-        if self.freqs.len() > self.flangers.len() {
-            self.flangers
-                .resize_with(self.freqs.len(), Default::default);
-        }
-    }
-
     #[wasm_bindgen]
     pub fn begin(
         &mut self,
@@ -87,26 +76,30 @@ impl ColourizerInstance {
         sample_rate: f32,
         run_length: f32,
     ) {
-        for ((prev_freq, &target_freq), flanger) in
-            zip(zip(&mut self.prev_freqs, &self.freqs), &mut self.flangers)
+        // don't shrink self.flangers; those are expensive to create and thus keep them in the pool
+        if start.freqs.len() > self.flangers.len() {
+            self.flangers
+                .resize_with(start.freqs.len(), Default::default);
+        }
+
+        for flanger in &mut self.flangers {
+            flanger.enabled = false;
+        }
+        for ((&freq_start, &freq_end), flanger) in
+            zip(zip(&start.freqs, &end.freqs), &mut self.flangers)
         {
-            if target_freq < FREQ_MIN {
+            if freq_start.min(freq_end) < FREQ_MIN {
                 // freq either -1 (nonexistent) or too low
-                *prev_freq = f32::NAN;
                 continue;
             }
-            // TODO: i tried interpolating between prev_freq and target_freq but it sounds pretty terrible
-            // find a better way sometime?
-            // if prev_freq.is_nan() {
-            //     *prev_freq = target_freq;
-            // }
-            let params_start = start.for_freq(sample_rate, target_freq);
-            let params_end = end.for_freq(sample_rate, target_freq);
+            flanger.enabled = true;
+            let params_start = start.for_freq(sample_rate, freq_start);
+            let params_end = end.for_freq(sample_rate, freq_end);
 
             let max_delay_samples = params_start.total_delay().max(params_end.total_delay());
-            flanger.delay_line.reserve_at_least(max_delay_samples);
+            flanger.i.delay_line.reserve_at_least(max_delay_samples);
 
-            flanger.interpolator = util::interpolate(run_length, params_start, params_end);
+            flanger.i.interpolator = util::interpolate(run_length, params_start, params_end);
         }
 
         self.mix_interp = util::interpolate(run_length, start.mix(), end.mix());
@@ -131,15 +124,14 @@ impl ColourizerInstance {
             }
         }
 
-        for (&freq, flanger) in zip(&self.freqs, &mut self.flangers) {
-            if freq < FREQ_MIN {
-                // freq either -1 (nonexistent) or too low
+        for flanger in &mut self.flangers {
+            if !flanger.enabled {
                 continue;
             }
             for ((input_l, input_r), (output_l, output_r)) in
                 zip(buffer.as_zipped(), self.output_buf.as_zipped())
             {
-                let output = flanger.process(
+                let output = flanger.i.process(
                     SamplePair {
                         l: *input_l,
                         r: *input_r,
