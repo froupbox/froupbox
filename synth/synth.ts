@@ -13262,8 +13262,8 @@ export class Synth {
             const nextNote: Note | null = tone.nextNote;
             if (prevNote != null) {
                 const intervalDiff: number = prevNote.pitches[tone.prevNotePitchIndex] + prevNote.pins[prevNote.pins.length - 1].interval - tone.pitches[0];
-                if (envelopeComputer.prevSlideStart) intervalStart += intervalDiff * envelopeComputer.prevSlideRatioStart;
-                if (envelopeComputer.prevSlideEnd) intervalEnd += intervalDiff * envelopeComputer.prevSlideRatioEnd;
+                if (envelopeComputer.prevSlideStart) intervalStart += intervalDiff * envelopeComputer.prevSlideRatioStart * (12 / channel.equaveDivisions) * (Math.log(channel.equaveNumerator / channel.equaveDenominator) / Math.log(2 / 1));
+                if (envelopeComputer.prevSlideEnd) intervalEnd += intervalDiff * envelopeComputer.prevSlideRatioEnd * (12 / channel.equaveDivisions) * (Math.log(channel.equaveNumerator / channel.equaveDenominator) / Math.log(2 / 1));
                 if (!chord.singleTone) {
                     const chordSizeDiff: number = prevNote.pitches.length - tone.chordSize;
                     if (envelopeComputer.prevSlideStart) chordExpressionStart = Synth.computeChordExpression(tone.chordSize + chordSizeDiff * envelopeComputer.prevSlideRatioStart, instrument.volumeChordCompensation);
@@ -13272,8 +13272,8 @@ export class Synth {
             }
             if (nextNote != null) {
                 const intervalDiff: number = nextNote.pitches[tone.nextNotePitchIndex] - (tone.pitches[0] + tone.note.pins[tone.note.pins.length - 1].interval);
-                if (envelopeComputer.nextSlideStart) intervalStart += intervalDiff * envelopeComputer.nextSlideRatioStart;
-                if (envelopeComputer.nextSlideEnd) intervalEnd += intervalDiff * envelopeComputer.nextSlideRatioEnd;
+                if (envelopeComputer.nextSlideStart) intervalStart += intervalDiff * envelopeComputer.nextSlideRatioStart * (12 / channel.equaveDivisions) * (Math.log(channel.equaveNumerator / channel.equaveDenominator) / Math.log(2 / 1));
+                if (envelopeComputer.nextSlideEnd) intervalEnd += intervalDiff * envelopeComputer.nextSlideRatioEnd * (12 / channel.equaveDivisions) * (Math.log(channel.equaveNumerator / channel.equaveDenominator) / Math.log(2 / 1));
                 if (!chord.singleTone) {
                     const chordSizeDiff: number = nextNote.pitches.length - tone.chordSize;
                     if (envelopeComputer.nextSlideStart) chordExpressionStart = Synth.computeChordExpression(tone.chordSize + chordSizeDiff * envelopeComputer.nextSlideRatioStart, instrument.volumeChordCompensation);
