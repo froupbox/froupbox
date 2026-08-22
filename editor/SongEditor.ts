@@ -1124,7 +1124,7 @@ export class SongEditor {
     private readonly _eqFilterEditor: FilterEditor = new FilterEditor(this.doc);
     private readonly _eqFilterDropdown: HTMLButtonElement = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.EQFilter) }, "▼");
     private readonly _eqFilterCompensationSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.eqFilterCompensationRange, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeEQFilterCompensation(this.doc, oldValue, newValue), true);
-    public readonly eqFilterCompensationNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "colorizerPitchMaxFreqNum" });
+    public readonly eqFilterCompensationNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "eqFilterCompensationNum" });
     private readonly _eqFilterCompensationSliderRow: HTMLDivElement = div({ class: "selectRow", style: "width:100%;" }, div({ style: "display:flex; flex-direction:column; align-items:center;" },
         span({ class: "tip", style: "font-size: smaller;", onclick: () => this._openPrompt("eqFilterCompensation") }, "Compensate: "),
         div({ style: `color: ${ColorConfig.secondaryText}; ` }, this.eqFilterCompensationNum),
@@ -2510,8 +2510,6 @@ export class SongEditor {
                 return this._colorizerMixSlider;
             case Config.modulators.dictionary["colorizer color"].index:
                 return this._colorizerColorSlider;
-            case Config.modulators.dictionary["colorizer detune"].index:
-                return this._colorizerDetuneSlider;
             case Config.modulators.dictionary["granular"].index:
                 return this._granularSlider;
             case Config.modulators.dictionary["grain freq"].index:

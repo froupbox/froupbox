@@ -195,7 +195,6 @@ export const enum EnvelopeComputeIndex {
 
     colorizerMix,
     colorizerColor,
-    colorizerDetune,
 
     length,
 }
@@ -2003,7 +2002,6 @@ export class Config {
         { name: "phaserSpread",           computeIndex: EnvelopeComputeIndex.phaserSpread,              displayName: "phaser spread",    perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.phaser, compatibleInstruments: null }, 
         { name: "colorizerMix",           computeIndex: EnvelopeComputeIndex.colorizerMix,              displayName: "colorizer mix",    perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.colorizer, compatibleInstruments: null },
         { name: "colorizerColor",         computeIndex: EnvelopeComputeIndex.colorizerColor,            displayName: "colorizer color",  perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.colorizer, compatibleInstruments: null },
-        { name: "colorizerDetune",        computeIndex: EnvelopeComputeIndex.colorizerDetune,           displayName: "colorizer detune", perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.colorizer, compatibleInstruments: null },
     ]);
     public static readonly operatorWaves: DictionaryArray<OperatorWave> = toNameMap([
 		{ name: "sine", samples: Config.sineWave },
@@ -2384,12 +2382,7 @@ export class Config {
             pianoName: "Colorizer Color", 
             maxRawVol: Config.colorizerColorRange, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.colorizer, maxIndex: 0,
             promptName: "Colorizer Color", 
-            promptDesc: [ "This setting controls the colorizer color.", "[OVERWRITING] [$LO - $HI]"] },  
-        { name: "colorizer detune", 
-            pianoName: "Colorizer Detune", 
-            maxRawVol: Config.detuneMax - Config.detuneMin, newNoteVol: Config.detuneCenter, forSong: false, convertRealFactor: -Config.detuneCenter, associatedEffect: EffectType.colorizer, maxIndex: 0,
-            promptName: "Colorizer Detune", 
-            promptDesc: [ "This setting controls the colorizer detune.", "[OVERWRITING] [$LO - $HI]"] },  
+            promptDesc: [ "This setting controls the colorizer color.", "[OVERWRITING] [$LO - $HI]"] },
         ]);
 }
 
