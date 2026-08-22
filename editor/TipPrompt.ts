@@ -820,6 +820,12 @@ export class TipPrompt implements Prompt {
 					p(`This setting controls the minimum frequency that can be used in the colorizer's pitch set.`),
 				);
 			} break;
+			case "colorizerDetune": {
+				message = div(
+					h2("Colorizer Detune"),
+					p(`This setting controls the detune of the colorizer's frequencies it is pulling from the source channel.`),
+				);
+			} break;
 			case "slideSpeedSlider": {
 				message = div(
 					h2("Slide Speed"),

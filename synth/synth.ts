@@ -1744,6 +1744,7 @@ export class Instrument {
     public colorizerChannel: number = 0;
     public colorizerMaxFreq: number = 63;
     public colorizerMinFreq: number = 0;
+    public colorizerDetune: number = 0;
     public colorizerFrequenciesStart: number[] = [];
     public colorizerFrequenciesEnd: number[] = [];
 
@@ -1900,6 +1901,7 @@ export class Instrument {
         this.colorizerChannel = 0;
         this.colorizerMaxFreq = 63;
         this.colorizerMinFreq = 0;
+        this.colorizerDetune = Config.detuneCenter;
 
         this.invertWave = false;
         
@@ -2267,6 +2269,7 @@ export class Instrument {
             instrumentObject["colorizerChannel"] =  this.colorizerChannel;
             instrumentObject["colorizerMaxFreq"] =  this.colorizerMaxFreq;
             instrumentObject["colorizerMinFreq"] =  this.colorizerMinFreq;
+            instrumentObject["colorizerDetune"] =  this.colorizerDetune;
         }
         if (effectsIncludeDistortion(this.effects)) {
             instrumentObject["distortion"] = Math.round(100 * this.distortion / (Config.distortionRange - 1));
@@ -2786,6 +2789,9 @@ export class Instrument {
         }
         if (instrumentObject["colorizerMinFreq"] != undefined) {
             this.colorizerMinFreq = clamp(0, Config.colorizerMinFreqRange + 1, instrumentObject["colorizerMinFreq"]);
+        }
+        if (instrumentObject["colorizerDetune"] != undefined) {
+            this.colorizerDetune = clamp(Config.detuneMin, Config.detuneMax + 1, instrumentObject["colorizerDetune"]);
         }
         
         if (instrumentObject["distortion"] != undefined) {
@@ -4165,6 +4171,7 @@ export class Song {
                     buffer.push(base64IntToCharCode[instrument.colorizerChannel]);
                     buffer.push(base64IntToCharCode[instrument.colorizerMaxFreq]);
                     buffer.push(base64IntToCharCode[instrument.colorizerMinFreq]);
+                    buffer.push(base64IntToCharCode[(instrument.colorizerDetune - Config.detuneMin) >> 6], base64IntToCharCode[(instrument.colorizerDetune - Config.detuneMin) & 0x3F]);
                 }
 
                 if (effectsIncludeInvertWave(instrument.effects)) {
@@ -6200,6 +6207,7 @@ export class Song {
                         instrument.colorizerChannel = clamp(0, Config.pitchChannelCountMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.colorizerMaxFreq = clamp(0, Config.colorizerMaxFreqRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.colorizerMinFreq = clamp(0, Config.colorizerMinFreqRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        instrument.colorizerDetune = clamp(Config.detuneMin, Config.detuneMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                     }    
                     if(effectsIncludeInvertWave(instrument.effects)) {
                         instrument.invertWave = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
@@ -10343,7 +10351,7 @@ class InstrumentState {
                 songDetune = 4 * synth.getModValue(Config.modulators.dictionary["song detune"].index);
             }
 
-            const twelveEdoOffset: number = (song.key - 9 + song.octave * 12 + songDetune / 100) 
+            const twelveEdoOffset: number = (song.key - 9 + song.octave * 12 + (instrument.colorizerDetune + songDetune) / 100) 
                 * (sourceChannel.equaveDivisions / 12) 
                 * (Math.log(2 / 1) / Math.log(sourceChannel.equaveNumerator / sourceChannel.equaveDenominator)
             );

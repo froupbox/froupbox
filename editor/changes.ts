@@ -3051,6 +3051,15 @@ export class ChangeColorizerMinFreq extends ChangeInstrumentSlider {
     }
 }
 
+export class ChangeColorizerDetune extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.colorizerDetune = newValue + Config.detuneCenter;
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
 export class ChangeStringSustain extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
