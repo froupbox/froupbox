@@ -10351,7 +10351,7 @@ class InstrumentState {
                 songDetune = 4 * synth.getModValue(Config.modulators.dictionary["song detune"].index);
             }
 
-            const twelveEdoOffset: number = (song.key - 9 + song.octave * 12 + (instrument.colorizerDetune + songDetune) / 100) 
+            const twelveEdoOffset: number = (song.key - 9 + song.octave * 12 + ((instrument.colorizerDetune - 200) + songDetune) / 100) 
                 * (sourceChannel.equaveDivisions / 12) 
                 * (Math.log(2 / 1) / Math.log(sourceChannel.equaveNumerator / sourceChannel.equaveDenominator)
             );
