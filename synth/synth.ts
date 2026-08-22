@@ -10175,9 +10175,9 @@ class InstrumentState {
             const phaserSpreadSlider: number = instrument.phaserSpread / (Config.phaserSpreadRange - 1);
             let phaserSpreadStart: number = phaserSpreadSlider;
             let phaserSpreadEnd: number = phaserSpreadSlider;
-            if (synth.isModActive(Config.modulators.dictionary["phaser"].index, channelIndex, instrumentIndex)) {
-                phaserSpreadStart = Math.max(0, Math.min(Config.phaserSpreadRange - 1, synth.getModValue(Config.modulators.dictionary["phaser"].index, channelIndex, instrumentIndex, false))) / (Config.phaserSpreadRange - 1)
-                phaserSpreadEnd = Math.max(0, Math.min(Config.phaserSpreadRange - 1, synth.getModValue(Config.modulators.dictionary["phaser"].index, channelIndex, instrumentIndex, true))) / (Config.phaserSpreadRange - 1);
+            if (synth.isModActive(Config.modulators.dictionary["phaser spread"].index, channelIndex, instrumentIndex)) {
+                phaserSpreadStart = Math.max(0, Math.min(Config.phaserSpreadRange - 1, synth.getModValue(Config.modulators.dictionary["phaser spread"].index, channelIndex, instrumentIndex, false))) / (Config.phaserSpreadRange - 1)
+                phaserSpreadEnd = Math.max(0, Math.min(Config.phaserSpreadRange - 1, synth.getModValue(Config.modulators.dictionary["phaser spread"].index, channelIndex, instrumentIndex, true))) / (Config.phaserSpreadRange - 1);
             }
 
             function spreadToQ(spread: number): number {
