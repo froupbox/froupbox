@@ -40,7 +40,6 @@
 		"@types/jquery": "^3.5.30",
 		"@types/select2": "^4.0.63",
 		"imperative-html": "^0.1.1",
-		"libflacjs": "^5.6.0",
 		"js-xxhash": "^4.0.0"
 	}
 }

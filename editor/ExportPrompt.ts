@@ -9,8 +9,6 @@ import { Prompt } from "./Prompt";
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { ArrayBufferWriter } from "./ArrayBufferWriter";
 import { MidiChunkType, MidiFileFormat, MidiControlEventMessage, MidiEventType, MidiMetaEventMessage, MidiRegisteredParameterNumberMSB, MidiRegisteredParameterNumberLSB, volumeMultToMidiVolume, volumeMultToMidiExpression, defaultMidiPitchBend, defaultMidiExpression } from "./Midi";
-// https://github.com/mmig/libflac.js
-import * as Flac from 'libflacjs/dist/libflac';
 
 const { button, div, h2, input, select, option} = HTML;
 
@@ -61,7 +59,6 @@ export class ExportPrompt implements Prompt {
         option({ value: "mp3" }, "Export to .mp3 file."),
 	    option({ value: "ogg" }, "Export to .ogg file."),
         option({ value: "opus" }, "Export to .opus file."),
-        option({ value: "flac"}, "Export to .flac file."),
         option({ value: "midi" }, "Export to .mid file."),
         option({ value: "json" }, "Export to .json file."),
         option({ value: "html" }, "Export to .html file."),
@@ -254,10 +251,6 @@ export class ExportPrompt implements Prompt {
                 this.outputStarted = true;
                 this._exportTo("opus");
                 break;    
-            case "flac":
-                this.outputStarted = true;
-                this._exportTo("flac");
-                break;
             case "midi":
                 this.outputStarted = true;
                 this._exportToMidi();
@@ -314,8 +307,6 @@ export class ExportPrompt implements Prompt {
                 this._exportToOggFinish();
             } else if (this.thenExportTo == "opus") {
                 this._exportToOpusFinish();
-            } else if (this.thenExportTo == "flac") {
-                this._exportToFlacFinish(false);
             } else {
                 throw new Error("Unrecognized file export type chosen!");
             }
@@ -333,7 +324,7 @@ export class ExportPrompt implements Prompt {
         this.thenExportTo = type;
         this.currentChunk = 0;
         this.synth = new Synth(this._doc.song);
-        if (type == "wav" || type == "ogg" || type == "opus" || type == "flac") {
+        if (type == "wav" || type == "ogg" || type == "opus") {
             this.synth.samplesPerSecond = 48000; // Use professional video editing standard sample rate for .wav file export.
         }
         else if (type == "mp3") {
@@ -626,193 +617,6 @@ export class ExportPrompt implements Prompt {
             }
         }
     }
-
-    private _exportToFlacFinish(isOgg: boolean): void {
-        let flac_ok = 1;
-        
-        //init encoder
-        const flac_encoder = Flac.create_libflac_encoder(48000, 2, 16, 5, this.sampleFrames, true);
-
-        if (flac_encoder == 0) {
-            return;
-        }
-
-        ////////
-        // [2] INIT -> OUT: encBuffer (encoded data), metaData (OPTIONALLY, FLAC metadata)
-
-        //for storing the encoded FLAC data
-        let encBuffer: Uint8Array[] = [];
-        //for storing the encoding FLAC metadata summary
-        let metaData;
-
-        // [2] (a) setup writing (encoded) output data
-
-        const write_callback_fn: Flac.encoder_write_callback_fn = function (encodedData: Uint8Array, bytes: number, samples: number, current_frame: number) {
-            //store all encoded data "pieces" into a buffer
-            encBuffer.push(encodedData);
-        };
-
-        // [2] (b) optional callback for receiving metadata
-
-        const metadata_callback_fn: Flac.metadata_callback_fn = function (data: Flac.StreamMetadata | undefined) {
-            // data -> [example] {
-            //  min_blocksize: 4096,
-            //  max_blocksize: 4096,
-            //  min_framesize: 14,
-            //  max_framesize: 5408,
-            //  sampleRate: 44100,
-            //  channels: 2,
-            //  bitsPerSample: 16,
-            //  total_samples: 267776,
-            //  md5sum: "50d4d469448e5ea75eb44ab6b7f111f4"
-            //}
-            metaData = data;
-        }
-
-        // [2] (c) initialize to either write to native-FALC or to OGG container
-
-        var status_encoder;
-        if (!isOgg) {
-            // encode to native FLAC container
-            status_encoder = Flac.init_encoder_stream(flac_encoder,
-                write_callback_fn,    //required callback(s)
-                metadata_callback_fn  //optional callback(s)
-            );
-        } else {
-            // encode to OGG container
-            status_encoder = Flac.init_encoder_ogg_stream(flac_encoder,
-                write_callback_fn,    //required callback(s)
-                metadata_callback_fn  //optional callback(s)
-            );
-        }
-        flac_ok &= +!Boolean(status_encoder);
-
-        ////////
-        // [3] ENCODE -> IN: for this example, a PCM Float32 audio, single channel (mono) stream
-        //                   buffer (Float32Array)
-        // ... repeat encoding step [3] as often as necessary
-
-        //convert input data to signed int data, in correspondence to the bps setting (i.e. in this case int32)
-        // see API docs on FLAC__stream_encoder_process_interleaved() for more details
-
-        const sampleCount = this.recordedSamplesL.length;
-        const buffer_length = this.recordedSamplesL.length + this.recordedSamplesR.length;
-        const buffer_i32 = new Int32Array(buffer_length);
-        const view = new DataView(buffer_i32.buffer);
-        const volume = 1;
-        let index: number = 0;
-        for (let i: number = 0; i < sampleCount; i++) {
-            //interleave samples
-            view.setInt32(index, (Math.max(-1, Math.min(1, this.recordedSamplesL[i])) * (0x7FFF * volume)), true);
-            view.setInt32(index + 4, (Math.max(-1, Math.min(1, this.recordedSamplesR[i])) * (0x7FFF * volume)), true);
-            index += 8;
-        }
-
-        // do encode the audio data ...
-        let flac_return = Flac.FLAC__stream_encoder_process_interleaved(flac_encoder, buffer_i32, sampleCount);
-        if (flac_return != true) {
-            console.error("Error: FLAC__stream_encoder_process_interleaved returned false. " + flac_return);
-        }
-
-        ////////
-        // [4] FINISH ENCODING
-
-        flac_ok &= +Boolean(Flac.FLAC__stream_encoder_finish(flac_encoder));
-        console.log((isOgg ? "ogg" : "flac") + " finish: " + (flac_ok ? "true" : "false"));
-
-
-        ////////
-        // [5] DESTROY: delete encoder
-
-        //after usage: free up all resources for the encoder
-        Flac.FLAC__stream_encoder_delete(flac_encoder);
-
-        ////////
-        // [6] ... do something with the encoded data, e.g.
-        //     merge "encoded pieces" in encBuffer into one single Uint8Array...
-
-        let recLength = 0;
-        for (var i = encBuffer.length - 1; i >= 0; --i) recLength += encBuffer[i].byteLength;
-
-        if (metaData) {
-            this.addFLACMetaData(encBuffer, metaData, isOgg);
-        }
-        //convert buffers into one single buffer
-        let result = new Uint8Array(recLength);
-        let offset = 0;
-        let lng = encBuffer.length;
-        for (var i = 0; i < lng; i++) {
-            var buffer = encBuffer[i];
-            result.set(buffer, offset);
-            offset += buffer.length;
-        }
-        const samples = result;
-
-        const blob = new Blob([samples], { type: isOgg ? 'audio/ogg' : 'audio/flac' });
-        save(blob, this._fileName.value.trim() + (isOgg ? ".ogg" : ".flac"));
-
-        this._close();
-
-    }
-
-    //I ripped this function and the one below from libflacjs/lib/utils/flac-utils.js, since it didn't like me importing them
-    private addFLACMetaData(chunks: Uint8Array[], metadata: Flac.StreamMetadata, isOgg: boolean) {
-        var offset = 4;
-        var dataIndex = 0;
-        var data = chunks[0]; //1st data chunk should contain FLAC identifier "fLaC" or OGG identifier "OggS"
-        if (isOgg) {
-            offset = 13;
-            dataIndex = 1;
-            if (data.length < 4 || String.fromCharCode.apply(null, data.subarray(0, 4) as unknown as number[]) != "OggS") {
-                console.error('Unknown data format: cannot add additional FLAC meta data to OGG header');
-                return;
-            }
-        }
-        data = chunks[dataIndex]; //data chunk should contain FLAC identifier "fLaC"
-        if (data.length < 4 || String.fromCharCode.apply(null, data.subarray(offset - 4, offset) as unknown as number[]) != "fLaC") {
-            console.error('Unknown data format: cannot add additional FLAC meta data to header');
-            return;
-        }
-        if (isOgg) return; //can't add flac metadata to oggs. 
-
-        //first chunk only contains the flac identifier string?
-        if (data.length == 4) {
-            data = chunks[dataIndex + 1]; //get 2nd data chunk which should contain STREAMINFO meta-data block (and probably more)
-            offset = 0;
-        }
-        var view = new DataView(data.buffer);
-        //NOTE by default, the encoder writes a 2nd meta-data block (type VORBIS_COMMENT) with encoder/version info -> do not set "is last" to TRUE for first one
-        //	// write "is last meta data block" & type STREAMINFO type (0) as little endian combined uint1 & uint7 -> uint8:
-        //	var isLast = 1;//1 bit
-        //	var streamInfoType = 0;//7 bit
-        //	view.setUint8(0 + offset, isLast << 7 | streamInfoType, true);//8 bit
-        // block-header: STREAMINFO type, block length -> already set
-        // block-content: min_blocksize, max_blocksize -> already set
-        // write min_framesize as little endian uint24:
-        view.setUint8(8 + offset, metadata.min_framesize >> 16); //24 bit
-        view.setUint8(9 + offset, metadata.min_framesize >> 8); //24 bit
-        view.setUint8(10 + offset, metadata.min_framesize); //24 bit
-        // write max_framesize as little endian uint24:
-        view.setUint8(11 + offset, metadata.max_framesize >> 16); //24 bit
-        view.setUint8(12 + offset, metadata.max_framesize >> 8); //24 bit
-        view.setUint8(13 + offset, metadata.max_framesize); //24 bit
-        // block-content: sampleRate, channels, bitsPerSample -> already set
-        // write total_samples as little endian uint36:
-        //TODO set last 4 bits to half of the value in index 17
-        view.setUint8(18 + offset, metadata.total_samples >> 24); //36 bit
-        view.setUint8(19 + offset, metadata.total_samples >> 16); //36 bit
-        view.setUint8(20 + offset, metadata.total_samples >> 8); //36 bit
-        view.setUint8(21 + offset, metadata.total_samples); //36 bit
-        this.writeMd5(view, 22 + offset, metadata.md5sum); //16 * 8 bit
-    }
-    private writeMd5(view: DataView, offset: number, str: string) {
-        var index;
-        for (var i = 0; i < str.length / 2; ++i) {
-            index = i * 2;
-            view.setUint8(i + offset, parseInt(str.substring(index, index + 2), 16));
-        }
-    }
-
 
     private _exportToMidi(): void {
         const song: Song = this._doc.song;
