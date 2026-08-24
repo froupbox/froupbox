@@ -890,6 +890,7 @@ export class SongEditor {
             option({ value: "showOscilloscope" }, "Show Oscilloscope"),
             option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"),
             option({ value: "bisectionalModNotes" }, "Use Bisectional Mod Notes"),
+            option({ value: "simplifiedEffects" }, "Use Simplified Effect Interface"),
             option({ value: "showChannelName" }, "Show Channel Name"),
             option({ value: "showChannelTuning" }, "Show Channel Tuning"),
             option({ value: "showDescription" }, "Show Description"),
@@ -1171,43 +1172,56 @@ export class SongEditor {
     // EFFECTS
 
 
-  private readonly _groupContainers: HTMLElement[] = [];
-  private _activeGroupContainerState: boolean[] | undefined;
-  _createGroupContainer(id: string, title: string, el: HTMLElement): HTMLElement {
-    const titleContainer = div(
-        { class: id + "TitleContainer beepboxTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        title,
-    );
-    el.classList.add(id + "Container", "beepboxContainer");
-    const container = div(
-        { class: id + "GroupContainer beepboxGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px; margin: 4px" },
-        titleContainer,
-        el,
-    );
-    const index = this._groupContainers.length;
-    this._groupContainers.push(container);
-    titleContainer.onclick = () => {
-      if(!this._activeGroupContainerState) return;
-      const val = !this._activeGroupContainerState[index];
-      this._activeGroupContainerState[index] = val;
-      this._updateGroupContainer(index, val);
-    };
-    return container;
-  }
-  _updateGroupContainers(state: boolean[]) {
-    this._activeGroupContainerState = state;
-    const n = this._groupContainers.length;
-    if (state.length !== n) {
-      state.length = n;
-      state.fill(false);
+    private readonly _groupContainers: HTMLElement[] = [];
+    private _activeGroupContainerState: boolean[] | undefined;
+    _createGroupContainer(id: string, title: string, el: HTMLElement): HTMLElement {
+        let simplifiedStyle: boolean = false;
+        if (window.localStorage.getItem("simplifiedEffects") !== null) {
+            simplifiedStyle = window.localStorage.getItem("simplifiedEffects") == "true";
+        }
+
+        const titleContainer = div(
+            { class: id + "TitleContainer beepboxTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
+            title,
+        );
+        el.classList.add(id + "Container", "beepboxContainer");
+        let container;
+        if (simplifiedStyle) {
+            container = div(
+                { class: id + "GroupContainer beepboxGroupContainer" },
+                el,
+            );
+        } else {
+            container = div(
+                { class: id + "GroupContainer beepboxGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px; margin: 4px" },
+                titleContainer,
+                el,
+            );
+        }
+        const index = this._groupContainers.length;
+        this._groupContainers.push(container);
+        titleContainer.onclick = () => {
+        if(!this._activeGroupContainerState) return;
+        const val = !this._activeGroupContainerState[index];
+        this._activeGroupContainerState[index] = val;
+        this._updateGroupContainer(index, val);
+        };
+        return container;
     }
-    for (let i = 0; i < n; i++) {
-      this._updateGroupContainer(i, state[i]);
+    _updateGroupContainers(state: boolean[]) {
+        this._activeGroupContainerState = state;
+        const n = this._groupContainers.length;
+        if (state.length !== n) {
+        state.length = n;
+        state.fill(false);
+        }
+        for (let i = 0; i < n; i++) {
+        this._updateGroupContainer(i, state[i]);
+        }
     }
-  }
-  _updateGroupContainer(i: number, hidden: boolean) {
-    this._groupContainers[i].classList[hidden ? "add" : "remove"]("hidden");
-  }
+    _updateGroupContainer(i: number, hidden: boolean) {
+        this._groupContainers[i].classList[hidden ? "add" : "remove"]("hidden");
+    }
 
 
     // panning
@@ -3218,6 +3232,7 @@ export class SongEditor {
             (prefs.showOscilloscope ? textOnIcon : textOffIcon) + "Show Oscilloscope",
             (prefs.showSampleLoadingStatus ? textOnIcon : textOffIcon) + "Show Sample Loading Status",
             (prefs.bisectionalModNotes ? textOnIcon : textOffIcon) + "Use Bisectional Mod Notes",
+            (prefs.simplifiedEffects ? textOnIcon : textOffIcon) + "Use Simplified Effect Interface",
             (prefs.showChannelName ? textOnIcon : textOffIcon) + "Show Channel Name",
             (prefs.showChannelTuning ? textOnIcon : textOffIcon) + "Show Channel Tuning",
             (prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
@@ -6668,6 +6683,10 @@ export class SongEditor {
                 break;
             case "bisectionalModNotes":
                 this.doc.prefs.bisectionalModNotes = !this.doc.prefs.bisectionalModNotes;
+                break;
+            case "simplifiedEffects":
+                this.doc.prefs.simplifiedEffects = !this.doc.prefs.simplifiedEffects;
+                window.location.reload();
                 break;
             case "layout":
                 this._openPrompt("layout");
