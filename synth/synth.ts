@@ -3461,7 +3461,7 @@ export class Song {
     private static readonly _oldestSlarmoosBoxVersion: number = 1;
     private static readonly _latestSlarmoosBoxVersion: number = 5;
     private static readonly _oldestFroupBoxVersion: number = 1;
-    private static readonly _latestFroupBoxVersion: number = 9;
+    private static readonly _latestFroupBoxVersion: number = 10;
     // One-character variant detection at the start of URL to distinguish variants such as JummBox, Or Goldbox. "j" and "g" respectively
     //also "u" is ultrabox lol
     private static readonly _variant = 0x66; //"f" ~ froupbox
@@ -4532,7 +4532,7 @@ export class Song {
 
                         // Only used if setting isn't "none".
                         if (status != 3) {
-                            bits.write(6, modSetting);
+                            bits.write(12, modSetting);
                         }
 
                         // Write mod filter info, only if this is a filter mod
@@ -4805,6 +4805,7 @@ export class Song {
         const beforeSeven: boolean = version < 7;
         const beforeEight: boolean = version < 8;
         const beforeNine: boolean = version < 9;
+        const beforeTen: boolean = version < 10;
         this.initToDefault((fromBeepBox && beforeNine) || ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox)));
         const forceSimpleFilter: boolean = (fromBeepBox && beforeNine || fromJummBox && beforeFive);
         let willLoadLegacySamplesForOldSongs: boolean = false;
@@ -6893,7 +6894,11 @@ export class Song {
 
                                 // Mod setting is only used if the status isn't "none".
                                 if (status != 3) {
-                                    instrument.modulators[mod] = bits.read(6);
+                                    if (beforeTen) {
+                                        instrument.modulators[mod] = bits.read(6);
+                                    } else {
+                                        instrument.modulators[mod] = bits.read(12);
+                                    }
                                 }
 
                                 if (!jumfive && (Config.modulators[instrument.modulators[mod]].name == "eq filter" || Config.modulators[instrument.modulators[mod]].name == "note filter" || Config.modulators[instrument.modulators[mod]].name == "song eq")) {
