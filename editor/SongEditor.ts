@@ -1656,7 +1656,7 @@ export class SongEditor {
 
     // flanger
 
-    private readonly _flangerMixSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.flangerMixRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeFlangerMix(this.doc, oldValue, newValue), true);
+    private readonly _flangerMixSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.flangerMixRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeFlangerMix(this.doc, oldValue, newValue), false);
     private readonly _flangerMixDropdown: HTMLButtonElement = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.FlangerMix) }, "▼");
     private readonly _flangerMixRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("flangerMix") }, span("Mix:")), this._flangerMixDropdown, this._flangerMixSlider.container);
 
