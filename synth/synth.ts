@@ -1614,6 +1614,8 @@ export interface JsCompressorParams {
 }
 
 export class Instrument {
+    public groupContainerState: boolean[] = [];
+  
     public type: InstrumentType = InstrumentType.chip;
     public preset: number = 0;
     public chipWave: number = 2;

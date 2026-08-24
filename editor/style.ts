@@ -1802,4 +1802,32 @@ li.select2-results__option[role=group] > strong:hover {
   }
 }
 
+.beepboxEditor .beepboxGroupContainer {
+  &.hidden {
+    > .beepboxContainer {
+      display: none;
+    }
+    .beepboxTitleContainer::after {
+      rotate: 180deg;
+    }
+  }
+  .beepboxTitleContainer {
+    position: relative;
+    cursor: pointer;
+  }
+  .beepboxTitleContainer::after {
+    mask-image: var(--internal-menu-down-symbol);
+    content: "";
+    height: var(--button-size);
+    width: var(--button-size);
+    vertical-align: middle;
+    pointer-events: none;
+    background: currentColor;
+    position: absolute;
+    top: 0;
+    right: 0;
+    mask-position: 50%;
+    mask-repeat: no-repeat;
+  }
+}
 `));

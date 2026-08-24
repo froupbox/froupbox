@@ -1168,11 +1168,46 @@ export class SongEditor {
     );
 
 
-
-
-
     // EFFECTS
 
+
+  private readonly _groupContainers: HTMLElement[] = [];
+  private _activeGroupContainerState: boolean[] | undefined;
+  _createGroupContainer(id: string, title: string, el: HTMLElement): HTMLElement {
+    const titleContainer = div(
+        { class: id + "TitleContainer beepboxTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
+        title,
+    );
+    el.classList.add(id + "Container", "beepboxContainer");
+    const container = div(
+        { class: id + "GroupContainer beepboxGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px; margin: 4px" },
+        titleContainer,
+        el,
+    );
+    const index = this._groupContainers.length;
+    this._groupContainers.push(container);
+    titleContainer.onclick = () => {
+      if(!this._activeGroupContainerState) return;
+      const val = !this._activeGroupContainerState[index];
+      this._activeGroupContainerState[index] = val;
+      this._updateGroupContainer(index, val);
+    };
+    return container;
+  }
+  _updateGroupContainers(state: boolean[]) {
+    this._activeGroupContainerState = state;
+    const n = this._groupContainers.length;
+    if (state.length !== n) {
+      state.length = n;
+      state.fill(false);
+    }
+    for (let i = 0; i < n; i++) {
+      this._updateGroupContainer(i, state[i]);
+    }
+  }
+  _updateGroupContainer(i: number, hidden: boolean) {
+    this._groupContainers[i].classList[hidden ? "add" : "remove"]("hidden");
+  }
 
 
     // panning
@@ -1220,27 +1255,10 @@ export class SongEditor {
         this._clicklessTransitionRow,
     );
 
-    private readonly _transitionTypeContainerRow: HTMLDivElement = div(
-        { class: "transitionTypeContainerRow" },
+    private readonly _transitionTypeGroupContainer = this._createGroupContainer("transitionType", "transition type", div(
         this._transitionRow,
         this._transitionDropdownGroup,
-    );
-
-    private readonly _transitionTypeTitleContainer: HTMLDivElement = div(
-        { class: "transitionTypeTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "transition type",
-    );
-
-    private readonly _transitionTypeGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "transitionTypeGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._transitionTypeTitleContainer,
-            this._transitionTypeContainerRow,
-        ),
-    );
-
-
+    ));
 
     // chord type
 
@@ -1268,27 +1286,10 @@ export class SongEditor {
         this._twoNoteArpRow,
     );
 
-    private readonly _chordTypeContainerRow: HTMLDivElement = div(
-        { class: "chordTypeContainerRow" },
+    private readonly _chordTypeGroupContainer = this._createGroupContainer("chordType", "chord type", div(
         this._chordSelectRow,
         this._chordDropdownGroup,
-    );
-
-    private readonly _chordTypeTitleContainer: HTMLDivElement = div(
-        { class: "chordTypeTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "chord type",
-    );
-
-    private readonly _chordTypeGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "chordTypeGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._chordTypeTitleContainer,
-            this._chordTypeContainerRow,
-        ),
-    );
-
-
+    ));
 
     // pitch shift
 
@@ -1317,27 +1318,10 @@ export class SongEditor {
         this._pitchShiftFiveLimitRow,
     );
 
-    private readonly _pitchShiftContainerRow: HTMLDivElement = div(
-        { class: "pitchShiftContainerRow" },
+    private readonly _pitchShiftGroupContainer = this._createGroupContainer("pitchShift", "pitch shift", div(
         this._pitchShiftRow,
         this._pitchShiftDropdownGroup,
-    );
-
-    private readonly _pitchShiftTitleContainer: HTMLDivElement = div(
-        { class: "pitchShiftTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "pitch shift",
-    );
-
-    private readonly _pitchShiftGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "pitchShiftGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._pitchShiftTitleContainer,
-            this._pitchShiftContainerRow,
-        ),
-    );
-
-
+    ));
 
     // detune
 
@@ -1348,26 +1332,9 @@ export class SongEditor {
         div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this._detuneSliderInputBox),
     ), this._detuneSlider.container);
 
-    private readonly _detuneContainerRow: HTMLDivElement = div(
-        { class: "detuneContainerRow" },
+    private readonly _detuneGroupContainer = this._createGroupContainer("detune", "detune", div(
         this._detuneSliderRow,
-    );
-
-    private readonly _detuneTitleContainer: HTMLDivElement = div(
-        { class: "detuneTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "detune",
-    );
-
-    private readonly _detuneGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "detuneGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._detuneTitleContainer,
-            this._detuneContainerRow,
-        ),
-    );
-
-
+    ));
 
     // vibrato
 
@@ -1396,27 +1363,10 @@ export class SongEditor {
         this._vibratoTypeSelectRow,
     );
 
-    private readonly _vibratoContainerRow: HTMLDivElement = div(
-        { class: "vibratoContainerRow" },
+    private readonly _vibratoGroupContainer = this._createGroupContainer("vibrato", "vibrato", div(
         this._vibratoSelectRow,
         this._vibratoDropdownGroup,
-    );
-
-    private readonly _vibratoTitleContainer: HTMLDivElement = div(
-        { class: "vibratoTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "vibrato",
-    );
-
-    private readonly _vibratoGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "vibratoGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._vibratoTitleContainer,
-            this._vibratoContainerRow,
-        ),
-    );
-
-
+    ));
 
     // note filter
 
@@ -1448,30 +1398,13 @@ export class SongEditor {
         this._noteFilterCompensationSliderRow,
     );
 
-    private readonly _noteFilterContainerRow: HTMLDivElement = div(
-        { class: "noteFilterContainerRow" },
+    private readonly _noteFilterGroupContainer = this._createGroupContainer("noteFilter", "note filter", div(
         this._noteFilterTypeRow,
         this._noteFilterRow,
         this._noteFilterSimpleCutRow,
         this._noteFilterSimplePeakRow,
         this._noteFilterDropdownGroup,
-    );
-
-    private readonly _noteFilterTitleContainer: HTMLDivElement = div(
-        { class: "noteFilterTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "note filter",
-    );
-
-    private readonly _noteFilterGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "noteFilterGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._noteFilterTitleContainer,
-            this._noteFilterContainerRow,
-        ),
-    );
-
-
+    ));
 
     // granular
 
@@ -1495,29 +1428,12 @@ export class SongEditor {
         div({ style: `color: ${ColorConfig.secondaryText}; ` }, this.grainRangeNum),
     ), this._grainRangeSlider.container);
 
-    private readonly _granularContainerRow: HTMLDivElement = div(
-        { class: "granularContainerRow" },
+    private readonly _granularGroupContainer = this._createGroupContainer("granular", "granular", div(
         this._granularRow,
         this._grainAmountsRow,
         this._grainSizeSliderRow,
         this._grainRangeSliderRow,
-    );
-
-    private readonly _granularTitleContainer: HTMLDivElement = div(
-        { class: "granularTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "granular",
-    );
-
-    private readonly _granularGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "granularGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._granularTitleContainer,
-            this._granularContainerRow,
-        ),
-    );
-
-
+    ));
 
     // distortion
 
@@ -1527,27 +1443,10 @@ export class SongEditor {
     private readonly _aliasingBox: HTMLInputElement = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;" });
     private readonly _aliasingRow: HTMLElement = div({ class: "selectRow" }, span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("aliases") }, "Aliasing:"), this._aliasingBox);
 
-    private readonly _distortionContainerRow: HTMLDivElement = div(
-        { class: "distortionContainerRow" },
+    private readonly _distortionGroupContainer = this._createGroupContainer("distortion", "distortion", div(
         this._distortionRow,
         this._aliasingRow,
-    );
-
-    private readonly _distortionTitleContainer: HTMLDivElement = div(
-        { class: "distortionTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "distortion",
-    );
-
-    private readonly _distortionGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "distortionGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._distortionTitleContainer,
-            this._distortionContainerRow,
-        ),
-    );
-
-
+    ));
 
     // bitcrusher
 
@@ -1557,53 +1456,19 @@ export class SongEditor {
     private readonly _bitcrusherFreqSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.bitcrusherFreqRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeBitcrusherFreq(this.doc, oldValue, newValue), false);
     private readonly _bitcrusherFreqRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("bitcrusherFreq") }, "Freq Crush:"), this._bitcrusherFreqSlider.container);
 
-    private readonly _bitcrusherContainerRow: HTMLDivElement = div(
-        { class: "bitcrusherContainerRow" },
+    private readonly _bitcrusherGroupContainer = this._createGroupContainer("bitcrusher", "bitcrusher", div(
         this._bitcrusherQuantizationRow,
         this._bitcrusherFreqRow,
-    );
-
-    private readonly _bitcrusherTitleContainer: HTMLDivElement = div(
-        { class: "bitcrusherTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "bitcrusher",
-    );
-
-    private readonly _bitcrusherGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "bitcrusherGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._bitcrusherTitleContainer,
-            this._bitcrusherContainerRow,
-        ),
-    );
-
-
+    ));
 
     // chorus
 
     private readonly _chorusSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.chorusRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeChorus(this.doc, oldValue, newValue), false);
     private readonly _chorusRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("chorus") }, "Chorus:"), this._chorusSlider.container);
 
-    private readonly _chorusContainerRow: HTMLDivElement = div(
-        { class: "chorusContainerRow" },
+    private readonly _chorusGroupContainer = this._createGroupContainer("chorus", "chorus", div(
         this._chorusRow,
-    );
-
-    private readonly _chorusTitleContainer: HTMLDivElement = div(
-        { class: "chorusTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "chorus",
-    );
-
-    private readonly _chorusGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "chorusGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._chorusTitleContainer,
-            this._chorusContainerRow,
-        ),
-    );
-
-
+    ));
 
     // echo
 
@@ -1617,53 +1482,19 @@ export class SongEditor {
         div({ style: `color: ${ColorConfig.secondaryText}; ` }, this.echoDelayNum)
     ), this._echoDelaySlider.container);
 
-    private readonly _echoContainerRow: HTMLDivElement = div(
-        { class: "echoContainerRow" },
+    private readonly _echoGroupContainer = this._createGroupContainer("echo", "echo", div(
         this._echoSustainRow,
         this._echoDelayRow,
-    );
-
-    private readonly _echoTitleContainer: HTMLDivElement = div(
-        { class: "echoTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "echo",
-    );
-
-    private readonly _echoGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "echoGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._echoTitleContainer,
-            this._echoContainerRow,
-        ),
-    );
-
-
+    ));
 
     // reverb
 
     private readonly _reverbSlider: Slider = new Slider(input({ style: "margin: 0; position: sticky,", type: "range", min: "0", max: Config.reverbRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeReverb(this.doc, oldValue, newValue), false);
     private readonly _reverbRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("reverb") }, "Reverb:"), this._reverbSlider.container);
 
-    private readonly _reverbContainerRow: HTMLDivElement = div(
-        { class: "reverbContainerRow" },
+    private readonly _reverbGroupContainer = this._createGroupContainer("reverb", "reverb", div(
         this._reverbRow,
-    );
-
-    private readonly _reverbTitleContainer: HTMLDivElement = div(
-        { class: "reverbTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "reverb",
-    );
-
-    private readonly _reverbGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "reverbGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._reverbTitleContainer,
-            this._reverbContainerRow,
-        ),
-    );
-
-
+    ));
 
     // ring mod
 
@@ -1688,30 +1519,14 @@ export class SongEditor {
     private readonly _ringModWaveSelect: HTMLSelectElement = buildOptions(select({}), Config.operatorWaves.map(wave => wave.name));
     private readonly _ringModPulsewidthSlider: Slider = new Slider(input({ style: "margin-left: 10px; width: 85%;", type: "range", min: "0", max: Config.pwmOperatorWaves.length - 1, value: "0", step: "1", title: "Pulse Width" }), this.doc, (oldValue: number, newValue: number) => new ChangeRingModPulseWidth(this.doc, oldValue, newValue), true);
     private readonly _ringModWaveSelectRow: HTMLDivElement = div({ class: "selectRow", style: "width: 100%;" }, this._ringModWaveText, this._ringModPulsewidthSlider.container, div({ class: "selectContainer", style: "width:40%;" }, this._ringModWaveSelect));
-    
-    private readonly _ringModContainerRow: HTMLDivElement = div(
-        { class: "ringModContainerRow" },
+  
+
+    private readonly _ringModGroupContainer = this._createGroupContainer("ringMod", "ring mod", div(
         this._ringModRow,
         this._ringModHzSliderRow,
         this._rmOffsetHzSliderRow,
         this._ringModWaveSelectRow,
-    );
-
-    private readonly _ringModTitleContainer: HTMLDivElement = div(
-        { class: "ringModTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "ring mod",
-    );
-
-    private readonly _ringModGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "ringModGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._ringModTitleContainer,
-            this._ringModContainerRow,
-        ),
-    );
-
-
+    ));
 
     // phaser
 
@@ -1747,57 +1562,23 @@ export class SongEditor {
     private readonly _phaserDisperseBox: HTMLInputElement = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;" });
     private readonly _phaserDisperseRow: HTMLElement = div({ class: "selectRow" }, span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("phaserDisperse") }, "Disperse:"), this._phaserDisperseBox);
 
-    private readonly _phaserContainerRow: HTMLDivElement = div(
-        { class: "phaserContainerRow" },
+    private readonly _phaserGroupContainer = this._createGroupContainer("phaser", "phaser", div(
         this._phaserMixRow,
         this._phaserFreqRow,
         this._phaserFeedbackRow,
         this._phaserStagesRow,
         this._phaserStagesDropdownGroup,
         this._phaserDisperseRow,
-    );
-
-    private readonly _phaserTitleContainer: HTMLDivElement = div(
-        { class: "phaserTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "phaser",
-    );
-
-    private readonly _phaserGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "phaserGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._phaserTitleContainer,
-            this._phaserContainerRow,
-        ),
-    );
-
-
+    ));
 
     // invert wave
 
     private readonly _invertWaveBox: HTMLInputElement = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;" });
     private readonly _invertWaveRow: HTMLElement = div({ class: "selectRow" }, span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("invertWave") }, "Invert Wave:"), this._invertWaveBox);
 
-    private readonly _invertWaveContainerRow: HTMLDivElement = div(
-        { class: "invertWaveContainerRow" },
-        this._invertWaveRow,
-    );
-
-    private readonly _invertWaveTitleContainer: HTMLDivElement = div(
-        { class: "invertWaveTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "invert wave",
-    );
-
-    private readonly _invertWaveGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "invertWaveGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._invertWaveTitleContainer,
-            this._invertWaveContainerRow,
-        ),
-    );
-
-    
+    private readonly _invertWaveGroupContainer = this._createGroupContainer("invertWave", "invert wave", div(
+      this._invertWaveRow,
+    ));
 
     // compressor
 
@@ -1838,31 +1619,13 @@ export class SongEditor {
     )
   
     private readonly _compressorCollapseButton: HTMLButtonElement = button({ style: "margin-inline: 1ch; height: 1.5em; width: 10px; padding: 0px; font-size: 8px; display: inline;" }, "▼")
-  
-    private readonly _compressorContainerRow: HTMLDivElement = div(
-        { class: "compressorContainer" },
+
+    private readonly _compressorGroupContainer = this._createGroupContainer("compressor", "compressor", div(
         this._compressorTypeRow,
         div({ class: "selectRow" }, span("Threshold:"), this._compressorThresholdSlider.container),
         this._compressorKnobContainer,
         this._compressorGainSliderContainer,
-    );
-    
-    private readonly _compressorTitleContainer: HTMLDivElement = div(
-        { class: "compressorTitleContainer", onclick: () => this._toggleCompressorVisible() },
-        "compressor",
-        this._compressorCollapseButton,
-    );
-
-    private readonly _compressorGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "compressorGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._compressorTitleContainer,
-            this._compressorContainerRow,
-        ),
-    );
-
-
+    ));
 
     // note range
 
@@ -1872,27 +1635,10 @@ export class SongEditor {
     private readonly _lowerNoteLimitInputBox: HTMLInputElement = input({ style: "width: 4em; font-size: 80%; ", id: "lowerNoteLimitInputBox", type: "number", step: "1", min: 0, max: 96, value: 60 });
     private readonly _lowerNoteLimitRow: HTMLElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("lowerNoteLimit") }, "Lower Note Limit:"), this._lowerNoteLimitInputBox);
 
-    private readonly _noteRangeContainerRow: HTMLDivElement = div(
-        { class: "noteRangeContainerRow" },
+    private readonly _noteRangeGroupContainer = this._createGroupContainer("noteRange", "note range", div(
         this._upperNoteLimitRow,
         this._lowerNoteLimitRow,
-    );
-
-    private readonly _noteRangeTitleContainer: HTMLDivElement = div(
-        { class: "noteRangeTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "note range",
-    );
-
-    private readonly _noteRangeGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "noteRangeGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._noteRangeTitleContainer,
-            this._noteRangeContainerRow,
-        ),
-    );
-
-
+    ));
 
     // flanger
 
@@ -1933,30 +1679,13 @@ export class SongEditor {
     private readonly _flangerFeedmixSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.flangerFeedmixRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeFlangerFeedmix(this.doc, oldValue, newValue), false);
     private readonly _flangerFeedmixRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("flangerFeedmix") }, span("Feedmix:")), this._flangerFeedmixSlider.container);
 
-    private readonly _flangerContainerRow: HTMLDivElement = div(
-        { class: "flangerContainerRow" },
+    private readonly _flangerGroupContainer = this._createGroupContainer("flanger", "flanger", div(
         this._flangerMixRow,
         this._flangerMixDropdownGroup,
         this._flangerDelayRow,
         this._flangerPanSliderRow,
         this._flangerFeedmixRow,
-    );
-
-    private readonly _flangerTitleContainer: HTMLDivElement = div(
-        { class: "flangerTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "flanger",
-    );
-
-    private readonly _flangerGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "flangerGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._flangerTitleContainer,
-            this._flangerContainerRow,
-        ),
-    );
-
-
+    ));
 
     // colorizer
 
@@ -1998,29 +1727,12 @@ export class SongEditor {
         this._colorizerDetuneSliderRow,
     );
 
-    private readonly _colorizerContainerRow: HTMLDivElement = div(
-        { class: "colorizerContainerRow" },
+    private readonly _colorizerGroupContainer = this._createGroupContainer("colorizer", "colorizer", div(
         this._colorizerMixRow,
         this._colorizerColorRow,
         this._colorizerChannelRow,
         this._colorizerChannelDropdownGroup,
-    );
-
-    private readonly _colorizerTitleContainer: HTMLDivElement = div(
-        { class: "colorizerTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
-        "colorizer",
-    );
-
-    private readonly _colorizerGroupContainer: HTMLDivElement = div(
-        { style: "padding: 4px;" },
-        div(
-            { class: "colorizerGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px;" },
-            this._colorizerTitleContainer,
-            this._colorizerContainerRow,
-        ),
-    );
-
-
+    ));
 
 
 
@@ -4155,12 +3867,10 @@ export class SongEditor {
             if (effectsIncludeCompressor(instrument.effects)) {
                 this._compressorGroupContainer.style.display = "";
 
-                this._compressorContainerRow.style.display = this._compressorTitleContainer.style.display = "";
                 
                 const { hidden, mode, attack, decay, threshold, ratioDown, ratioUp, freqLoMid, freqMidHi, gainLo, gainMid, gainHi } = instrument.compressor;
                 
                 this._compressorCollapseButton.textContent = hidden ? "▲" : "▼";
-                this._compressorContainerRow.style.display = hidden ? "none" : "";
                 
                 const simpleOnly = [this._compressorTimeKnob];
                 const advancedOnly = [this._compressorAttackKnob, this._compressorDecayKnob, this._compressorLoMidKnob, this._compressorMidHiKnob];
@@ -4193,8 +3903,6 @@ export class SongEditor {
                 this._compressorHiGainSlider.updateValue(gainHi);
             } else {
                 this._compressorGroupContainer.style.display = "none";
-
-                this._compressorContainerRow.style.display = this._compressorTitleContainer.style.display = "none";
             }
 
             if (effectsIncludeNoteRange(instrument.effects)) {
@@ -4314,6 +4022,8 @@ export class SongEditor {
             }
 
             this._renderInstrumentBar(channel, instrumentIndex, colors);
+
+            this._updateGroupContainers(instrument.groupContainerState);
         } // Options for mod channel
         else {
             this._usageCheck(this.doc.channel, instrumentIndex);
