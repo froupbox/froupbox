@@ -2003,6 +2003,15 @@ export class Config {
         { name: "colorizerMix",           computeIndex: EnvelopeComputeIndex.colorizerMix,              displayName: "colorizer mix",    perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.colorizer, compatibleInstruments: null },
         { name: "colorizerColor",         computeIndex: EnvelopeComputeIndex.colorizerColor,            displayName: "colorizer color",  perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.colorizer, compatibleInstruments: null },
     ]);
+
+  static {
+    // for a brief moment flanger was called "phase shift", so add entries in the dictionary array to fix them up
+    const targets = this.instrumentAutomationTargets;
+    for (const target of targets)
+      if (target.name.startsWith("flanger"))
+        targets.dictionary[target.name.replace("flanger", "phaseShift")] = targets.dictionary[target.name];
+  }
+    
     public static readonly operatorWaves: DictionaryArray<OperatorWave> = toNameMap([
 		{ name: "sine", samples: Config.sineWave },
         { name: "triangle", samples: Config.generateTriWave() },

@@ -2496,7 +2496,13 @@ export class Instrument {
         if (Array.isArray(instrumentObject["effects"])) {
             let effects: number = 0;
             for (let i: number = 0; i < instrumentObject["effects"].length; i++) {
-                effects = effects | (1 << Config.effectNames.indexOf(instrumentObject["effects"][i]));
+                const effectName = instrumentObject["effects"][i];
+                let effectIndex = Config.effectNames.indexOf(effectName);
+                if (effectIndex === -1) {
+                    // for a brief moment flanger was called "phase shift"
+                    if (effectName === "phase shift") effectIndex = EffectType.flanger;
+                }
+                effects = effects | (1 << effectIndex);
             }
             this.effects = (effects & ((1 << EffectType.length) - 1));
         } else {
@@ -2757,24 +2763,27 @@ export class Instrument {
             this.phaserSpread = clamp(0, Config.phaserSpreadRange + 1, instrumentObject["phaserSpread"]);
         }
 
-
-        if (instrumentObject["flangerMix"] != undefined) {
-            this.flangerMix = clamp(0, Config.flangerMixRange, Math.round((Config.flangerMixRange - 1) * (instrumentObject["flangerMix"] | 0) / 100));
+        function getFlangerVal(suffix: string): any {
+          // for a brief moment flanger was called "phase shift", so this handles that
+          return instrumentObject["flanger" + suffix] ?? instrumentObject["phaseShift" + suffix];
         }
-        if (instrumentObject["flangerVoices"] != undefined) {
-            this.flangerVoices = clamp(0, Config.flangerMaxVoices + 1, instrumentObject["flangerVoices"]);
+        if (getFlangerVal("Mix") != undefined) {
+          this.flangerMix = clamp(0, Config.flangerMixRange, Math.round((Config.flangerMixRange - 1) * (getFlangerVal("Mix") | 0) / 100));
         }
-        if (instrumentObject["flangerDistribute"] != undefined) {
-            this.flangerDistribute = instrumentObject["flangerDistribute"];
+        if (getFlangerVal("Voices") != undefined) {
+          this.flangerVoices = clamp(0, Config.flangerMaxVoices + 1, getFlangerVal("Voices"));
         }
-        if (instrumentObject["flangerDelay"] != undefined) {
-            this.flangerDelay = clamp(0, Config.flangerDelayMax + 1, instrumentObject["flangerDelay"]);
+        if (getFlangerVal("Distribute") != undefined) {
+          this.flangerDistribute = getFlangerVal("Distribute");
         }
-        if (instrumentObject["flangerPan"] != undefined) {
-            this.flangerPan = clamp(0, Config.flangerPanMax + 1, Math.round(Config.flangerPanCenter + (instrumentObject["flangerPan"] | 0) * Config.flangerPanCenter / 100));
+        if (getFlangerVal("Delay") != undefined) {
+          this.flangerDelay = clamp(0, Config.flangerDelayMax + 1, getFlangerVal("Delay"));
         }
-        if (instrumentObject["flangerFeedmix"] != undefined) {
-            this.flangerFeedmix = clamp(0, Config.flangerFeedmixRange, Math.round((Config.flangerFeedmixRange - 1) * (instrumentObject["flangerFeedmix"] | 0) / 100));
+        if (getFlangerVal("Pan") != undefined) {
+          this.flangerPan = clamp(0, Config.flangerPanMax + 1, Math.round(Config.flangerPanCenter + (getFlangerVal("Pan") | 0) * Config.flangerPanCenter / 100));
+        }
+        if (getFlangerVal("Feedmix") != undefined) {
+          this.flangerFeedmix = clamp(0, Config.flangerFeedmixRange, Math.round((Config.flangerFeedmixRange - 1) * (getFlangerVal("Feedmix") | 0) / 100));
         }
 
         if (instrumentObject["colorizerMix"] != undefined) {
