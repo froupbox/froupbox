@@ -1745,7 +1745,7 @@ export class Instrument {
     public colorizerColor: number = 32;
     public colorizerChannel: number = 0;
     public colorizerMaxFreq: number = 63;
-    public colorizerMinFreq: number = 0;
+    public colorizerMinFreq: number = 20;
     public colorizerDetune: number = 0;
     public colorizerFrequenciesStart: number[] = [];
     public colorizerFrequenciesEnd: number[] = [];
@@ -1902,7 +1902,7 @@ export class Instrument {
         this.colorizerColor = 32;
         this.colorizerChannel = 0;
         this.colorizerMaxFreq = 63;
-        this.colorizerMinFreq = 0;
+        this.colorizerMinFreq = 20;
         this.colorizerDetune = Config.detuneCenter;
 
         this.invertWave = false;
