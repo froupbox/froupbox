@@ -98,7 +98,7 @@ export class Preferences {
 		this.visibleOctaves = ((<any>window.localStorage.getItem("visibleOctaves")) >>> 0) || Preferences.defaultVisibleOctaves;
 		this.bisectionalModNotes = window.localStorage.getItem("bisectionalModNotes") != "false";
 		this.simplifiedEffects = window.localStorage.getItem("simplifiedEffects") == "true";
-		this.collapseEffects = window.localStorage.getItem("collapseEffects") != "false";
+		this.collapseEffects = window.localStorage.getItem("collapseEffects") == "true";
 		this.showChannelName = window.localStorage.getItem("showChannelName") != "false";
 		this.showChannelTuning = window.localStorage.getItem("showChannelTuning") != "false";
 		this.rollNoveltyPresets = window.localStorage.getItem("rollNoveltyPresets") == "true";
