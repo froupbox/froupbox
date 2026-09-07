@@ -48,6 +48,7 @@ export class Preferences {
 	public frostedGlassBackground: boolean;
 	public bisectionalModNotes: boolean;
 	public simplifiedEffects: boolean;
+	public collapseEffects: boolean;
 	public showChannelName: boolean;
 	public showChannelTuning: boolean;
 	public rollNoveltyPresets: boolean;
@@ -97,6 +98,7 @@ export class Preferences {
 		this.visibleOctaves = ((<any>window.localStorage.getItem("visibleOctaves")) >>> 0) || Preferences.defaultVisibleOctaves;
 		this.bisectionalModNotes = window.localStorage.getItem("bisectionalModNotes") != "false";
 		this.simplifiedEffects = window.localStorage.getItem("simplifiedEffects") == "true";
+		this.collapseEffects = window.localStorage.getItem("collapseEffects") != "false";
 		this.showChannelName = window.localStorage.getItem("showChannelName") != "false";
 		this.showChannelTuning = window.localStorage.getItem("showChannelTuning") != "false";
 		this.rollNoveltyPresets = window.localStorage.getItem("rollNoveltyPresets") == "true";
@@ -158,6 +160,7 @@ export class Preferences {
 		window.localStorage.setItem("visibleOctaves", String(this.visibleOctaves));
 		window.localStorage.setItem("bisectionalModNotes", this.bisectionalModNotes ? "true" : "false");
 		window.localStorage.setItem("simplifiedEffects", this.simplifiedEffects ? "true" : "false");
+		window.localStorage.setItem("collapseEffects", this.collapseEffects ? "true" : "false");
 		window.localStorage.setItem("showChannelName", this.showChannelName ? "true" : "false");
 		window.localStorage.setItem("showChannelTuning", this.showChannelTuning ? "true" : "false");
 		window.localStorage.setItem("rollNoveltyPresets", this.rollNoveltyPresets ? "true" : "false");

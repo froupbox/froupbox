@@ -891,6 +891,7 @@ export class SongEditor {
             option({ value: "showSampleLoadingStatus" }, "Show Sample Loading Status"),
             option({ value: "bisectionalModNotes" }, "Use Bisectional Mod Notes"),
             option({ value: "simplifiedEffects" }, "Use Simplified Effect Interface"),
+            option({ value: "collapseEffects" }, "Collapse Effects By Default"),
             option({ value: "showChannelName" }, "Show Channel Name"),
             option({ value: "showChannelTuning" }, "Show Channel Tuning"),
             option({ value: "showDescription" }, "Show Description"),
@@ -1175,18 +1176,23 @@ export class SongEditor {
     private readonly _groupContainers: HTMLElement[] = [];
     private _activeGroupContainerState: boolean[] | undefined;
     _createGroupContainer(id: string, title: string, el: HTMLElement): HTMLElement {
-        let simplifiedStyle: boolean = false;
+
+        let simplifiedEffects: boolean = false;
         if (window.localStorage.getItem("simplifiedEffects") !== null) {
-            simplifiedStyle = window.localStorage.getItem("simplifiedEffects") == "true";
+            simplifiedEffects = window.localStorage.getItem("simplifiedEffects") == "true";
+        }
+        let collapseEffects: boolean = false;
+        if (window.localStorage.getItem("collapseEffects") !== null) {
+            collapseEffects = window.localStorage.getItem("collapseEffects") == "true";
         }
 
         const titleContainer = div(
-            { class: id + "TitleContainer beepboxTitleContainer", style: "text-align: center; font-weight: bold; padding: 6px;" },
+            { class: id + "TitleContainer beepboxTitleContainer", style: "text-align: center; font-weight: bold;" },
             title,
         );
         el.classList.add(id + "Container", "beepboxContainer");
         let container;
-        if (simplifiedStyle) {
+        if (simplifiedEffects) {
             container = div(
                 { class: id + "GroupContainer beepboxGroupContainer" },
                 el,
@@ -1201,25 +1207,38 @@ export class SongEditor {
         const index = this._groupContainers.length;
         this._groupContainers.push(container);
         titleContainer.onclick = () => {
-        if(!this._activeGroupContainerState) return;
-        const val = !this._activeGroupContainerState[index];
-        this._activeGroupContainerState[index] = val;
-        this._updateGroupContainer(index, val);
+            if(!this._activeGroupContainerState) return;
+            const val = !this._activeGroupContainerState[index];
+            this._activeGroupContainerState[index] = val;
+            this._updateGroupContainer(index, val, simplifiedEffects, collapseEffects);
         };
         return container;
     }
     _updateGroupContainers(state: boolean[]) {
+
+        let simplifiedEffects: boolean = false;
+        if (window.localStorage.getItem("simplifiedEffects") !== null) {
+            simplifiedEffects = window.localStorage.getItem("simplifiedEffects") == "true";
+        }
+        let collapseEffects: boolean = false;
+        if (window.localStorage.getItem("collapseEffects") !== null) {
+            collapseEffects = window.localStorage.getItem("collapseEffects") == "true";
+        }
+
         this._activeGroupContainerState = state;
         const n = this._groupContainers.length;
         if (state.length !== n) {
-        state.length = n;
-        state.fill(false);
+            state.length = n;
+            state.fill(false);
         }
         for (let i = 0; i < n; i++) {
-        this._updateGroupContainer(i, state[i]);
-        }
+            this._updateGroupContainer(i, state[i], simplifiedEffects, collapseEffects);
+        }   
     }
-    _updateGroupContainer(i: number, hidden: boolean) {
+    _updateGroupContainer(i: number, hidden: boolean, simplifiedEffects: boolean, collapseEffects: boolean) {
+        if (!simplifiedEffects && collapseEffects) {
+            hidden = !hidden
+        }
         this._groupContainers[i].classList[hidden ? "add" : "remove"]("hidden");
     }
 
@@ -3228,6 +3247,7 @@ export class SongEditor {
             (prefs.showSampleLoadingStatus ? textOnIcon : textOffIcon) + "Show Sample Loading Status",
             (prefs.bisectionalModNotes ? textOnIcon : textOffIcon) + "Use Bisectional Mod Notes",
             (prefs.simplifiedEffects ? textOnIcon : textOffIcon) + "Use Simplified Effect Interface",
+            (prefs.collapseEffects ? textOnIcon : textOffIcon) + "Collapse Effects By Default",
             (prefs.showChannelName ? textOnIcon : textOffIcon) + "Show Channel Name",
             (prefs.showChannelTuning ? textOnIcon : textOffIcon) + "Show Channel Tuning",
             (prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
@@ -6682,6 +6702,9 @@ export class SongEditor {
             case "simplifiedEffects":
                 this.doc.prefs.simplifiedEffects = !this.doc.prefs.simplifiedEffects;
                 window.location.reload();
+                break;
+            case "collapseEffects":
+                this.doc.prefs.collapseEffects = !this.doc.prefs.collapseEffects;
                 break;
             case "layout":
                 this._openPrompt("layout");

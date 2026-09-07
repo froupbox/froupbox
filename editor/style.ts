@@ -1807,6 +1807,9 @@ li.select2-results__option[role=group] > strong:hover {
     > .beepboxContainer {
       display: none;
     }
+    .beepboxTitleContainer {
+      padding: 0px;
+    }
     .beepboxTitleContainer::after {
       rotate: 180deg;
     }
@@ -1814,6 +1817,7 @@ li.select2-results__option[role=group] > strong:hover {
   .beepboxTitleContainer {
     position: relative;
     cursor: pointer;
+    padding: 6px;
   }
   .beepboxTitleContainer::after {
     mask-image: var(--internal-menu-down-symbol);
