@@ -42,10 +42,28 @@ export class TipPrompt implements Prompt {
 					p("This setting controls the speed of your song, measured in beats-per-minute. A \"beat\" is the duration of the little gray rectangles in the pattern editor. (In conventional music notation, a \"quarter note\" is usually equivalent to \"beat\".)"),
 				);
 			} break;
+			case "reverbMix": {
+				message = div(
+					h2("Reverb Mix"),
+					p("This slider controls the dry-wet mix of the reverb."),
+				);
+			} break;
 			case "reverb": {
 				message = div(
 					h2("Reverb"),
 					p("Reverb is like a continuous echo effect. A little bit helps instruments sound more natural. Adding a lot of reverb can add sense of depth or mystery, but too much reverb can kinda \"smear\" sounds so that it's harder to distinguish notes or instruments, especially for lower \"bass\" notes."),
+				);
+			} break;
+			case "reverbStereo": {
+				message = div(
+					h2("Reverb Stereo"),
+					p("This controls how much the reverb is panned."),
+				);
+			} break;
+			case "reverbMaxFreq": {
+				message = div(
+					h2("Reverb Max Freq"),
+					p("This controls where the frequency cutoff of the reverb is."),
 				);
 			} break;
 			case "rhythm": {
@@ -76,14 +94,12 @@ export class TipPrompt implements Prompt {
 				message = div(
 					h2("Volume-Pitch Compensation"),
 					p("This setting controls how much volume is adjusted to compensate for the pitch."),
-					p("25 is the default value."),
 				);
 			} break;
 			case "volumeChordCompensation": {
 				message = div(
 					h2("Volume-Chord Compensation"),
 					p("This setting controls how much volume is adjusted to compensate for the amount of notes in the chord."),
-					p("25 is the default value."),
 				);
 			} break;
 			case "pan": {
@@ -336,10 +352,16 @@ export class TipPrompt implements Prompt {
 					p("The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies."),
 				);
 			} break;
-			case "chorus": {
+			case "chorusMix": {
 				message = div(
-					h2("Chorus"),
+					h2("Chorus Mix"),
 					p("The chorus effect combines multiple copies of the instrument's sound and adds a bit of vibrato to simulate an ensemble of instruments or voices. Drag the slider to control how much chorus is added."),
+				);
+			} break;
+			case "chorusStereo": {
+				message = div(
+					h2("Chorus Stereo"),
+					p("This controls how much the chorus is panned."),
 				);
 			} break;
 			case "echoSustain": {
@@ -352,6 +374,12 @@ export class TipPrompt implements Prompt {
 				message = div(
 					h2("Echo Delay"),
 					p("The echo effect repeats the instrument's sound after a delay, and this setting controls how long the delay is."),
+				);
+			} break;
+			case "echoDamping": {
+				message = div(
+					h2("Echo Damping"),
+					p("This controls how fast the high frequencies fall off."),
 				);
 			} break;
 			case "pitchShift": {

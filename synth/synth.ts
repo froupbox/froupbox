@@ -1,6 +1,6 @@
 // Copyright (c) 2012-2022 John Nesky and contributing authors, distributed under the MIT license, see accompanying the LICENSE.md file.
 
-import { startLoadingSample, sampleLoadingState, SampleLoadingState, sampleLoadEvents, SampleLoadedEvent, SampleLoadingStatus, loadBuiltInSamples, Dictionary, DictionaryArray, toNameMap, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, EnvelopeComputeIndex, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, Config, getDrumWave, drawNoiseSpectrum, getArpeggioPitchIndex, performIntegralOld, getPulseWidthRatio, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, OperatorWave, LFOEnvelopeTypes, RandomEnvelopeTypes, GranularEnvelopeType, calculateRingModHertz, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeCompressor, effectsIncludeFlanger, MultiChannelSample, effectsIncludeColorizer, colorizerValueToFreq } from "./SynthConfig";
+import { startLoadingSample, sampleLoadingState, SampleLoadingState, sampleLoadEvents, SampleLoadedEvent, SampleLoadingStatus, loadBuiltInSamples, Dictionary, DictionaryArray, toNameMap, FilterType, SustainType, EnvelopeType, InstrumentType, EffectType, EnvelopeComputeIndex, Transition, Unison, Chord, Vibrato, Envelope, AutomationTarget, Config, getDrumWave, drawNoiseSpectrum, getArpeggioPitchIndex, performIntegralOld, getPulseWidthRatio, effectsIncludeTransition, effectsIncludeChord, effectsIncludePitchShift, effectsIncludeDetune, effectsIncludeVibrato, effectsIncludeNoteFilter, effectsIncludeDistortion, effectsIncludeBitcrusher, effectsIncludePanning, effectsIncludeChorus, effectsIncludeEcho, effectsIncludeReverb, effectsIncludeNoteRange, effectsIncludeRingModulation, effectsIncludeGranular, OperatorWave, LFOEnvelopeTypes, RandomEnvelopeTypes, GranularEnvelopeType, calculateRingModHertz, effectsIncludePhaser, effectsIncludeInvertWave, effectsIncludeCompressor, effectsIncludeFlanger, MultiChannelSample, effectsIncludeColorizer, colorizerValueToFreq, reverbValueToFreq, echoValueToFreq } from "./SynthConfig";
 import { Preset, EditorConfig } from "../editor/EditorConfig";
 import { scaleElementsByFactor, inverseRealFourierTransform } from "./FFT";
 import { Deque } from "./Deque";
@@ -1722,10 +1722,19 @@ export class Instrument {
       gainMid: 6,
       gainHi: 8,
     };
+
     public chorus: number = 0;
+    public chorusStereo: number = 63;
+
+    public reverbMix: number = 63;
     public reverb: number = 0;
+    public reverbStereo: number = 63;
+    public reverbMaxFreq: number = 38;
+
     public echoSustain: number = 0;
     public echoDelay: number = 0;
+    public echoDamping: number = 25;
+
     public phaserMix: number = Config.phaserMixRange - 1;
     public phaserFreq: number = 0;
     public phaserFeedback: number = 0;
@@ -1851,9 +1860,14 @@ export class Instrument {
         this.volumeChordCompensation = 25;
         this.effects = (1 << EffectType.panning); // Panning enabled by default in JB.
         this.chorus = Config.chorusRange - 1;
+        this.chorusStereo = Config.chorusStereoRange - 1;
+        this.reverbMix = Config.reverbMixRange - 1;
         this.reverb = 0;
+        this.reverbStereo = Config.reverbStereoRange - 1;
+        this.reverbMaxFreq = 38;
         this.echoSustain = Math.floor((Config.echoSustainRange - 1) * 0.5);
         this.echoDelay = Math.floor((Config.echoDelayRange - 1) * 0.5);
+        this.echoDamping = 25;
         this.eqFilter.reset();
         this.eqFilterType = false;
         this.eqFilterSimpleCut = Config.filterSimpleCutRange - 1;
@@ -2290,13 +2304,18 @@ export class Instrument {
         }
         if (effectsIncludeChorus(this.effects)) {
             instrumentObject["chorus"] = Math.round(100 * this.chorus / (Config.chorusRange - 1));
+            instrumentObject["chorusStereo"] = this.chorusStereo;
         }
         if (effectsIncludeEcho(this.effects)) {
             instrumentObject["echoSustain"] = Math.round(100 * this.echoSustain / (Config.echoSustainRange - 1));
             instrumentObject["echoDelayBeats"] = Math.round(1000 * (this.echoDelay + 1) * Config.echoDelayStepTicks / (Config.ticksPerPart * Config.partsPerBeat)) / 1000;
+            instrumentObject["echoDamping"] = this.echoDamping;
         }
         if (effectsIncludeReverb(this.effects)) {
+            instrumentObject["reverbMix"] = this.reverbMix;
             instrumentObject["reverb"] = Math.round(100 * this.reverb / (Config.reverbRange - 1));
+            instrumentObject["reverbStereo"] = this.reverbStereo;
+            instrumentObject["reverbMaxFreq"] = this.reverbMaxFreq;
         }
         if (effectsIncludeNoteRange(this.effects)) {
             instrumentObject["upperNoteLimit"] = this.upperNoteLimit;
@@ -2822,15 +2841,30 @@ export class Instrument {
         if (instrumentObject["echoDelayBeats"] != undefined) {
             this.echoDelay = clamp(0, Config.echoDelayRange, Math.round((+instrumentObject["echoDelayBeats"]) * (Config.ticksPerPart * Config.partsPerBeat) / Config.echoDelayStepTicks - 1.0));
         }
+        if (instrumentObject["echoDamping"] != undefined) {
+            this.echoDamping = +instrumentObject["echoDamping"];
+        }
 
         if (!isNaN(instrumentObject["chorus"])) {
             this.chorus = clamp(0, Config.chorusRange, Math.round((Config.chorusRange - 1) * (instrumentObject["chorus"] | 0) / 100));
         }
+        if (instrumentObject["chorusStereo"] != undefined) {
+            this.chorusStereo = +instrumentObject["chorusStereo"];
+        }
 
+        if (instrumentObject["reverbMix"] != undefined) {
+            this.reverbMix = +instrumentObject["reverbMix"];
+        }
         if (instrumentObject["reverb"] != undefined) {
             this.reverb = clamp(0, Config.reverbRange, Math.round((Config.reverbRange - 1) * (instrumentObject["reverb"] | 0) / 100));
         } else {
             this.reverb = legacyGlobalReverb;
+        }
+        if (instrumentObject["reverbStereo"] != undefined) {
+            this.reverbStereo = +instrumentObject["reverbStereo"];
+        }
+        if (instrumentObject["reverbMaxFreq"] != undefined) {
+            this.reverbMaxFreq = +instrumentObject["reverbMaxFreq"];
         }
 
         if (instrumentObject["invertWave"] != undefined) {
@@ -3472,7 +3506,7 @@ export class Song {
     private static readonly _oldestSlarmoosBoxVersion: number = 1;
     private static readonly _latestSlarmoosBoxVersion: number = 5;
     private static readonly _oldestFroupBoxVersion: number = 1;
-    private static readonly _latestFroupBoxVersion: number = 10;
+    private static readonly _latestFroupBoxVersion: number = 11;
     // One-character variant detection at the start of URL to distinguish variants such as JummBox, Or Goldbox. "j" and "g" respectively
     //also "u" is ultrabox lol
     private static readonly _variant = 0x66; //"f" ~ froupbox
@@ -4132,12 +4166,17 @@ export class Song {
                 }
                 if (effectsIncludeChorus(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.chorus]);
+                    buffer.push(base64IntToCharCode[instrument.chorusStereo]);
                 }
                 if (effectsIncludeEcho(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.echoSustain], base64IntToCharCode[instrument.echoDelay]);
+                    buffer.push(base64IntToCharCode[instrument.echoDamping]);
                 }
                 if (effectsIncludeReverb(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.reverb]);
+                    buffer.push(base64IntToCharCode[instrument.reverbMix]);
+                    buffer.push(base64IntToCharCode[instrument.reverbStereo]);
+                    buffer.push(base64IntToCharCode[instrument.reverbMaxFreq]);
                 }
                 if (effectsIncludeGranular(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.granular]);
@@ -4817,6 +4856,7 @@ export class Song {
         const beforeEight: boolean = version < 8;
         const beforeNine: boolean = version < 9;
         const beforeTen: boolean = version < 10;
+        const beforeEleven: boolean = version < 11;
         this.initToDefault((fromBeepBox && beforeNine) || ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox)));
         const forceSimpleFilter: boolean = (fromBeepBox && beforeNine || fromJummBox && beforeFive);
         let willLoadLegacySamplesForOldSongs: boolean = false;
@@ -6143,17 +6183,28 @@ export class Song {
                         }
                         else {
                             instrument.chorus = clamp(0, Config.chorusRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            if (!beforeEleven) {
+                                instrument.chorusStereo = clamp(0, Config.chorusStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            }
                         }
                     }
                     if (effectsIncludeEcho(instrument.effects)) {
                         instrument.echoSustain = clamp(0, Config.echoSustainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.echoDelay = clamp(0, Config.echoDelayRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        if (!beforeEleven) {
+                            instrument.echoDamping = clamp(0, Config.echoDampingRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        }
                     }
                     if (effectsIncludeReverb(instrument.effects)) {
                         if (fromBeepBox) {
                             instrument.reverb = clamp(0, Config.reverbRange, Math.round(base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * Config.reverbRange / 3.0));
                         } else {
                             instrument.reverb = clamp(0, Config.reverbRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            if (!beforeEleven) {
+                                instrument.reverbMix = clamp(0, Config.reverbMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                instrument.reverbStereo = clamp(0, Config.reverbStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                instrument.reverbMaxFreq = clamp(0, Config.reverbMaxFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            }
                         }
                     }
                     if (effectsIncludeGranular(instrument.effects)) {
@@ -9409,6 +9460,7 @@ class InstrumentState {
     public chorusVoiceMultDelta: number = 0;
     public chorusCombinedMult: number = 0;
     public chorusCombinedMultDelta: number = 0;
+    public chorusStereo: number = 1.0;
 
     public echoDelayLineL: Float32Array | null = null;
     public echoDelayLineR: Float32Array | null = null;
@@ -9444,6 +9496,8 @@ class InstrumentState {
     public reverbShelfPrevInput1: number = 0.0;
     public reverbShelfPrevInput2: number = 0.0;
     public reverbShelfPrevInput3: number = 0.0;
+    public reverbMix: number = 1.0;
+    public reverbStereo: number = 1.0;
 
     public invertWave: boolean = false;
 
@@ -10044,6 +10098,7 @@ class InstrumentState {
             this.chorusVoiceMultDelta = (chorusEnd - chorusStart) / roundedSamplesPerTick;
             this.chorusCombinedMult = chorusCombinedMultStart;
             this.chorusCombinedMultDelta = (chorusCombinedMultEnd - chorusCombinedMultStart) / roundedSamplesPerTick;
+            this.chorusStereo = instrument.chorusStereo / (Config.chorusStereoRange - 1);
         }
 
         if (usesRingModulation) {
@@ -10149,7 +10204,8 @@ class InstrumentState {
             this.echoDelayOffsetRatio = 0.0;
             this.echoDelayOffsetRatioDelta = 1.0 / roundedSamplesPerTick;
 
-            const shelfRadians: number = 2.0 * Math.PI * Config.echoShelfHz / synth.samplesPerSecond;
+            const dampingFreq = echoValueToFreq(instrument.echoDamping);
+            const shelfRadians: number = 2.0 * Math.PI * dampingFreq / synth.samplesPerSecond;
             Synth.tempFilterStartCoefficients.highShelf1stOrder(shelfRadians, Config.echoShelfGain);
             this.echoShelfA1 = Synth.tempFilterStartCoefficients.a[1];
             this.echoShelfB0 = Synth.tempFilterStartCoefficients.b[0];
@@ -10264,11 +10320,13 @@ class InstrumentState {
             this.reverbMultDelta = (reverbEnd - reverbStart) / roundedSamplesPerTick;
             maxReverbMult = Math.max(reverbStart, reverbEnd);
 
-            const shelfRadians: number = 2.0 * Math.PI * Config.reverbShelfHz / synth.samplesPerSecond;
+            const shelfRadians: number = 2.0 * Math.PI * reverbValueToFreq(instrument.reverbMaxFreq) / synth.samplesPerSecond;
             Synth.tempFilterStartCoefficients.highShelf1stOrder(shelfRadians, Config.reverbShelfGain);
             this.reverbShelfA1 = Synth.tempFilterStartCoefficients.a[1];
             this.reverbShelfB0 = Synth.tempFilterStartCoefficients.b[0];
             this.reverbShelfB1 = Synth.tempFilterStartCoefficients.b[1];
+            this.reverbMix = instrument.reverbMix / (Config.reverbMixRange - 1);
+            this.reverbStereo = instrument.reverbStereo / (Config.reverbStereoRange - 1);
         }
 
       
@@ -15290,7 +15348,7 @@ export class Synth {
 				let echoShelfPrevInputR = +instrumentState.echoShelfPrevInputR;`
             }
 
-            if (usesReverb) { //TODO: reverb wet/dry?
+            if (usesReverb) {
                 effectsSource += `
 				
 				const reverbMask = Config.reverbDelayBufferMask >>> 0; //TODO: Dynamic reverb buffer size.
@@ -15555,9 +15613,16 @@ export class Synth {
 					const chorusTap5 = chorusTap5A + (chorusTap5B - chorusTap5A) * chorusTap5Ratio;
 					chorusDelayLineL[chorusDelayPos] = sampleL * delayInputMult;
 					chorusDelayLineR[chorusDelayPos] = sampleR * delayInputMult;
-					sampleL = chorusCombinedMult * (sampleL + chorusVoiceMult * (chorusTap1 - chorusTap0 - chorusTap2));
-					sampleR = chorusCombinedMult * (sampleR + chorusVoiceMult * (chorusTap4 - chorusTap3 - chorusTap5));
-					chorusDelayPos = (chorusDelayPos + 1) & chorusMask;
+				    const chorusStereo = +instrumentState.chorusStereo / 2 + 0.5;
+                    sampleL = chorusCombinedMult * (
+                        (    chorusStereo      * (sampleL + chorusVoiceMult * (chorusTap1 - chorusTap0 - chorusTap2))) 
+                        + (-(chorusStereo - 1) * (sampleL + chorusVoiceMult * (chorusTap4 - chorusTap3 - chorusTap5))) 
+                    );
+					sampleR = chorusCombinedMult * ( 
+                        (  -(chorusStereo - 1)  * (sampleR + chorusVoiceMult * (chorusTap1 - chorusTap0 - chorusTap2))) 
+                        + (  chorusStereo       * (sampleR + chorusVoiceMult * (chorusTap4 - chorusTap3 - chorusTap5)))
+                    );
+                    chorusDelayPos = (chorusDelayPos + 1) & chorusMask;
 					chorusTap0Index += chorusTap0Delta;
 					chorusTap1Index += chorusTap1Delta;
 					chorusTap2Index += chorusTap2Delta;
@@ -15630,8 +15695,16 @@ export class Synth {
 					reverbDelayLine[reverbDelayPos3] = reverbShelfSample2 * delayInputMult;
 					reverbDelayLine[reverbDelayPos ] = reverbShelfSample3 * delayInputMult;
 					reverbDelayPos = (reverbDelayPos + 1) & reverbMask;
-					sampleL += reverbSample1 + reverbSample2 + reverbSample3;
-					sampleR += reverbSample0 + reverbSample2 - reverbSample3;
+                    const reverbMix = +instrumentState.reverbMix;
+				    const reverbStereo = +instrumentState.reverbStereo / 2 + 0.5;
+                    sampleL += reverbMix * (
+                            reverbStereo      * (reverbSample1 + reverbSample2 + reverbSample3) 
+                        + -(reverbStereo - 1) * (reverbSample0 + reverbSample2 - reverbSample3) 
+                    );
+					sampleR += reverbMix * ( 
+                          -(reverbStereo - 1) * (reverbSample1 + reverbSample2 + reverbSample3) 
+                        +   reverbStereo      * (reverbSample0 + reverbSample2 - reverbSample3)
+                    );
 					reverb += reverbDelta;`
             }
 

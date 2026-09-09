@@ -1036,14 +1036,18 @@ export class Config {
     public static readonly tempoMax:                    number = 2000; //slarmoo 500
     public static readonly octaveMin:                   number = -8; //slarmoo -2
     public static readonly octaveMax:                   number = 8; //slarmoo 2
+
     public static readonly echoDelayRange:              number = 24;
     public static readonly echoDelayStepTicks:          number = 4;
     public static readonly echoSustainRange:            number = 8;
-    public static readonly echoShelfHz:                 number = 4000.0; // The cutoff freq of the shelf filter that is used to decay echoes.
     public static readonly echoShelfGain:               number = Math.pow(2.0, -0.5);
-    public static readonly reverbShelfHz:               number = 8000.0; // The cutoff freq of the shelf filter that is used to decay reverb.
+    public static readonly echoDampingRange:            number = 64;
+
     public static readonly reverbShelfGain:             number = Math.pow(2.0, -1.5);
+    public static readonly reverbMixRange:              number = 64;
     public static readonly reverbRange:                 number = 32;
+    public static readonly reverbStereoRange:           number = 64;
+    public static readonly reverbMaxFreqRange:          number = 64;
     public static readonly reverbDelayBufferSize:       number = 16384; // TODO: Compute a buffer size based on sample rate.
     public static readonly reverbDelayBufferMask:       number = Config.reverbDelayBufferSize - 1; // TODO: Compute a buffer size based on sample rate.
 
@@ -1385,6 +1389,7 @@ export class Config {
     public static readonly grainAmountsMax: number = 10; //2^grainAmountsMax is what is actually used
     public static readonly granularEnvelopeType: number = GranularEnvelopeType.parabolic; //here you can change which envelope implementation is used for grains (RaisedCosineBell still needs work)
     public static readonly chorusRange: number = 8;
+    public static readonly chorusStereoRange: number = 64;
     public static readonly chorusPeriodSeconds: number = 2.0;
     public static readonly chorusDelayRange: number = 0.0034;
     public static readonly chorusDelayOffsets: ReadonlyArray<ReadonlyArray<number>> = [[1.51, 2.10, 3.35], [1.47, 2.15, 3.25]];
@@ -2792,6 +2797,14 @@ function validateNumber(num: string): boolean {
 
 export function colorizerValueToFreq(value: number): number {
     return Math.round((20 * Math.pow(1.11911803, value)) * 100) / 100;
+}
+
+export function reverbValueToFreq(value: number): number {
+    return Math.round((5.670742523 * Math.pow(value, 2) - 4.9619 * value) * 100) / 100;
+}
+
+export function echoValueToFreq(value: number): number {
+    return Math.round((18093.0391 * Math.pow(0.9414167882227, value)) * 100000000) / 100000000;
 }
 
 export function rawChipToIntegrated(raw: DictionaryArray<ChipWave>): DictionaryArray<ChipWave> {
