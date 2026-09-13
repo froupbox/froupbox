@@ -13157,7 +13157,7 @@ export class Synth {
                 if (Config.chipWaves[instrument.chipWave].isSampled && !Config.chipWaves[instrument.chipWave].isPercussion) {
                     basePitch = basePitch - 63 + Config.chipWaves[instrument.chipWave].extraSampleDetune!;
                 } else if (Config.chipWaves[instrument.chipWave].isSampled && Config.chipWaves[instrument.chipWave].isPercussion) {
-                    basePitch = -51 + Config.chipWaves[instrument.chipWave].extraSampleDetune!;
+                    basePitch = -51 + Config.chipWaves[instrument.chipWave].extraSampleDetune! - Config.keys[song.key].basePitch - (12 * song.octave);
                 }
             }
         } else if (instrument.type == InstrumentType.customChipWave) {
