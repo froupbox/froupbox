@@ -1040,7 +1040,7 @@ export class Config {
 
     public static readonly echoDelayRange:              number = 24;
     public static readonly echoDelayStepTicks:          number = 4;
-    public static readonly echoSustainRange:            number = 16;
+    public static readonly echoSustainRange:            number = 8;
     public static readonly echoShelfGain:               number = Math.pow(2.0, -0.5);
     public static readonly echoDampingRange:            number = 64;
 
