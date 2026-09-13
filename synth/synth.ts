@@ -6289,7 +6289,9 @@ export class Song {
                     }    
                     if(effectsIncludeInvertWave(instrument.effects)) {
                         instrument.invertWave = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
-                        instrument.invertWavePan = clamp(0, Config.invertWavePanMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        if (!beforeEleven) {
+                            instrument.invertWavePan = clamp(0, Config.invertWavePanMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        }
                     }
                     if (effectsIncludeNoteRange(instrument.effects)) {
                         instrument.upperNoteLimit = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
