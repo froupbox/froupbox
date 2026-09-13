@@ -3545,6 +3545,7 @@ export class Song {
     public inVolumeCap: number = 0.0;
     public outVolumeCap: number = 0.0;
     public eqFilter: FilterSettings = new FilterSettings();
+    public eqFilterCompensation: number;
     public eqFilterType: boolean = false;
     public eqFilterSimpleCut: number = Config.filterSimpleCutRange - 1;
     public eqFilterSimplePeak: number = 0;
@@ -3795,6 +3796,7 @@ export class Song {
         this.layeredInstruments = false;
         this.patternInstruments = false;
         this.eqFilter.reset();
+        this.eqFilterCompensation = 20;
         for (let i: number = 0; i < Config.filterMorphCount - 1; i++) {
             this.eqSubFilters[i] = null;
         }
@@ -3996,6 +3998,7 @@ export class Song {
                 }
             }
         }
+        buffer.push(base64IntToCharCode[this.eqFilterCompensation]);
 
         buffer.push(SongTagCode.channelNames);
         for (let channel: number = 0; channel < this.getChannelCount(); channel++) {
@@ -5862,6 +5865,10 @@ export class Song {
                                 }
                             }
                         }
+
+                        if (!beforeEleven) {
+                            this.eqFilterCompensation = clamp(0, Config.eqFilterCompensationRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        }
                     }
                 }
             } break;
@@ -7706,6 +7713,7 @@ export class Song {
             //"outroBars": this.barCount - this.loopStart - this.loopLength; // derive this from bar arrays?
             //"patternCount": this.patternsPerChannel, // derive this from pattern arrays?
             "songEq": this.eqFilter.toJsonObject(),
+            "songEqCompensation": this.eqFilterCompensation,
             "layeredInstruments": this.layeredInstruments,
             "patternInstruments": this.patternInstruments,
             "channels": channelArray,
@@ -8203,6 +8211,12 @@ export class Song {
             this.eqFilter.fromJsonObject(jsonObject["songEq"]);
         } else {
             this.eqFilter.reset();
+        }
+
+        if (jsonObject["songEqCompensation"] != undefined) {
+            this.eqFilterCompensation = jsonObject["songEqCompensation"];
+        } else {
+            this.eqFilterCompensation = 20;
         }
 
         for (let i: number = 0; i < Config.filterMorphCount - 1; i++) {
@@ -11746,8 +11760,8 @@ export class Synth {
                 this.songEqFiltersR[0].loadCoefficientsWithGradient(Synth.tempFilterStartCoefficients, Synth.tempFilterStartCoefficients, 1.0 / roundedSamplesPerTick, startPoint.type == FilterType.lowPass);
 
             }
-
-            eqFilterVolume *= startPoint.getVolumeCompensationMult();
+            
+            eqFilterVolume *= (startPoint.getVolumeCompensationMult() - 1) * (this.song.eqFilterCompensation / 20) + 1;
 
             this.songEqFilterCount = 1;
             eqFilterVolume = Math.min(3.0, eqFilterVolume);
@@ -11774,7 +11788,7 @@ export class Synth {
                 this.songEqFiltersL[i].loadCoefficientsWithGradient(Synth.tempFilterStartCoefficients, Synth.tempFilterEndCoefficients, 1.0 / roundedSamplesPerTick, startPoint.type == FilterType.lowPass);
                 if (this.songEqFiltersR.length <= i) this.songEqFiltersR[i] = new DynamicBiquadFilter();
                 this.songEqFiltersR[i].loadCoefficientsWithGradient(Synth.tempFilterStartCoefficients, Synth.tempFilterEndCoefficients, 1.0 / roundedSamplesPerTick, startPoint.type == FilterType.lowPass);
-                eqFilterVolume *= startPoint.getVolumeCompensationMult();
+                eqFilterVolume *= (startPoint.getVolumeCompensationMult() - 1) * (this.song.eqFilterCompensation / 20) + 1;
 
             }
             this.songEqFilterCount = eqFilterSettings.controlPointCount;

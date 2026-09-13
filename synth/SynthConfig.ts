@@ -107,6 +107,7 @@ export const enum DropdownID {
     ColorizerChannel = 13,
     EQFilter = 14,
     NoteFilter = 15,
+    SongEQFilter = 16,
 }
 
 export const enum EffectType {

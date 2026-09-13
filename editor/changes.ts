@@ -3158,6 +3158,16 @@ export class ChangeEQFilterCompensation extends ChangeInstrumentSlider {
     }
 }
 
+export class ChangeSongEQFilterCompensation extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        doc.song.eqFilterCompensation = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
 export class ChangeNoteFilterSimpleCut extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);

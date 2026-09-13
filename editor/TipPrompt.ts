@@ -679,6 +679,12 @@ export class TipPrompt implements Prompt {
 					p("Insert a new point on the left side of the filter editor to add a \"high-pass\" filter point, which additionally reduces the volume of lower frequencies, or insert a new point on the right side to add a \"low-pass\" filter point which reduces the volume of higher frequencies."),
 					p("The Song Eq Filter applies to all instruments. This can be handy for getting the sound of a certain genre or fading in and out in combination with modulation"),				);
 			} break;
+			case "songeqcompensation": {
+				message = div(
+					h2("Song Eq Filter Compensation"),
+					p("Same to the other Eq compensation sliders except it applies to the song Eq."),			
+				);
+			} break;
 			case "lfoEnvelopeWaveform": {
 				message = div(
 					h2("LFO Envelope Waveform"),
