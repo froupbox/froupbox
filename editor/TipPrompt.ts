@@ -891,6 +891,12 @@ export class TipPrompt implements Prompt {
 					p("This setting is best used with two very similar instruments, one with invert wave and the other without."),
 				);
 			} break;
+			case "invertWavePan": {
+				message = div(
+					h2("Invert Wave Pan"),
+					p(`This setting controls which side is inverted and interpolates between those values.`),
+				);
+			} break;
 			
 			
 			

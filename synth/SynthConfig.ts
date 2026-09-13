@@ -1054,6 +1054,9 @@ export class Config {
 
     public static readonly eqFilterCompensationRange:   number = 40; 
 
+    public static readonly invertWavePanCenter:         number = 50;
+    public static readonly invertWavePanMax:            number = Config.invertWavePanCenter * 2;
+
     public static readonly phaserMixRange:              number = 32; 
     public static readonly phaserFeedbackRange:         number = 32; 
     public static readonly phaserFreqRange:             number = 32; 

@@ -1760,6 +1760,7 @@ export class Instrument {
     public colorizerFrequenciesEnd: number[] = [];
 
     public invertWave: boolean = false;
+    public invertWavePan: number = Config.invertWavePanCenter;
 
     public algorithm: number = 0;
     public feedbackType: number = 0;
@@ -1920,6 +1921,7 @@ export class Instrument {
         this.colorizerDetune = Config.detuneCenter;
 
         this.invertWave = false;
+        this.invertWavePan = Config.invertWavePanCenter;
         
         this.pan = Config.panCenter;
         this.panDelay = 0;
@@ -2296,7 +2298,8 @@ export class Instrument {
             instrumentObject["bitcrusherQuantization"] = Math.round(100 * this.bitcrusherQuantization / (Config.bitcrusherQuantizationRange - 1));
         }
         if (effectsIncludeInvertWave(this.effects)) {
-            instrumentObject["invertWave"] =  this.invertWave;
+            instrumentObject["invertWave"] = this.invertWave;
+            instrumentObject["invertWavePan"] =  Math.round(100 * (this.invertWavePan - Config.invertWavePanCenter) / Config.invertWavePanCenter);
         }
         if (effectsIncludePanning(this.effects)) {
             instrumentObject["pan"] = Math.round(100 * (this.pan - Config.panCenter) / Config.panCenter);
@@ -2869,6 +2872,9 @@ export class Instrument {
 
         if (instrumentObject["invertWave"] != undefined) {
             this.invertWave = instrumentObject["invertWave"];
+        }
+        if (instrumentObject["invertWavePan"] != undefined) {
+            this.invertWavePan = clamp(0, Config.invertWavePanMax + 1, Math.round(Config.invertWavePanCenter + (instrumentObject["invertWavePan"] | 0) * Config.invertWavePanCenter / 100));
         }
 
         if (instrumentObject["upperNoteLimit"] != undefined) {
@@ -4229,6 +4235,8 @@ export class Song {
 
                 if (effectsIncludeInvertWave(instrument.effects)) {
                     buffer.push(base64IntToCharCode[+instrument.invertWave]);
+                    buffer.push(base64IntToCharCode[instrument.invertWavePan >> 6]);
+                    buffer.push(base64IntToCharCode[instrument.invertWavePan & 0x3f]);
                 }
                 if (effectsIncludeNoteRange(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.upperNoteLimit >> 6], base64IntToCharCode[instrument.upperNoteLimit & 0x3f]);
@@ -6281,6 +6289,7 @@ export class Song {
                     }    
                     if(effectsIncludeInvertWave(instrument.effects)) {
                         instrument.invertWave = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
+                        instrument.invertWavePan = clamp(0, Config.invertWavePanMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                     }
                     if (effectsIncludeNoteRange(instrument.effects)) {
                         instrument.upperNoteLimit = (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -9514,6 +9523,7 @@ class InstrumentState {
     public reverbStereo: number = 1.0;
 
     public invertWave: boolean = false;
+    public invertWavePan: number = Config.invertWavePanCenter;
 
     public phaser: rustDspTypes.PhaserInstance | undefined;
     public phaserStages: number = 0;
@@ -9720,6 +9730,7 @@ class InstrumentState {
 
         this.aliases = instrument.aliases;
         this.invertWave = instrument.invertWave;
+        this.invertWavePan = instrument.invertWavePan;
         const usesInvertWave: boolean = effectsIncludeInvertWave(this.effects);
 
         if (usesInvertWave) {
@@ -15254,12 +15265,6 @@ export class Synth {
                 `
             }
 
-            if(usesInvertWave) {
-                effectsSource += `
-                let isInverted = +instrumentState.invertWave;
-                `
-            }
-
             if (usesEqFilter) {
                 effectsSource += `
 				
@@ -15475,12 +15480,6 @@ export class Synth {
             } else {
                 effectsSource += `let sample = tempMonoInstrumentSampleBuffer[sampleIndex];
                 tempMonoInstrumentSampleBuffer[sampleIndex] = 0.0;`
-            }
-
-            if(usesInvertWave) {
-                effectsSource += `
-                    sample = sample*-1;
-                `
             }
 
             if (usesDistortion) {
@@ -15720,6 +15719,14 @@ export class Synth {
                         +   reverbStereo      * (reverbSample0 + reverbSample2 - reverbSample3)
                     );
 					reverb += reverbDelta;`
+            }
+
+            if(usesInvertWave) {
+                effectsSource += `
+                    const invertWavePan = +instrumentState.invertWavePan;
+                    sampleL = sampleL * Math.min(1, Math.max(-1, 1 + (invertWavePan - 100) / 25));
+                    sampleR = sampleR * Math.min(1, Math.max(-1, 1 - (invertWavePan      ) / 25));
+                `
             }
 
           effectsSource += `

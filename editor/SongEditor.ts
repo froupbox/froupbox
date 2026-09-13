@@ -47,7 +47,7 @@ import { CustomThemePrompt } from "./CustomThemePrompt";
 import { CustomPresetsPrompt } from "./CustomPresetsPrompt";
 import { ThemePrompt } from "./ThemePrompt";
 import { TipPrompt } from "./TipPrompt";
-import { ChangeTempo, ChangeKeyOctave, ChangeChorus, ChangeEchoDelay, ChangeEchoSustain, ChangeReverb, ChangeVolume, ChangePan, ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeSetPatternInstruments, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranular, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, ChangeCompressor, ChangeCompressorTime, ChangeRmHzOffset, ChangePhaserDisperse, ChangeSlideSpeed, ChangeStrumSpeed, ChangeLoop, ChangeChannelBar, ChangeFlangerMix, ChangeFlangerDelay, ChangeFlangerPan, ChangeFlangerFeedmix, ChangeFlangerVoices, ChangeChannelTuning, ChangePitchShiftFiveLimit, ChangePitchShiftEquaveDivisions, ChangePitchShiftEquaveNumerator, ChangePitchShiftEquaveDenominator, ChangeVolumePitchCompensation, ChangeVolumeChordCompensation, ChangeChipWaveSampleChannel, ChangePhaserSpread, ChangePhaserFilterType, ChangeFlangerDistribute, ChangeColorizerMix, ChangeColorizerColor, ChangeColorizerChannel, ChangeColorizerMaxFreq, ChangeColorizerMinFreq, ChangeColorizerDetune, ChangeEQFilterCompensation, ChangeNoteFilterCompensation, ChangeChorusStereo, ChangeReverbStereo, ChangeReverbMix, ChangeReverbMaxFreq, ChangeEchoDamping, ChangeSongEQFilterCompensation } from "./changes";
+import { ChangeTempo, ChangeKeyOctave, ChangeChorus, ChangeEchoDelay, ChangeEchoSustain, ChangeReverb, ChangeVolume, ChangePan, ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeSetPatternInstruments, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranular, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, ChangeCompressor, ChangeCompressorTime, ChangeRmHzOffset, ChangePhaserDisperse, ChangeSlideSpeed, ChangeStrumSpeed, ChangeLoop, ChangeChannelBar, ChangeFlangerMix, ChangeFlangerDelay, ChangeFlangerPan, ChangeFlangerFeedmix, ChangeFlangerVoices, ChangeChannelTuning, ChangePitchShiftFiveLimit, ChangePitchShiftEquaveDivisions, ChangePitchShiftEquaveNumerator, ChangePitchShiftEquaveDenominator, ChangeVolumePitchCompensation, ChangeVolumeChordCompensation, ChangeChipWaveSampleChannel, ChangePhaserSpread, ChangePhaserFilterType, ChangeFlangerDistribute, ChangeColorizerMix, ChangeColorizerColor, ChangeColorizerChannel, ChangeColorizerMaxFreq, ChangeColorizerMinFreq, ChangeColorizerDetune, ChangeEQFilterCompensation, ChangeNoteFilterCompensation, ChangeChorusStereo, ChangeReverbStereo, ChangeReverbMix, ChangeReverbMaxFreq, ChangeEchoDamping, ChangeSongEQFilterCompensation, ChangeInvertWavePan } from "./changes";
 
 import { TrackEditor } from "./TrackEditor";
 import { oscilloscopeCanvas } from "../global/Oscilloscope";
@@ -1641,8 +1641,16 @@ export class SongEditor {
     private readonly _invertWaveBox: HTMLInputElement = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;" });
     private readonly _invertWaveRow: HTMLElement = div({ class: "selectRow" }, span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("invertWave") }, "Invert Wave:"), this._invertWaveBox);
 
+    private readonly _invertWavePanSlider: Slider = new Slider(input({ style: "margin: 0; position: sticky;", type: "range", min: "0", max: Config.invertWavePanMax, value: Config.invertWavePanCenter, step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeInvertWavePan(this.doc, oldValue, newValue), true);
+    private readonly _invertWavePanSliderInputBox: HTMLInputElement = input({ style: "width: 4em; font-size: 80%; ", id: "invertWavePanSliderInputBox", type: "number", step: "1", min: "0", max: "100", value: "0" });
+    private readonly _invertWavePanSliderRow: HTMLDivElement = div({ class: "selectRow" }, div({},
+        span({ class: "tip", tabindex: "0", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("invertWavePan") }, "Pan: "),
+        div({ style: "color: " + ColorConfig.secondaryText + "; margin-top: -3px;" }, this._invertWavePanSliderInputBox),
+    ), this._invertWavePanSlider.container);
+
     private readonly _invertWaveGroupContainer = this._createGroupContainer("invertWave", "invert wave", div(
-      this._invertWaveRow,
+        this._invertWaveRow,
+        this._invertWavePanSliderRow,
     ));
 
     // compressor
@@ -2512,7 +2520,8 @@ export class SongEditor {
         this._pitchShiftFiveLimitBox.addEventListener("input", () => { this.doc.record(new ChangePitchShiftFiveLimit(this.doc, this._pitchShiftFiveLimitBox.checked)) });
 
         this._invertWaveBox.addEventListener("input", () => { this.doc.record(new ChangeInvertWave(this.doc, this._invertWaveBox.checked)) });
-        
+        this._invertWavePanSliderInputBox.addEventListener("input", () => { this.doc.record(new ChangeInvertWavePan(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].invertWavePan, Math.min(100.0, Math.max(0.0, Math.round(+this._invertWavePanSliderInputBox.value))))) });
+
         this._phaserStagesInputBox.addEventListener("input", () => { this.doc.record(new ChangePhaserStages(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].phaserStages, Math.min(Config.phaserMaxStages, Math.max(Config.phaserMinStages, Math.round(+this._phaserStagesInputBox.value))))) });
         this._phaserDisperseBox.addEventListener("input", () => { this.doc.record(new ChangePhaserDisperse(this.doc, this._phaserDisperseBox.checked)) });
 
@@ -3937,6 +3946,8 @@ export class SongEditor {
 
             if (effectsIncludeInvertWave(instrument.effects)) {
                 this._invertWaveGroupContainer.style.display = "";
+
+                this._invertWavePanSlider.updateValue(instrument.invertWavePan);
             } else {
                 this._invertWaveGroupContainer.style.display = "none";
             }
@@ -4040,6 +4051,7 @@ export class SongEditor {
             this._flangerVoicesInputBox.value = instrument.flangerVoices + "";
             this._flangerDelayInputBox.value = instrument.flangerDelay + "";
             this._flangerPanSliderInputBox.value = instrument.flangerPan + "";
+            this._invertWavePanSliderInputBox.value = instrument.invertWavePan + "";
             this._rmHzOffsetSliderInputBox.value = (instrument.ringModHzOffset - Config.rmHzOffsetCenter) + "";
             this.echoDelayNum.innerHTML = " (" + (Math.round((instrument.echoDelay + 1) * Config.echoDelayStepTicks / (Config.ticksPerPart * Config.partsPerBeat) * 1000) / 1000) + ")";
             this.reverbMaxFreqNum.innerHTML = " (" + reverbValueToFreq(instrument.reverbMaxFreq) + "Hz" + ")";
@@ -5213,6 +5225,7 @@ export class SongEditor {
             || document.activeElement == this._flangerVoicesInputBox
             || document.activeElement == this._flangerDelayInputBox
             || document.activeElement == this._flangerPanSliderInputBox
+            || document.activeElement == this._invertWavePanSliderInputBox
             || document.activeElement == this._colorizerChannelInputBox
             || document.activeElement == this._colorizerDetuneSliderInputBox
             /*

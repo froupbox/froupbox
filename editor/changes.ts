@@ -2489,21 +2489,6 @@ export class ChangeAliasing extends Change {
     }
 }
 
-export class ChangeInvertWave extends Change {
-    constructor(doc: SongDocument, newValue: boolean) {
-        super();
-        const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        const oldValue = instrument.invertWave;
-
-        doc.notifier.changed();
-        if (oldValue != newValue) {
-            instrument.invertWave = newValue;
-            instrument.preset = instrument.type;
-            this._didSomething();
-        }
-    }
-}
-
 export class ChangeSpectrum extends Change {
     constructor(doc: SongDocument, instrument: Instrument, spectrumWave: SpectrumWave) {
         super();
@@ -2936,6 +2921,31 @@ export class ChangePhaserDisperse extends Change {
             instrument.preset = instrument.type;
             this._didSomething();
         }
+    }
+}
+
+export class ChangeInvertWave extends Change {
+    constructor(doc: SongDocument, newValue: boolean) {
+        super();
+        const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+        const oldValue = instrument.invertWave;
+
+        doc.notifier.changed();
+        if (oldValue != newValue) {
+            instrument.invertWave = newValue;
+            instrument.preset = instrument.type;
+            this._didSomething();
+        }
+    }
+}
+
+export class ChangeInvertWavePan extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.invertWavePan = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
     }
 }
 
