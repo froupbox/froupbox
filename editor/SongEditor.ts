@@ -1547,7 +1547,7 @@ export class SongEditor {
     private readonly _reverbStereoSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.reverbStereoRange - 1, value: "63", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeReverbStereo(this.doc, oldValue, newValue), false);
     private readonly _reverbStereoRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("reverbStereo") }, "Stereo:"), this._reverbStereoSlider.container);
     
-    private readonly _reverbMaxFreqSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.reverbMaxFreqRange, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeReverbMaxFreq(this.doc, oldValue, newValue), false);
+    private readonly _reverbMaxFreqSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.reverbMaxFreqRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeReverbMaxFreq(this.doc, oldValue, newValue), false);
     public readonly reverbMaxFreqNum: HTMLParagraphElement = div({ style: "font-size: 80%; ", id: "reverbMaxFreqNum" });
     private readonly _reverbMaxFreqSliderRow: HTMLDivElement = div({ class: "selectRow", style: "width:100%;" }, div({ style: "display:flex; flex-direction:column; align-items:center;" },
         span({ class: "tip", style: "font-size: smaller;", onclick: () => this._openPrompt("reverbMaxFreq") }, "Max Freq: "),
