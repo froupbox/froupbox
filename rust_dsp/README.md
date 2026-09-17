@@ -53,4 +53,4 @@ I can't help you with this, but [the official Rust website can](https://rust-lan
 
 # License
 
-The `rust_dsp` part of froupbox is licensed under the [GNU Affero General Public License Version 3](./LICENSE). That's because this code currently only consists of the compressor from [cy!box](https://gitlab.com/cyphers-stuff/cybox), which is AGPLv3. (You should definitely check out cy!box by the way, hint hint wink wink.)
+The `rust_dsp` is part of froupbox and is licensed under the [GNU Affero General Public License Version 3](./LICENSE).

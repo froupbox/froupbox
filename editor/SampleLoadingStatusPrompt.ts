@@ -1,3 +1,5 @@
+// Copyright (c) 2026 froupbox developers and contributing authors, distributed under the GNU AGPL v3, see the accompanying LICENSE file.
+
 import { HTML } from "imperative-html/dist/esm/elements-strict";
 import { sampleLoadingState, SampleLoadingStatus, getSampleLoadingStatusName, ChipWave, Config } from "../synth/SynthConfig";
 import { ColorConfig } from "./ColorConfig";

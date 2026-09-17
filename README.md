@@ -37,9 +37,7 @@ DO_ALERTS=1 npm run build
 
 ## License
 
-The JS frontend and some of froupbox's effects are licensed under the [MIT License](./LICENSE).
-
-The [Rust DSP code](/rust_dsp) is licensed under the [GNU AGPL v3](./rust_dsp/LICENSE).
+froupbox is licensed under the [AGPL v3](./LICENSE).
 
 ### I want to use froupbox code in other projects! How does this matter?
 
@@ -47,9 +45,6 @@ _This is not legal advice. Consult a lawyer for details._
 
 Summarized, if you fork froupbox (to make a new mod) and credit it while having the source code openly accessible (via GitHub or similar), you're completely fine as long as you don't change froupbox's original licenses.
 
-If you use froupbox code in other mods or projects:
+This also applies if you **use** froupbox's source code in other projects. "Use" means create a [derivative work](https://en.wikipedia.org/wiki/Derivative_work) that uses froupbox's code. This includes copy-paste, translations, and anything that incorporates the source code of froupbox in any form. That is, if you include froupbox source code _at all_ in your own project, the entire project must be licensed under the AGPL.
 
-- If you exclusively use JS code, you are allowed to keep the source code hidden as long as you give credit.
-- If you use froupbox's Rust code, your project **must** be also licensed under the GNU AGPL v3. Not doing so is a violation of the license.
-
-"Use" means create a [derivative work](https://en.wikipedia.org/wiki/Derivative_work) that uses froupbox's code. This includes copy-paste, ports, translations, and anything that incorporates the source code of froupbox in any form.
+For BeepBox forks: you can relicense MIT code (like BeepBox) under the AGPL, but not the other way around; i.e. if your project is AGPL, you can take code from MIT licensed projects, but if your project is MIT, you can't take code from AGPL projects without changing the license.

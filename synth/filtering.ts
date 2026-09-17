@@ -1,3 +1,5 @@
+// Copyright (c) 2026 froupbox developers and contributing authors, distributed under the GNU AGPL v3, see the accompanying LICENSE file.
+
 /*
 This file contains code to compute digital audio filter coefficients based on
 the desired type, cutoff frequency, and other parameters. You can use these
