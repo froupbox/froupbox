@@ -10362,7 +10362,7 @@ class InstrumentState {
             this.reverbMultDelta = (reverbEnd - reverbStart) / roundedSamplesPerTick;
             maxReverbMult = Math.max(reverbStart, reverbEnd);
 
-            const shelfRadians: number = 2.0 * Math.PI * reverbValueToFreq(instrument.reverbMaxFreq) / synth.samplesPerSecond;
+            const shelfRadians: number = 2.0 * Math.PI * Math.min(synth.samplesPerSecond / 2, reverbValueToFreq(instrument.reverbMaxFreq)) / synth.samplesPerSecond;
             Synth.tempFilterStartCoefficients.highShelf1stOrder(shelfRadians, Config.reverbShelfGain);
             this.reverbShelfA1 = Synth.tempFilterStartCoefficients.a[1];
             this.reverbShelfB0 = Synth.tempFilterStartCoefficients.b[0];
