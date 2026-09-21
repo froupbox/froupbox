@@ -3024,6 +3024,21 @@ export class ChangeColorizerMix extends ChangeInstrumentSlider {
     }
 }
 
+export class ChangeColorizerLegacyMix extends Change {
+    constructor(doc: SongDocument, newValue: boolean) {
+        super();
+        const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+        const oldValue = instrument.colorizerLegacyMix;
+
+        doc.notifier.changed();
+        if (oldValue != newValue) {
+            instrument.colorizerLegacyMix = newValue;
+            instrument.preset = instrument.type;
+            this._didSomething();
+        }
+    }
+}
+
 export class ChangeColorizerColor extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);

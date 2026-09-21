@@ -829,6 +829,12 @@ export class TipPrompt implements Prompt {
 					p(`This setting controls the dry-wet mix of the colorizer.`),
 				);
 			} break;
+			case "colorizerLegacyMix": {
+				message = div(
+					h2("Colorizer Legacy Mix"),
+					p(`This enables the old system used for the colorizer's mix, this is for backwards compatbility and not recommended to enable as it can make volume unstable.`),
+				);
+			} break;
 			case "colorizerColor": {
 				message = div(
 					h2("Colorizer Color"),

@@ -1751,6 +1751,7 @@ export class Instrument {
     public flangerFeedmix: number = 0;
 
     public colorizerMix: number = 32;
+    public colorizerLegacyMix: boolean = false;
     public colorizerColor: number = 32;
     public colorizerChannel: number = 0;
     public colorizerMaxFreq: number = 63;
@@ -1914,6 +1915,7 @@ export class Instrument {
         this.flangerFeedmix = 0;
 
         this.colorizerMix = 32;
+        this.colorizerLegacyMix = false;
         this.colorizerColor = 32;
         this.colorizerChannel = 0;
         this.colorizerMaxFreq = 63;
@@ -2283,6 +2285,7 @@ export class Instrument {
         }
         if (effectsIncludeColorizer(this.effects)) {
             instrumentObject["colorizerMix"] =  this.colorizerMix;
+            instrumentObject["colorizerLegacyMix"] = this.colorizerLegacyMix;
             instrumentObject["colorizerColor"] =  this.colorizerColor;
             instrumentObject["colorizerChannel"] =  this.colorizerChannel;
             instrumentObject["colorizerMaxFreq"] =  this.colorizerMaxFreq;
@@ -2810,6 +2813,11 @@ export class Instrument {
 
         if (instrumentObject["colorizerMix"] != undefined) {
             this.colorizerMix = clamp(0, Config.colorizerMixRange + 1, instrumentObject["colorizerMix"]);
+        }
+        if (instrumentObject["colorizerLegacyMix"] != undefined) {
+            this.colorizerLegacyMix = instrumentObject["colorizerLegacyMix"];
+        } else if (instrumentObject["colorizerMix"] != undefined) {
+            this.colorizerLegacyMix = true;
         }
         if (instrumentObject["colorizerColor"] != undefined) {
             this.colorizerColor = clamp(0, Config.colorizerColorRange + 1, instrumentObject["colorizerColor"]);
@@ -3512,7 +3520,7 @@ export class Song {
     private static readonly _oldestSlarmoosBoxVersion: number = 1;
     private static readonly _latestSlarmoosBoxVersion: number = 5;
     private static readonly _oldestFroupBoxVersion: number = 1;
-    private static readonly _latestFroupBoxVersion: number = 11;
+    private static readonly _latestFroupBoxVersion: number = 12;
     // One-character variant detection at the start of URL to distinguish variants such as JummBox, Or Goldbox. "j" and "g" respectively
     //also "u" is ultrabox lol
     private static readonly _variant = 0x66; //"f" ~ froupbox
@@ -4226,6 +4234,7 @@ export class Song {
 
                 if (effectsIncludeColorizer(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.colorizerMix]);
+                    buffer.push(base64IntToCharCode[+instrument.colorizerLegacyMix]);
                     buffer.push(base64IntToCharCode[instrument.colorizerColor]);
                     buffer.push(base64IntToCharCode[instrument.colorizerChannel]);
                     buffer.push(base64IntToCharCode[instrument.colorizerMaxFreq]);
@@ -4868,6 +4877,7 @@ export class Song {
         const beforeNine: boolean = version < 9;
         const beforeTen: boolean = version < 10;
         const beforeEleven: boolean = version < 11;
+        const beforeTwelve: boolean = version < 12;
         this.initToDefault((fromBeepBox && beforeNine) || ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox)));
         const forceSimpleFilter: boolean = (fromBeepBox && beforeNine || fromJummBox && beforeFive);
         let willLoadLegacySamplesForOldSongs: boolean = false;
@@ -6281,6 +6291,11 @@ export class Song {
                     }    
                     if (effectsIncludeColorizer(instrument.effects)) {
                         instrument.colorizerMix = clamp(0, Config.colorizerMixRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        if (!beforeTwelve) {
+                            instrument.colorizerLegacyMix = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
+                        } else {
+                            instrument.colorizerLegacyMix = true;
+                        }
                         instrument.colorizerColor = clamp(0, Config.colorizerColorRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.colorizerChannel = clamp(0, Config.pitchChannelCountMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.colorizerMaxFreq = clamp(0, Config.colorizerMaxFreqRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
