@@ -1,4 +1,4 @@
-// Copyright (C) 2020 John Nesky, distributed under the MIT license.
+// Copyright (c) 2026 froupbox developers and contributing authors, distributed under the GNU AGPL v3, see the accompanying LICENSE file.
 // A few wrapper classes that add functionality onto existing HTML elements, namely binding some events to an implementation-specified change class
 
 import { clamp } from "../synth/synth";
