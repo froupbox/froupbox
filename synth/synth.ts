@@ -10509,6 +10509,7 @@ class InstrumentState {
 
         start.freqs = new Float32Array(instrument.colorizerFrequenciesStart);
         end.freqs = new Float32Array(instrument.colorizerFrequenciesEnd);
+        this.colorizer.use_legacy_mix = instrument.colorizerLegacyMix;
         this.colorizer.begin(start, end, samplesPerSecond, roundedSamplesPerTick);
       }
       

@@ -1,4 +1,4 @@
 [build]
 target = ["wasm32-unknown-unknown"]
 # enable SIMD and threading
-rustflags = ["-Ctarget-feature=+simd128,+atomics"]
+rustflags = ["-Ctarget-feature=+simd128"]

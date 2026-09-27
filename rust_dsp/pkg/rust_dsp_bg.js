@@ -35,6 +35,19 @@ export class ColourizerInstance {
         _assertClass(buffer, DspBuffer);
         wasm.colourizerinstance_process(this.__wbg_ptr, buffer.__wbg_ptr);
     }
+    /**
+     * @returns {boolean}
+     */
+    get use_legacy_mix() {
+        const ret = wasm.__wbg_get_colourizerinstance_use_legacy_mix(this.__wbg_ptr);
+        return ret !== 0;
+    }
+    /**
+     * @param {boolean} arg0
+     */
+    set use_legacy_mix(arg0) {
+        wasm.__wbg_set_colourizerinstance_use_legacy_mix(this.__wbg_ptr, arg0);
+    }
 }
 if (Symbol.dispose) ColourizerInstance.prototype[Symbol.dispose] = ColourizerInstance.prototype.free;
 

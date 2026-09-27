@@ -7,6 +7,7 @@ export class ColourizerInstance {
     begin(start: ColourizerInstanceParams, end: ColourizerInstanceParams, sample_rate: number, run_length: number): void;
     constructor();
     process(buffer: DspBuffer): void;
+    use_legacy_mix: boolean;
 }
 
 export class ColourizerInstanceParams {

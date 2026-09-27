@@ -1,4 +1,5 @@
 #![feature(portable_simd)]
+#![feature(iter_partition_in_place)]
 
 mod buffer;
 mod colourizer;

@@ -48,6 +48,9 @@ impl ColourizerInstanceParams {
 #[derive(Default)]
 pub struct ColourizerInstance {
     flangers: Vec<ColourizerFlanger>,
+    cur_num_active_flangers: usize,
+
+    pub use_legacy_mix: bool,
 
     output_buf: DspBuffer,
     mix_interp: Interpolator<f32>,
@@ -102,45 +105,58 @@ impl ColourizerInstance {
             flanger.i.interpolator = util::interpolate(run_length, params_start, params_end);
         }
 
+        self.cur_num_active_flangers = self
+            .flangers
+            .iter_mut()
+            .partition_in_place(|flanger| flanger.enabled);
+
         self.mix_interp = util::interpolate(run_length, start.mix(), end.mix());
     }
 
     #[wasm_bindgen]
     pub fn process(&mut self, buffer: &mut DspBuffer) {
+        if self.cur_num_active_flangers == 0 {
+            buffer.clear();
+            return;
+        }
+
         if self.output_buf.frame_size() != buffer.frame_size() {
             self.output_buf = DspBuffer::new(buffer.frame_size());
         }
         self.output_buf.run_length = buffer.run_length;
 
-        if (self.mix_interp.val - 1.0).abs() < 1e-3 && self.mix_interp.diff.abs() <= 1e-3 {
-            self.output_buf.clear();
-        } else {
-            for ((input_l, input_r), (output_l, output_r)) in
-                zip(buffer.as_zipped(), self.output_buf.as_zipped())
-            {
-                let dry = 1.0 - self.mix_interp.next();
-                *output_l = *input_l * dry;
-                *output_r = *input_r * dry;
+        let flangers = &mut self.flangers[..self.cur_num_active_flangers];
+        if cfg!(debug_assertions) {
+            for flanger in &mut *flangers {
+                debug_assert!(flanger.enabled);
             }
         }
 
-        for flanger in &mut self.flangers {
-            if !flanger.enabled {
-                continue;
+        let total_scale = 1.0 / self.cur_num_active_flangers as f32;
+
+        for ((input_l, input_r), (output_l, output_r)) in
+            zip(buffer.as_zipped(), self.output_buf.as_zipped())
+        {
+            let wet = self.mix_interp.next();
+
+            let input = SamplePair {
+                l: *input_l,
+                r: *input_r,
+            };
+            let mut output = SamplePair::ZERO;
+
+            for flanger in &mut *flangers {
+                output += flanger.i.process(input, true);
             }
-            for ((input_l, input_r), (output_l, output_r)) in
-                zip(buffer.as_zipped(), self.output_buf.as_zipped())
-            {
-                let output = flanger.i.process(
-                    SamplePair {
-                        l: *input_l,
-                        r: *input_r,
-                    },
-                    true,
-                );
-                *output_l += output.l;
-                *output_r += output.r;
+
+            if self.use_legacy_mix {
+                output += input * (1.0 - wet);
+            } else {
+                output *= total_scale;
             }
+
+            *output_l = output.l;
+            *output_r = output.r;
         }
 
         buffer.set(&mut self.output_buf);
