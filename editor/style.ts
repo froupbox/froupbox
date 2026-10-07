@@ -1761,14 +1761,14 @@ li.select2-results__option[role=group] > strong:hover {
      	height: 100%;
      	width: 6px;
     }
-    &::-moz-range-track {
-     	height: 100%;
-     	width: 6px;
-    }
     &::-webkit-slider-thumb {
      	width: var(--button-size);
      	height: 6px;
       translate: -10px;
+    }
+    &::-moz-range-track {
+     	height: 100%;
+     	width: 6px;
     }
     &::-moz-range-thumb {
      	width: var(--button-size);

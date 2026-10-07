@@ -12,7 +12,6 @@
 		"build": "rsbuild build",
 		"dev": "rsbuild dev",
 		"preview": "rsbuild preview",
-
 		"build-all": "rsbuild build",
 		"build-synth": "rsbuild build",
 		"build-player": "rsbuild build",
@@ -21,7 +20,6 @@
 		"build-offline-html": "echo 'froupbox does not support offline html (due to using rust). sorry :('",
 		"live_editor": "rsbuild dev",
 		"let": "rsbuild dev",
-
 		"deploy-files": "echo 'unimplemented for now. :('",
 		"start": "echo 'unimplemented for now. :('",
 		"package": "echo 'unimplemented for now. :('",
@@ -32,7 +30,6 @@
 		"url": "git+https://github.com/froupbox/froupbox.git"
 	},
 	"devDependencies": {
-		"@electron/packager": "^18.0.0",
 		"electron": "^33.0.0"
 	},
 	"dependencies": {
