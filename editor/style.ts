@@ -1833,5 +1833,15 @@ li.select2-results__option[role=group] > strong:hover {
     mask-position: 50%;
     mask-repeat: no-repeat;
   }
+
+  .beepboxTitleContainerDeleteButton {
+    background: none;
+    padding: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: -0.15rem;
+    position: absolute;
+    left: 0;
+  }
 }
 `));

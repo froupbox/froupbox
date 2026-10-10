@@ -1194,10 +1194,6 @@ export class SongEditor {
             collapseEffects = window.localStorage.getItem("collapseEffects") == "true";
         }
 
-        const titleContainer = div(
-            { class: id + "TitleContainer beepboxTitleContainer", style: "text-align: center; font-weight: bold;" },
-            title,
-        );
         el.classList.add(id + "Container", "beepboxContainer");
         let container;
         if (simplifiedEffects) {
@@ -1206,20 +1202,43 @@ export class SongEditor {
                 el,
             );
         } else {
+            
+            const index = this._groupContainers.length;
+            const flag = Config.effectNames.indexOf(title);
+            let deleteButton: Node | string = "";
+            if (flag === -1) {
+                if (import.meta.env.DEV) throw new Error(`no effect named ${el}; make sure the effect name in _createGroupContainer() matches an entry in Config.effectName`);
+            } else {
+                deleteButton = button({ class: "beepboxTitleContainerDeleteButton" }, "×");
+            }
+            
+            const titleContainer = div(
+                { class: id + "TitleContainer beepboxTitleContainer", style: "text-align: center; font-weight: bold;" },
+                deleteButton,
+                title,
+            );
+            
+            titleContainer.onclick = (e) => {
+                if ((e.target as Element).closest(".beepboxTitleContainerDeleteButton")) {
+                    this.doc.record(new ChangeToggleEffects(this.doc, flag, null));
+                    this.doc.notifier.notifyWatchers();
+                } else {
+                    if(!this._activeGroupContainerState) return;
+                    const val = !this._activeGroupContainerState[index];
+                    this._activeGroupContainerState[index] = val;
+                    this._updateGroupContainer(index, val, simplifiedEffects, collapseEffects);
+                }
+                e.preventDefault();
+                e.stopPropagation();
+            };
+            
             container = div(
                 { class: id + "GroupContainer beepboxGroupContainer", style: "background-color: #ffffff06; border-radius: 10px; padding: 4px; margin: 4px" },
                 titleContainer,
                 el,
             );
         }
-        const index = this._groupContainers.length;
         this._groupContainers.push(container);
-        titleContainer.onclick = () => {
-            if(!this._activeGroupContainerState) return;
-            const val = !this._activeGroupContainerState[index];
-            this._activeGroupContainerState[index] = val;
-            this._updateGroupContainer(index, val, simplifiedEffects, collapseEffects);
-        };
         return container;
     }
     _updateGroupContainers(state: boolean[]) {
