@@ -35,14 +35,8 @@ impl ColourizerInstanceParams {
         self.mix * (1.0 / 63.0)
     }
     fn total_scale(&self, num_flangers: usize) -> f32 {
-        // this is the default calculation that i implemented
-        1.0 / (num_flangers as f32)
-        // you can do inverse square root
-        // 1.0 / (num_flangers as f32).sqrt()
-        // or the cube root
-        // 1.0 / (num_flangers as f32).cbrt()
-        // or anything, even taking into account self.voices!
-        // 1.0 / (num_flangers as f32 * self.voices).powf(0.8)
+        // modify this to your heart's content, but make sure it's never NaN/infinity
+        (num_flangers as f32 * self.voices).powf(-0.5).min(1.0)
     }
     fn for_freq(&self, sample_rate: f32, freq: f32) -> FlangerParams {
         FlangerParams {
@@ -123,6 +117,13 @@ impl ColourizerInstance {
         self.cur_num_active_flangers = num_flangers;
 
         self.mix_interp = util::interpolate(run_length, start.mix(), end.mix());
+
+        // if you ever want to debug what the values are, you can do this with rust's string formatting
+        // crate::log!(
+        //     "{} => {}",
+        //     start.total_scale(num_flangers),
+        //     end.total_scale(num_flangers)
+        // );
         self.total_scale_interp = util::interpolate(
             run_length,
             start.total_scale(num_flangers),
@@ -149,8 +150,6 @@ impl ColourizerInstance {
             }
         }
 
-        let total_scale = 1.0 / self.cur_num_active_flangers as f32;
-
         for ((input_l, input_r), (output_l, output_r)) in
             zip(buffer.as_zipped(), self.output_buf.as_zipped())
         {
@@ -169,7 +168,7 @@ impl ColourizerInstance {
             if self.use_legacy_mix {
                 output += input * (1.0 - wet);
             } else {
-                output *= total_scale;
+                output *= self.total_scale_interp.next();
             }
 
             *output_l = output.l;
