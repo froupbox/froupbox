@@ -869,7 +869,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
             }
             if (Math.random() < 0.1) {
                 instrument.effects |= 1 << EffectType.chorus;
-                instrument.chorus = selectCurvedDistribution(1, Config.chorusRange - 1, Config.chorusRange - 1, 1);
+                instrument.chorusMix = selectCurvedDistribution(1, Config.chorusMixRange - 1, Config.chorusMixRange - 1, 1);
             }
             if (Math.random() < 0.1) {
                 instrument.echoSustain = selectCurvedDistribution(0, Config.echoSustainRange - 1, Config.echoSustainRange >> 1, 2);
@@ -1216,7 +1216,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
             }
             if (Math.random() < 0.1) {
                 instrument.effects |= 1 << EffectType.chorus;
-                instrument.chorus = selectCurvedDistribution(1, Config.chorusRange - 1, Config.chorusRange - 1, 1);
+                instrument.chorusMix = selectCurvedDistribution(1, Config.chorusMixRange - 1, Config.chorusMixRange - 1, 1);
                 if (Math.random() < 0.1) {
                     let envelopeLowerBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
                     let envelopeUpperBound = selectCurvedDistribution(0, 20, 8, 5) / 10;
@@ -1359,7 +1359,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
             }
             if (Math.random() < 0.1) {
                 instrument.effects |= 1 << EffectType.granular;
-                instrument.granular = selectCurvedDistribution(1, Config.granularRange - 1, Config.granularRange / 2, Config.granularRange / 3);
+                instrument.granularMix = selectCurvedDistribution(1, Config.granularMixRange - 1, Config.granularMixRange / 2, Config.granularMixRange / 3);
                 instrument.grainAmounts = selectCurvedDistribution(1, Config.grainAmountsMax - 1, Config.grainAmountsMax-2, 3);
                 instrument.grainSize = selectCurvedDistribution(Config.grainSizeMin / Config.grainSizeStep, Config.grainSizeMax / Config.grainSizeStep, Config.grainSizeMax / Config.grainSizeStep, Config.grainSizeMax / Config.grainSizeStep / 2);
                 instrument.grainRange = selectCurvedDistribution(0, Config.grainRangeMax / Config.grainSizeStep, Config.grainRangeMax / Config.grainSizeStep / 2, Config.grainSizeMax / Config.grainSizeStep / 2);
@@ -2756,10 +2756,10 @@ export class ChangeLowerLimit extends ChangeInstrumentSlider {
 }
 
 
-export class ChangeGranular extends ChangeInstrumentSlider {
+export class ChangeGranularMix extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
-        this._instrument.granular = newValue;
+        this._instrument.granularMix = newValue;
         doc.notifier.changed();
         doc.synth.unsetMod(Config.modulators.dictionary["granular"].index, doc.channel, doc.getCurrentInstrument());
         if (oldValue != newValue) this._didSomething();
@@ -2817,12 +2817,32 @@ export class ChangeCompressorTime extends ChangeInstrumentSlider {
   }
 }
 
+export class ChangeDistortionMix extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.distortionMix = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
 export class ChangeDistortion extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
         this._instrument.distortion = newValue;
         doc.notifier.changed();
         doc.synth.unsetMod(Config.modulators.dictionary["distortion"].index, doc.channel, doc.getCurrentInstrument());
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
+export class ChangeBitcrusherMix extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.bitcrusherMix = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
         if (oldValue != newValue) this._didSomething();
     }
 }
@@ -2924,6 +2944,26 @@ export class ChangePhaserDisperse extends Change {
     }
 }
 
+export class ChangeInvertWaveMix extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.invertWaveMix = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
+export class ChangeInvertWaveStereo extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.invertWaveStereo = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
 export class ChangeInvertWave extends Change {
     constructor(doc: SongDocument, newValue: boolean) {
         super();
@@ -2953,6 +2993,16 @@ export class ChangeFlangerMix extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
         this._instrument.flangerMix = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
+export class ChangeFlangerStereo extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.flangerStereo = newValue;
         // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
         doc.notifier.changed();
         if (oldValue != newValue) this._didSomething();
@@ -3011,6 +3061,21 @@ export class ChangeFlangerFeedmix extends ChangeInstrumentSlider {
         // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
         doc.notifier.changed();
         if (oldValue != newValue) this._didSomething();
+    }
+}
+
+export class ChangeFlangerHaas extends Change {
+    constructor(doc: SongDocument, newValue: boolean) {
+        super();
+        const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+        const oldValue = instrument.flangerHaas;
+
+        doc.notifier.changed();
+        if (oldValue != newValue) {
+            instrument.flangerHaas = newValue;
+            instrument.preset = instrument.type;
+            this._didSomething();
+        }
     }
 }
 
@@ -4893,6 +4958,16 @@ export class ChangeEchoDelay extends ChangeInstrumentSlider {
     }
 }
 
+export class ChangeEchoMix extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.echoMix = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
 export class ChangeEchoSustain extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
@@ -4907,16 +4982,31 @@ export class ChangeEchoDamping extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
         this._instrument.echoDamping = newValue;
-        // doc.synth.unsetMod(Config.modulators.dictionary["reverb"].index, doc.channel, doc.getCurrentInstrument());
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
         doc.notifier.changed();
         if (oldValue != newValue) this._didSomething();
     }
 }
 
-export class ChangeChorus extends ChangeInstrumentSlider {
+export class ChangeEchoIsolate extends Change {
+    constructor(doc: SongDocument, newValue: boolean) {
+        super();
+        const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+        const oldValue = instrument.echoIsolate;
+
+        doc.notifier.changed();
+        if (oldValue != newValue) {
+            instrument.echoIsolate = newValue;
+            instrument.preset = instrument.type;
+            this._didSomething();
+        }
+    }
+}
+
+export class ChangeChorusMix extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
-        this._instrument.chorus = newValue;
+        this._instrument.chorusMix = newValue;
         doc.synth.unsetMod(Config.modulators.dictionary["chorus"].index, doc.channel, doc.getCurrentInstrument());
         doc.notifier.changed();
         if (oldValue != newValue) this._didSomething();
@@ -4927,7 +5017,7 @@ export class ChangeChorusStereo extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
         this._instrument.chorusStereo = newValue;
-        // doc.synth.unsetMod(Config.modulators.dictionary["chorusStereo"].index, doc.channel, doc.getCurrentInstrument());
+        // doc.synth.unsetMod(Config.modulators.dictionary["..."].index, doc.channel, doc.getCurrentInstrument());
         doc.notifier.changed();
         if (oldValue != newValue) this._didSomething();
     }
@@ -4937,6 +5027,16 @@ export class ChangeReverbMix extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
         this._instrument.reverbMix = newValue;
+        // doc.synth.unsetMod(Config.modulators.dictionary["reverb"].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
+export class ChangeReverbStereo extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.reverbStereo = newValue;
         // doc.synth.unsetMod(Config.modulators.dictionary["reverb"].index, doc.channel, doc.getCurrentInstrument());
         doc.notifier.changed();
         if (oldValue != newValue) this._didSomething();
@@ -4953,16 +5053,6 @@ export class ChangeReverb extends ChangeInstrumentSlider {
     }
 }
 
-export class ChangeReverbStereo extends ChangeInstrumentSlider {
-    constructor(doc: SongDocument, oldValue: number, newValue: number) {
-        super(doc);
-        this._instrument.reverbStereo = newValue;
-        // doc.synth.unsetMod(Config.modulators.dictionary["reverb"].index, doc.channel, doc.getCurrentInstrument());
-        doc.notifier.changed();
-        if (oldValue != newValue) this._didSomething();
-    }
-}
-
 export class ChangeReverbMaxFreq extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
@@ -4970,6 +5060,21 @@ export class ChangeReverbMaxFreq extends ChangeInstrumentSlider {
         // doc.synth.unsetMod(Config.modulators.dictionary["reverb"].index, doc.channel, doc.getCurrentInstrument());
         doc.notifier.changed();
         if (oldValue != newValue) this._didSomething();
+    }
+}
+
+export class ChangeReverbIsolate extends Change {
+    constructor(doc: SongDocument, newValue: boolean) {
+        super();
+        const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
+        const oldValue = instrument.reverbIsolate;
+
+        doc.notifier.changed();
+        if (oldValue != newValue) {
+            instrument.reverbIsolate = newValue;
+            instrument.preset = instrument.type;
+            this._didSomething();
+        }
     }
 }
 
@@ -5970,7 +6075,7 @@ export class ChangeAddEnvelope extends Change {
     constructor(doc: SongDocument) {
         super();
         const instrument: Instrument = doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()];
-        instrument.addEnvelope(0, 0, 0, true, 0, instrument.isNoiseInstrument ? Config.drumCount : (doc.song.channels[doc.channel].equaveDivisions * Config.pitchOctaves), false, 1, 0);
+        instrument.addEnvelope(0, 0, 0, true, 0, instrument.isNoiseInstrument ? Config.drumCount : (12 * Config.pitchOctaves), false, 1, 0);
         instrument.preset = instrument.type;
         doc.notifier.changed();
         this._didSomething();

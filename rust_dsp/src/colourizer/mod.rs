@@ -34,6 +34,16 @@ impl ColourizerInstanceParams {
     fn mix(&self) -> f32 {
         self.mix * (1.0 / 63.0)
     }
+    fn total_scale(&self, num_flangers: usize) -> f32 {
+        // this is the default calculation that i implemented
+        1.0 / (num_flangers as f32)
+        // you can do inverse square root
+        // 1.0 / (num_flangers as f32).sqrt()
+        // or the cube root
+        // 1.0 / (num_flangers as f32).cbrt()
+        // or anything, even taking into account self.voices!
+        // 1.0 / (num_flangers as f32 * self.voices).powf(0.8)
+    }
     fn for_freq(&self, sample_rate: f32, freq: f32) -> FlangerParams {
         FlangerParams {
             delay: sample_rate / freq,
@@ -54,6 +64,7 @@ pub struct ColourizerInstance {
 
     output_buf: DspBuffer,
     mix_interp: Interpolator<f32>,
+    total_scale_interp: Interpolator<f32>,
 }
 
 #[derive(Default)]
@@ -105,12 +116,18 @@ impl ColourizerInstance {
             flanger.i.interpolator = util::interpolate(run_length, params_start, params_end);
         }
 
-        self.cur_num_active_flangers = self
+        let num_flangers = self
             .flangers
             .iter_mut()
             .partition_in_place(|flanger| flanger.enabled);
+        self.cur_num_active_flangers = num_flangers;
 
         self.mix_interp = util::interpolate(run_length, start.mix(), end.mix());
+        self.total_scale_interp = util::interpolate(
+            run_length,
+            start.total_scale(num_flangers),
+            end.total_scale(num_flangers),
+        )
     }
 
     #[wasm_bindgen]

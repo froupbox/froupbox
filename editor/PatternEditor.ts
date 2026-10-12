@@ -8,7 +8,7 @@ import { Slider } from "./HTMLWrapper";
 import { SongEditor } from "./SongEditor";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ChangeSequence, UndoableChange } from "./Change";
-import { ChangeVolume, FilterMoveData, ChangeTempo, ChangePan, ChangeReverb, ChangeDistortion, ChangeOperatorAmplitude, ChangeFeedbackAmplitude, ChangePulseWidth, ChangeDetune, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangePanDelay, ChangeChorus, ChangeEQFilterSimplePeak, ChangeNoteFilterSimplePeak, ChangeStringSustain, ChangeEnvelopeSpeed, ChangeSupersawDynamism, ChangeSupersawShape, ChangeSupersawSpread, ChangePitchShift, ChangeChannelBar, ChangeDragSelectedNotes, ChangeEnsurePatternExists, ChangeNoteTruncate, ChangeNoteAdded, ChangePatternSelection, ChangePinTime, ChangeSizeBend, ChangePitchBend, ChangePitchAdded, ChangeArpeggioSpeed, ChangeBitcrusherQuantization, ChangeBitcrusherFreq, ChangeEchoSustain, ChangeEQFilterSimpleCut, ChangeNoteFilterSimpleCut, ChangeFilterMovePoint, ChangeDuplicateSelectedReusedPatterns, ChangeHoldingModRecording, ChangeDecimalOffset, ChangePerEnvelopeSpeed, ChangeSongFilterMovePoint, ChangeRingMod, ChangeRingModHz, ChangeGranular, ChangeGrainSize, ChangeEnvelopeLowerBound, ChangeEnvelopeUpperBound, ChangeGrainAmounts, ChangeGrainRange } from "./changes";
+import { ChangeVolume, FilterMoveData, ChangeTempo, ChangePan, ChangeReverb, ChangeDistortion, ChangeOperatorAmplitude, ChangeFeedbackAmplitude, ChangePulseWidth, ChangeDetune, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangePanDelay, ChangeChorusMix, ChangeEQFilterSimplePeak, ChangeNoteFilterSimplePeak, ChangeStringSustain, ChangeEnvelopeSpeed, ChangeSupersawDynamism, ChangeSupersawShape, ChangeSupersawSpread, ChangePitchShift, ChangeChannelBar, ChangeDragSelectedNotes, ChangeEnsurePatternExists, ChangeNoteTruncate, ChangeNoteAdded, ChangePatternSelection, ChangePinTime, ChangeSizeBend, ChangePitchBend, ChangePitchAdded, ChangeArpeggioSpeed, ChangeBitcrusherQuantization, ChangeBitcrusherFreq, ChangeEchoSustain, ChangeEQFilterSimpleCut, ChangeNoteFilterSimpleCut, ChangeFilterMovePoint, ChangeDuplicateSelectedReusedPatterns, ChangeHoldingModRecording, ChangeDecimalOffset, ChangePerEnvelopeSpeed, ChangeSongFilterMovePoint, ChangeRingMod, ChangeRingModHz, ChangeGranularMix, ChangeGrainSize, ChangeEnvelopeLowerBound, ChangeEnvelopeUpperBound, ChangeGrainAmounts, ChangeGrainRange } from "./changes";
 import { prettyNumber } from "./EditorConfig";
 import { EnvelopeEditor } from "./EnvelopeEditor";
 
@@ -1043,14 +1043,14 @@ export class PatternEditor {
                 songEditor.ringModHzNum.innerHTML = "(" + instrument.ringModulationHz + ")";
             }
         }
-        else if (change instanceof ChangeGranular) {
+        else if (change instanceof ChangeGranularMix) {
             var modulator = Config.modulators.dictionary["granular"];
             applyToMods.push(modulator.index);
-            if (toApply) applyValues.push(instrument.granular - modulator.convertRealFactor);
+            if (toApply) applyValues.push(instrument.granularMix - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
             slider = songEditor.getSliderForModSetting(modulator.index);
             if (slider != null) {
-                instrument.granular = slider.getValueBeforeProspectiveChange();
+                instrument.granularMix = slider.getValueBeforeProspectiveChange();
             }
         }
         else if (change instanceof ChangeGrainAmounts) {
@@ -1286,14 +1286,14 @@ export class PatternEditor {
                 instrument.echoSustain = slider.getValueBeforeProspectiveChange();
             }
         }
-        else if (change instanceof ChangeChorus) {
+        else if (change instanceof ChangeChorusMix) {
             var modulator = Config.modulators.dictionary["chorus"];
             applyToMods.push(modulator.index);
-            if (toApply) applyValues.push(instrument.chorus - modulator.convertRealFactor);
+            if (toApply) applyValues.push(instrument.chorusMix - modulator.convertRealFactor);
             // Move the actual value back, since we just want to update the modulated value and not the base slider.
             slider = songEditor.getSliderForModSetting(modulator.index);
             if (slider != null) {
-                instrument.chorus = slider.getValueBeforeProspectiveChange();
+                instrument.chorusMix = slider.getValueBeforeProspectiveChange();
             }
         }
         else if (change instanceof ChangeEQFilterSimpleCut) {
@@ -2899,8 +2899,8 @@ export class PatternEditor {
             const rectangle: SVGRectElement = this._backgroundPitchRows[j];
             const y: number = (this._doc.song.channels[this._doc.channel].equaveDivisions - j) % this._doc.song.channels[this._doc.channel].equaveDivisions;
             rectangle.setAttribute("width", "" + (beatWidth - 2));
-            rectangle.setAttribute("y", "" + (y * this._pitchHeight + 1));
-            rectangle.setAttribute("height", "" + (this._pitchHeight - 2));
+            rectangle.setAttribute("y", "" + (y * this._pitchHeight + (-(this._doc.song.channels[this._doc.channel].equaveDivisions - 12) / 45 + 2) / 2));
+            rectangle.setAttribute("height", "" + (this._pitchHeight - (-(this._doc.song.channels[this._doc.channel].equaveDivisions - 12) / 45 + 2)));
         }
 
         if (this._interactive) {
