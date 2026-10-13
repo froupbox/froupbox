@@ -7,6 +7,7 @@ use crate::{
     SamplePair,
     buffer::DspBuffer,
     flanger::{Flanger, FlangerParams},
+    lerp,
     util::{self, Interpolator},
 };
 
@@ -36,7 +37,9 @@ impl ColourizerInstanceParams {
     }
     fn total_scale(&self, num_flangers: usize) -> f32 {
         // modify this to your heart's content, but make sure it's never NaN/infinity
-        (num_flangers as f32 * self.voices).powf(-0.5).min(1.0)
+        (num_flangers as f32 * self.voices * self.mix)
+            .powf(-0.5)
+            .min(1.0)
     }
     fn for_freq(&self, sample_rate: f32, freq: f32) -> FlangerParams {
         FlangerParams {
@@ -133,11 +136,6 @@ impl ColourizerInstance {
 
     #[wasm_bindgen]
     pub fn process(&mut self, buffer: &mut DspBuffer) {
-        if self.cur_num_active_flangers == 0 {
-            buffer.clear();
-            return;
-        }
-
         if self.output_buf.frame_size() != buffer.frame_size() {
             self.output_buf = DspBuffer::new(buffer.frame_size());
         }
@@ -169,6 +167,7 @@ impl ColourizerInstance {
                 output += input * (1.0 - wet);
             } else {
                 output *= self.total_scale_interp.next();
+                output = lerp(input, output, wet);
             }
 
             *output_l = output.l;
