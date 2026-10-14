@@ -1694,18 +1694,25 @@ export class Instrument {
     public supersawShape: number = 0;
     public stringSustain: number = 10;
     public stringSustainType: SustainType = SustainType.acoustic;
+
+    public distortionMix: number = Config.effectMixRange - 1;
     public distortion: number = 0;
+
+    public bitcrusherMix: number = Config.effectMixRange - 1;
     public bitcrusherFreq: number = 0;
     public bitcrusherQuantization: number = 0;
+
     public ringModulation: number = Config.ringModRange >> 1;
     public ringModulationHz: number = Config.ringModHzRange >> 1;
     public ringModWaveformIndex: number = 0;
     public ringModPulseWidth: number = Config.pwmOperatorWaves.length >> 1;
     public ringModHzOffset: number = 200;
-    public granular: number = 4;
+
+    public granularMix: number = 4;
     public grainSize: number = (Config.grainSizeMax - Config.grainSizeMin) / Config.grainSizeStep;
     public grainAmounts: number = Config.grainAmountsMax;
-    public grainRange: number = 40
+    public grainRange: number = 40;
+
     public compressor: JsCompressorParams = {
       mode: "simple",
       hidden: false,
@@ -1723,17 +1730,20 @@ export class Instrument {
       gainHi: 8,
     };
 
-    public chorus: number = 0;
-    public chorusStereo: number = 63;
+    public chorusMix: number = 0;
+    public chorusStereo: number = Config.effectStereoRange - 1;
 
-    public reverbMix: number = 63;
+    public reverbMix: number = Config.effectMixRange - 1;
+    public reverbStereo: number = Config.effectStereoRange - 1;
     public reverb: number = 0;
-    public reverbStereo: number = 63;
     public reverbMaxFreq: number = 38;
+    public reverbIsolate: boolean = false;
 
+    public echoMix: number = Config.effectMixRange - 1;
     public echoSustain: number = 0;
     public echoDelay: number = 0;
     public echoDamping: number = 25;
+    public echoIsolate: boolean = false;
 
     public phaserMix: number = Config.phaserMixRange - 1;
     public phaserFreq: number = 0;
@@ -1744,11 +1754,13 @@ export class Instrument {
     public phaserFilterIndex: number = 0;
     
     public flangerMix: number = 32;
+    public flangerStereo: number = Config.effectStereoRange - 1;
     public flangerVoices: number = 1;
     public flangerDistribute: boolean = true;
     public flangerDelay: number = 256;
     public flangerPan: number = Config.flangerPanCenter;
     public flangerFeedmix: number = 0;
+    public flangerHaas: boolean = true;
 
     public colorizerMix: number = 32;
     public colorizerLegacyMix: boolean = false;
@@ -1760,6 +1772,8 @@ export class Instrument {
     public colorizerFrequenciesStart: number[] = [];
     public colorizerFrequenciesEnd: number[] = [];
 
+    public invertWaveMix: number = Config.effectMixRange - 1;
+    public invertWaveStereo: number = Config.effectStereoRange - 1;
     public invertWave: boolean = false;
     public invertWavePan: number = Config.invertWavePanCenter;
 
@@ -1861,15 +1875,22 @@ export class Instrument {
         this.volumePitchCompensation = 25;
         this.volumeChordCompensation = 25;
         this.effects = (1 << EffectType.panning); // Panning enabled by default in JB.
-        this.chorus = Config.chorusRange - 1;
-        this.chorusStereo = Config.chorusStereoRange - 1;
-        this.reverbMix = Config.reverbMixRange - 1;
+
+        this.chorusMix = Config.chorusMixRange - 1;
+        this.chorusStereo = Config.effectStereoRange - 1;
+
+        this.reverbMix = Config.effectMixRange - 1;
+        this.reverbStereo = Config.effectStereoRange - 1;
         this.reverb = 0;
-        this.reverbStereo = Config.reverbStereoRange - 1;
         this.reverbMaxFreq = 38;
+        this.reverbIsolate = false;
+
+        this.echoMix = Config.effectMixRange - 1;
         this.echoSustain = Math.floor((Config.echoSustainRange - 1) * 0.5);
         this.echoDelay = Math.floor((Config.echoDelayRange - 1) * 0.5);
         this.echoDamping = 25;
+        this.echoIsolate = false;
+
         this.eqFilter.reset();
         this.eqFilterType = false;
         this.eqFilterSimpleCut = Config.filterSimpleCutRange - 1;
@@ -1879,12 +1900,17 @@ export class Instrument {
             this.eqSubFilters[i] = null;
             this.noteSubFilters[i] = null;
         }
+
         this.noteFilter.reset();
         this.noteFilterType = false;
         this.noteFilterSimpleCut = Config.filterSimpleCutRange - 1;
         this.noteFilterSimplePeak = 0;
         this.noteFilterCompensation = 20;
+
+        this.distortionMix = Config.effectMixRange - 1;
         this.distortion = Math.floor((Config.distortionRange - 1) * 0.75);
+
+        this.bitcrusherMix = Config.effectMixRange - 1;
         this.bitcrusherFreq = Math.floor((Config.bitcrusherFreqRange - 1) * 0.5)
         this.bitcrusherQuantization = Math.floor((Config.bitcrusherQuantizationRange - 1) * 0.5);
 
@@ -1894,7 +1920,7 @@ export class Instrument {
         this.ringModPulseWidth = Config.pwmOperatorWaves.length >> 1;
         this.ringModHzOffset = 200;
 
-        this.granular = 4;
+        this.granularMix = 4;
         this.grainSize = (Config.grainSizeMax - Config.grainSizeMin) / Config.grainSizeStep;
         this.grainAmounts = Config.grainAmountsMax;
         this.grainRange = 40;
@@ -1908,11 +1934,13 @@ export class Instrument {
         this.phaserFilterIndex = 0;
 
         this.flangerMix = 32;
+        this.flangerStereo = Config.effectStereoRange - 1;
         this.flangerVoices = 1;
         this.flangerDistribute = true;
         this.flangerDelay = 256;
         this.flangerPan = Config.flangerPanCenter;
         this.flangerFeedmix = 0;
+        this.flangerHaas = true;
 
         this.colorizerMix = 32;
         this.colorizerLegacyMix = false;
@@ -1922,6 +1950,8 @@ export class Instrument {
         this.colorizerMinFreq = 20;
         this.colorizerDetune = Config.detuneCenter;
 
+        this.invertWaveMix = Config.effectMixRange - 1;
+        this.invertWaveStereo = Config.effectStereoRange - 1;
         this.invertWave = false;
         this.invertWavePan = Config.invertWavePanCenter;
         
@@ -2254,7 +2284,7 @@ export class Instrument {
             }
         }
         if (effectsIncludeGranular(this.effects)) {
-            instrumentObject["granular"] = this.granular;
+            instrumentObject["granular"] = this.granularMix;
             instrumentObject["grainSize"] = this.grainSize;
             instrumentObject["grainAmounts"] = this.grainAmounts;
             instrumentObject["grainRange"] = this.grainRange;
@@ -2276,12 +2306,14 @@ export class Instrument {
             instrumentObject["phaserSpread"] = this.phaserSpread;
         }
         if (effectsIncludeFlanger(this.effects)) {
-            instrumentObject["flangerMix"] =  Math.round(100 * this.flangerMix/(Config.flangerMixRange - 1));
+            instrumentObject["flangerMix"] =  Math.round(100 * this.flangerMix/(Config.effectMixRange - 1));
+            instrumentObject["flangerStereo"] = this.flangerStereo;
             instrumentObject["flangerVoices"] =  this.flangerVoices;
             instrumentObject["flangerDistribute"] = this.flangerDistribute;
             instrumentObject["flangerDelay"] =  this.flangerDelay;
             instrumentObject["flangerPan"] =  Math.round(100 * (this.flangerPan - Config.flangerPanCenter) / Config.flangerPanCenter);
             instrumentObject["flangerFeedmix"] = Math.round(100 * this.flangerFeedmix/(Config.flangerFeedmixRange - 1));
+            instrumentObject["flangerHaas"] = this.flangerHaas;
         }
         if (effectsIncludeColorizer(this.effects)) {
             instrumentObject["colorizerMix"] =  this.colorizerMix;
@@ -2293,14 +2325,18 @@ export class Instrument {
             instrumentObject["colorizerDetune"] =  this.colorizerDetune;
         }
         if (effectsIncludeDistortion(this.effects)) {
+            instrumentObject["distortionMix"] = this.distortionMix;
             instrumentObject["distortion"] = Math.round(100 * this.distortion / (Config.distortionRange - 1));
             instrumentObject["aliases"] = this.aliases;
         }
         if (effectsIncludeBitcrusher(this.effects)) {
+            instrumentObject["bitcrusherMix"] = this.bitcrusherMix;
             instrumentObject["bitcrusherOctave"] = (Config.bitcrusherFreqRange - 1 - this.bitcrusherFreq) * Config.bitcrusherOctaveStep;
             instrumentObject["bitcrusherQuantization"] = Math.round(100 * this.bitcrusherQuantization / (Config.bitcrusherQuantizationRange - 1));
         }
         if (effectsIncludeInvertWave(this.effects)) {
+            instrumentObject["invertWaveMix"] = this.invertWaveMix;
+            instrumentObject["invertWaveStereo"] = this.invertWaveStereo;
             instrumentObject["invertWave"] = this.invertWave;
             instrumentObject["invertWavePan"] =  Math.round(100 * (this.invertWavePan - Config.invertWavePanCenter) / Config.invertWavePanCenter);
         }
@@ -2309,19 +2345,22 @@ export class Instrument {
             instrumentObject["panDelay"] = this.panDelay;
         }
         if (effectsIncludeChorus(this.effects)) {
-            instrumentObject["chorus"] = Math.round(100 * this.chorus / (Config.chorusRange - 1));
+            instrumentObject["chorus"] = Math.round(100 * this.chorusMix / (Config.chorusMixRange - 1));
             instrumentObject["chorusStereo"] = this.chorusStereo;
         }
         if (effectsIncludeEcho(this.effects)) {
+            instrumentObject["echoMix"] = this.echoMix;
             instrumentObject["echoSustain"] = Math.round(100 * this.echoSustain / (Config.echoSustainRange - 1));
             instrumentObject["echoDelayBeats"] = Math.round(1000 * (this.echoDelay + 1) * Config.echoDelayStepTicks / (Config.ticksPerPart * Config.partsPerBeat)) / 1000;
             instrumentObject["echoDamping"] = this.echoDamping;
+            instrumentObject["echoIsolate"] = this.echoIsolate;
         }
         if (effectsIncludeReverb(this.effects)) {
             instrumentObject["reverbMix"] = this.reverbMix;
             instrumentObject["reverb"] = Math.round(100 * this.reverb / (Config.reverbRange - 1));
             instrumentObject["reverbStereo"] = this.reverbStereo;
             instrumentObject["reverbMaxFreq"] = this.reverbMaxFreq;
+            instrumentObject["reverbIsolate"] = this.reverbIsolate;
         }
         if (effectsIncludeNoteRange(this.effects)) {
             instrumentObject["upperNoteLimit"] = this.upperNoteLimit;
@@ -2748,7 +2787,7 @@ export class Instrument {
         }
 
         if (instrumentObject["granular"] != undefined) {
-            this.granular = instrumentObject["granular"];
+            this.granularMix = instrumentObject["granular"];
         }
         if (instrumentObject["grainSize"] != undefined) {
             this.grainSize = instrumentObject["grainSize"];
@@ -2793,7 +2832,10 @@ export class Instrument {
           return instrumentObject["flanger" + suffix] ?? instrumentObject["phaseShift" + suffix];
         }
         if (getFlangerVal("Mix") != undefined) {
-          this.flangerMix = clamp(0, Config.flangerMixRange, Math.round((Config.flangerMixRange - 1) * (getFlangerVal("Mix") | 0) / 100));
+          this.flangerMix = clamp(0, Config.effectMixRange, Math.round((Config.effectMixRange - 1) * (getFlangerVal("Mix") | 0) / 100));
+        }
+        if (instrumentObject["flangerStereo"] != undefined) {
+            this.flangerStereo = +instrumentObject["flangerStereo"];
         }
         if (getFlangerVal("Voices") != undefined) {
           this.flangerVoices = clamp(0, Config.flangerMaxVoices + 1, getFlangerVal("Voices"));
@@ -2810,9 +2852,14 @@ export class Instrument {
         if (getFlangerVal("Feedmix") != undefined) {
           this.flangerFeedmix = clamp(0, Config.flangerFeedmixRange, Math.round((Config.flangerFeedmixRange - 1) * (getFlangerVal("Feedmix") | 0) / 100));
         }
+        if (typeof instrumentObject["flangerHaas"] === "boolean") {
+            this.flangerHaas = instrumentObject["flangerHaas"];
+        } else {
+            this.flangerHaas = true;
+        }
 
         if (instrumentObject["colorizerMix"] != undefined) {
-            this.colorizerMix = clamp(0, Config.colorizerMixRange + 1, instrumentObject["colorizerMix"]);
+            this.colorizerMix = clamp(0, Config.effectMixRange, instrumentObject["colorizerMix"]);
         }
         if (instrumentObject["colorizerLegacyMix"] != undefined) {
             this.colorizerLegacyMix = instrumentObject["colorizerLegacyMix"];
@@ -2820,25 +2867,31 @@ export class Instrument {
             this.colorizerLegacyMix = true;
         }
         if (instrumentObject["colorizerColor"] != undefined) {
-            this.colorizerColor = clamp(0, Config.colorizerColorRange + 1, instrumentObject["colorizerColor"]);
+            this.colorizerColor = clamp(0, Config.colorizerColorRange, instrumentObject["colorizerColor"]);
         }
         if (instrumentObject["colorizerChannel"] != undefined) {
             this.colorizerChannel = clamp(0, Config.pitchChannelCountMax + 1, instrumentObject["colorizerChannel"]);
         }
         if (instrumentObject["colorizerMaxFreq"] != undefined) {
-            this.colorizerMaxFreq = clamp(0, Config.colorizerMaxFreqRange + 1, instrumentObject["colorizerMaxFreq"]);
+            this.colorizerMaxFreq = clamp(0, Config.colorizerMaxFreqRange, instrumentObject["colorizerMaxFreq"]);
         }
         if (instrumentObject["colorizerMinFreq"] != undefined) {
-            this.colorizerMinFreq = clamp(0, Config.colorizerMinFreqRange + 1, instrumentObject["colorizerMinFreq"]);
+            this.colorizerMinFreq = clamp(0, Config.colorizerMinFreqRange, instrumentObject["colorizerMinFreq"]);
         }
         if (instrumentObject["colorizerDetune"] != undefined) {
             this.colorizerDetune = clamp(Config.detuneMin, Config.detuneMax + 1, instrumentObject["colorizerDetune"]);
         }
         
+        if (instrumentObject["distortionMix"] != undefined) {
+            this.distortionMix = +instrumentObject["distortionMix"];
+        }
         if (instrumentObject["distortion"] != undefined) {
             this.distortion = clamp(0, Config.distortionRange, Math.round((Config.distortionRange - 1) * (instrumentObject["distortion"] | 0) / 100));
         }
 
+        if (instrumentObject["bitcrusherMix"] != undefined) {
+            this.bitcrusherMix = +instrumentObject["bitcrusherMix"];
+        }
         if (instrumentObject["bitcrusherOctave"] != undefined) {
             this.bitcrusherFreq = Config.bitcrusherFreqRange - 1 - (+instrumentObject["bitcrusherOctave"]) / Config.bitcrusherOctaveStep;
         }
@@ -2846,6 +2899,9 @@ export class Instrument {
             this.bitcrusherQuantization = clamp(0, Config.bitcrusherQuantizationRange, Math.round((Config.bitcrusherQuantizationRange - 1) * (instrumentObject["bitcrusherQuantization"] | 0) / 100));
         }
 
+        if (instrumentObject["echoMix"] != undefined) {
+            this.echoMix = +instrumentObject["echoMix"];
+        }
         if (instrumentObject["echoSustain"] != undefined) {
             this.echoSustain = clamp(0, Config.echoSustainRange, Math.round((Config.echoSustainRange - 1) * (instrumentObject["echoSustain"] | 0) / 100));
         }
@@ -2855,9 +2911,12 @@ export class Instrument {
         if (instrumentObject["echoDamping"] != undefined) {
             this.echoDamping = +instrumentObject["echoDamping"];
         }
+        if (instrumentObject["echoIsolate"] != undefined) {
+            this.echoIsolate = instrumentObject["echoIsolate"];
+        }
 
         if (!isNaN(instrumentObject["chorus"])) {
-            this.chorus = clamp(0, Config.chorusRange, Math.round((Config.chorusRange - 1) * (instrumentObject["chorus"] | 0) / 100));
+            this.chorusMix = clamp(0, Config.chorusMixRange, Math.round((Config.chorusMixRange - 1) * (instrumentObject["chorus"] | 0) / 100));
         }
         if (instrumentObject["chorusStereo"] != undefined) {
             this.chorusStereo = +instrumentObject["chorusStereo"];
@@ -2877,7 +2936,16 @@ export class Instrument {
         if (instrumentObject["reverbMaxFreq"] != undefined) {
             this.reverbMaxFreq = +instrumentObject["reverbMaxFreq"];
         }
+        if (instrumentObject["reverbIsolate"] != undefined) {
+            this.reverbIsolate = instrumentObject["reverbIsolate"];
+        }
 
+        if (instrumentObject["invertWaveMix"] != undefined) {
+            this.invertWaveMix = +instrumentObject["invertWaveMix"];
+        }
+        if (instrumentObject["invertWaveStereo"] != undefined) {
+            this.invertWaveStereo = +instrumentObject["invertWaveStereo"];
+        }
         if (instrumentObject["invertWave"] != undefined) {
             this.invertWave = instrumentObject["invertWave"];
         }
@@ -3621,7 +3689,7 @@ export class Song {
 
                 switch (currentIndex) {
                     case chorusIndex:
-                        vol = this.channels[instrument.modChannels[modCount]].instruments[instrumentIndex].chorus - Config.modulators[chorusIndex].convertRealFactor;
+                        vol = this.channels[instrument.modChannels[modCount]].instruments[instrumentIndex].chorusMix - Config.modulators[chorusIndex].convertRealFactor;
                         break;
                     case reverbIndex:
                         vol = this.channels[instrument.modChannels[modCount]].instruments[instrumentIndex].reverb - Config.modulators[reverbIndex].convertRealFactor;
@@ -3672,7 +3740,7 @@ export class Song {
                         vol = this.channels[instrument.modChannels[modCount]].instruments[instrumentIndex].ringModulationHz - Config.modulators[ringModHertzIndex].convertRealFactor;
                         break;
                     case granularIndex:
-                        vol = this.channels[instrument.modChannels[modCount]].instruments[instrumentIndex].granular - Config.modulators[granularIndex].convertRealFactor;
+                        vol = this.channels[instrument.modChannels[modCount]].instruments[instrumentIndex].granularMix - Config.modulators[granularIndex].convertRealFactor;
                         break;
                     case grainAmountIndex:
                         vol = this.channels[instrument.modChannels[modCount]].instruments[instrumentIndex].grainAmounts - Config.modulators[grainAmountIndex].convertRealFactor;
@@ -4170,11 +4238,13 @@ export class Song {
                     }
                 }
                 if (effectsIncludeDistortion(instrument.effects)) {
+                    buffer.push(base64IntToCharCode[instrument.distortionMix]);
                     buffer.push(base64IntToCharCode[instrument.distortion]);
                     // Aliasing is tied into distortion for now
                     buffer.push(base64IntToCharCode[+instrument.aliases]);
                 }
                 if (effectsIncludeBitcrusher(instrument.effects)) {
+                    buffer.push(base64IntToCharCode[instrument.bitcrusherMix]);
                     buffer.push(base64IntToCharCode[instrument.bitcrusherFreq], base64IntToCharCode[instrument.bitcrusherQuantization]);
                 }
                 if (effectsIncludePanning(instrument.effects)) {
@@ -4182,21 +4252,25 @@ export class Song {
                     buffer.push(base64IntToCharCode[instrument.panDelay]);
                 }
                 if (effectsIncludeChorus(instrument.effects)) {
-                    buffer.push(base64IntToCharCode[instrument.chorus]);
+                    buffer.push(base64IntToCharCode[instrument.chorusMix]);
                     buffer.push(base64IntToCharCode[instrument.chorusStereo]);
                 }
                 if (effectsIncludeEcho(instrument.effects)) {
-                    buffer.push(base64IntToCharCode[instrument.echoSustain], base64IntToCharCode[instrument.echoDelay]);
+                    buffer.push(base64IntToCharCode[instrument.echoMix]);
+                    buffer.push(base64IntToCharCode[instrument.echoSustain]);
+                    buffer.push(base64IntToCharCode[instrument.echoDelay]);
                     buffer.push(base64IntToCharCode[instrument.echoDamping]);
+                    buffer.push(base64IntToCharCode[+instrument.echoIsolate]);
                 }
                 if (effectsIncludeReverb(instrument.effects)) {
-                    buffer.push(base64IntToCharCode[instrument.reverb]);
                     buffer.push(base64IntToCharCode[instrument.reverbMix]);
                     buffer.push(base64IntToCharCode[instrument.reverbStereo]);
+                    buffer.push(base64IntToCharCode[instrument.reverb]);
                     buffer.push(base64IntToCharCode[instrument.reverbMaxFreq]);
+                    buffer.push(base64IntToCharCode[+instrument.reverbIsolate]);
                 }
                 if (effectsIncludeGranular(instrument.effects)) {
-                    buffer.push(base64IntToCharCode[instrument.granular]);
+                    buffer.push(base64IntToCharCode[instrument.granularMix]);
                     buffer.push(base64IntToCharCode[instrument.grainSize]);
                     buffer.push(base64IntToCharCode[instrument.grainAmounts]);
                     buffer.push(base64IntToCharCode[instrument.grainRange]);
@@ -4222,6 +4296,7 @@ export class Song {
 
                 if (effectsIncludeFlanger(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.flangerMix]);
+                    buffer.push(base64IntToCharCode[instrument.flangerStereo]);
                     buffer.push(base64IntToCharCode[instrument.flangerVoices - 1]);
                     buffer.push(base64IntToCharCode[+instrument.flangerDistribute]);
                     buffer.push(base64IntToCharCode[instrument.flangerDelay >> 12]);
@@ -4230,6 +4305,7 @@ export class Song {
                     buffer.push(base64IntToCharCode[instrument.flangerPan >> 6]);
                     buffer.push(base64IntToCharCode[instrument.flangerPan & 0x3f]);
                     buffer.push(base64IntToCharCode[instrument.flangerFeedmix]);
+                    buffer.push(base64IntToCharCode[+instrument.flangerHaas]);
                 }
 
                 if (effectsIncludeColorizer(instrument.effects)) {
@@ -4243,6 +4319,8 @@ export class Song {
                 }
 
                 if (effectsIncludeInvertWave(instrument.effects)) {
+                    buffer.push(base64IntToCharCode[instrument.invertWaveMix]);
+                    buffer.push(base64IntToCharCode[instrument.invertWaveStereo]);
                     buffer.push(base64IntToCharCode[+instrument.invertWave]);
                     buffer.push(base64IntToCharCode[instrument.invertWavePan >> 6]);
                     buffer.push(base64IntToCharCode[instrument.invertWavePan & 0x3f]);
@@ -6177,11 +6255,17 @@ export class Song {
                         }
                     }
                     if (effectsIncludeDistortion(instrument.effects)) {
+                        if (!beforeTwelve) {
+                            instrument.distortionMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        }
                         instrument.distortion = clamp(0, Config.distortionRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         if ((fromJummBox && !beforeFive) || fromGoldBox || fromUltraBox || fromSlarmoosBox || fromFroupBox)
                             instrument.aliases = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
                     }
                     if (effectsIncludeBitcrusher(instrument.effects)) {
+                        if (!beforeTwelve) {
+                            instrument.bitcrusherMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        }
                         instrument.bitcrusherFreq = clamp(0, Config.bitcrusherFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.bitcrusherQuantization = clamp(0, Config.bitcrusherQuantizationRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                     }
@@ -6204,36 +6288,48 @@ export class Song {
                     if (effectsIncludeChorus(instrument.effects)) {
                         if (fromBeepBox) {
                             // BeepBox has 4 chorus values vs. JB's 8
-                            instrument.chorus = clamp(0, (Config.chorusRange / 2) + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]) * 2;
+                            instrument.chorusMix = clamp(0, (Config.chorusMixRange / 2) + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]) * 2;
                         }
                         else {
-                            instrument.chorus = clamp(0, Config.chorusRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            instrument.chorusMix = clamp(0, Config.chorusMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             if (!beforeEleven) {
-                                instrument.chorusStereo = clamp(0, Config.chorusStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                instrument.chorusStereo = clamp(0, Config.effectStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             }
                         }
                     }
                     if (effectsIncludeEcho(instrument.effects)) {
+                        if (!beforeTwelve) {
+                            instrument.echoMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        }
                         instrument.echoSustain = clamp(0, Config.echoSustainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.echoDelay = clamp(0, Config.echoDelayRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         if (!beforeEleven) {
                             instrument.echoDamping = clamp(0, Config.echoDampingRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         }
+                        instrument.echoIsolate = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                     }
                     if (effectsIncludeReverb(instrument.effects)) {
                         if (fromBeepBox) {
                             instrument.reverb = clamp(0, Config.reverbRange, Math.round(base64CharCodeToInt[compressed.charCodeAt(charIndex++)] * Config.reverbRange / 3.0));
                         } else {
-                            instrument.reverb = clamp(0, Config.reverbRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                            if (!beforeEleven) {
-                                instrument.reverbMix = clamp(0, Config.reverbMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                instrument.reverbStereo = clamp(0, Config.reverbStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            if (beforeTwelve) {
+                                instrument.reverb = clamp(0, Config.reverbRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                if (!beforeEleven) {
+                                    instrument.reverbMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                    instrument.reverbStereo = clamp(0, Config.effectStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                    instrument.reverbMaxFreq = clamp(0, Config.reverbMaxFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                }
+                            } else {
+                                instrument.reverbMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                instrument.reverbStereo = clamp(0, Config.effectStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                instrument.reverb = clamp(0, Config.reverbRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                 instrument.reverbMaxFreq = clamp(0, Config.reverbMaxFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                instrument.reverbIsolate = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                             }
                         }
                     }
                     if (effectsIncludeGranular(instrument.effects)) {
-                        instrument.granular = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
+                        instrument.granularMix = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                         instrument.grainSize = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                         instrument.grainAmounts = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
                         instrument.grainRange = base64CharCodeToInt[compressed.charCodeAt(charIndex++)];
@@ -6278,7 +6374,10 @@ export class Song {
                         }
                     }
                     if (effectsIncludeFlanger(instrument.effects)) {
-                        instrument.flangerMix = clamp(0, Config.flangerMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        instrument.flangerMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        if (!beforeTwelve) {
+                            instrument.flangerStereo = clamp(0, Config.effectStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        }
                         if (!beforeSix) {
                             instrument.flangerVoices = clamp(1, Config.flangerMaxVoices + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + 1);
                         }
@@ -6288,21 +6387,28 @@ export class Song {
                         instrument.flangerDelay = clamp(0, Config.flangerDelayMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.flangerPan = clamp(0, Config.flangerPanMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.flangerFeedmix = clamp(0, Config.flangerFeedmixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        if (!beforeTwelve) {
+                            instrument.flangerHaas = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
+                        }
                     }    
                     if (effectsIncludeColorizer(instrument.effects)) {
-                        instrument.colorizerMix = clamp(0, Config.colorizerMixRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        instrument.colorizerMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         if (!beforeTwelve) {
                             instrument.colorizerLegacyMix = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
                         } else {
                             instrument.colorizerLegacyMix = true;
                         }
-                        instrument.colorizerColor = clamp(0, Config.colorizerColorRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        instrument.colorizerColor = clamp(0, Config.colorizerColorRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.colorizerChannel = clamp(0, Config.pitchChannelCountMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                        instrument.colorizerMaxFreq = clamp(0, Config.colorizerMaxFreqRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                        instrument.colorizerMinFreq = clamp(0, Config.colorizerMinFreqRange + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        instrument.colorizerMaxFreq = clamp(0, Config.colorizerMaxFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        instrument.colorizerMinFreq = clamp(0, Config.colorizerMinFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.colorizerDetune = clamp(Config.detuneMin, Config.detuneMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                     }    
                     if(effectsIncludeInvertWave(instrument.effects)) {
+                        if (!beforeTwelve) {
+                            instrument.invertWaveMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            instrument.invertWaveStereo = clamp(0, Config.effectStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                        }
                         instrument.invertWave = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] ? true : false;
                         if (!beforeEleven) {
                             instrument.invertWavePan = clamp(0, Config.invertWavePanMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
@@ -9455,6 +9561,7 @@ class InstrumentState {
     public ringModMixFade: number = 1.0;
     public ringModMixFadeDelta: number = 0;
 
+    public distortionMix: number = 1.0;
     public distortion: number = 0.0;
     public distortionDelta: number = 0.0;
     public distortionDrive: number = 0.0;
@@ -9465,6 +9572,7 @@ class InstrumentState {
     public distortionPrevInput: number = 0.0;
     public distortionNextOutput: number = 0.0;
 
+    public bitcrusherMix: number = 1.0;
     public bitcrusherPrevInput: number = 0.0;
     public bitcrusherCurrentOutput: number = 0.0;
     public bitcrusherPhase: number = 1.0;
@@ -9491,17 +9599,17 @@ class InstrumentState {
     public panningOffsetDeltaL: number = 0.0;
     public panningOffsetDeltaR: number = 0.0;
 
+    public chorusMix: number = 1.0;
+    public chorusMixDelta: number = 0.0;
+    public chorusStereo: number = 1.0;
     public chorusDelayLineL: Float32Array | null = null;
     public chorusDelayLineR: Float32Array | null = null;
     public chorusDelayLineDirty: boolean = false;
     public chorusDelayPos: number = 0;
     public chorusPhase: number = 0;
-    public chorusVoiceMult: number = 0;
-    public chorusVoiceMultDelta: number = 0;
-    public chorusCombinedMult: number = 0;
-    public chorusCombinedMultDelta: number = 0;
-    public chorusStereo: number = 1.0;
 
+    public echoMix: number = 1.0;
+    public echoIsolate: boolean = false;
     public echoDelayLineL: Float32Array | null = null;
     public echoDelayLineR: Float32Array | null = null;
     public echoDelayLineDirty: boolean = false;
@@ -9520,6 +9628,9 @@ class InstrumentState {
     public echoShelfPrevInputL: number = 0.0;
     public echoShelfPrevInputR: number = 0.0;
 
+    public reverbMix: number = 1.0;
+    public reverbStereo: number = 1.0;
+    public reverbIsolate: boolean = false;
     public reverbDelayLine: Float32Array | null = null;
     public reverbDelayLineDirty: boolean = false;
     public reverbDelayPos: number = 0;
@@ -9536,9 +9647,9 @@ class InstrumentState {
     public reverbShelfPrevInput1: number = 0.0;
     public reverbShelfPrevInput2: number = 0.0;
     public reverbShelfPrevInput3: number = 0.0;
-    public reverbMix: number = 1.0;
-    public reverbStereo: number = 1.0;
 
+    public invertWaveMix: number = 1.0;
+    public invertWaveStereo: number = 1.0;
     public invertWave: boolean = false;
     public invertWavePan: number = Config.invertWavePanCenter;
 
@@ -9748,6 +9859,8 @@ class InstrumentState {
         this.aliases = instrument.aliases;
         this.invertWave = instrument.invertWave;
         this.invertWavePan = instrument.invertWavePan;
+        this.invertWaveMix = instrument.invertWaveMix / (Config.effectMixRange - 1);
+        this.invertWaveStereo = instrument.invertWaveStereo / (Config.effectStereoRange - 1);
         const usesInvertWave: boolean = effectsIncludeInvertWave(this.effects);
 
         if (usesInvertWave) {
@@ -9849,12 +9962,12 @@ class InstrumentState {
 
 
         if (usesGranular) {
-            this.granularMix = instrument.granular / Config.granularRange;
+            this.granularMix = instrument.granularMix / Config.granularMixRange;
             this.computeGrains = true;
             let granularMixEnd = this.granularMix;
             if (synth.isModActive(Config.modulators.dictionary["granular"].index, channelIndex, instrumentIndex)) {
-                this.granularMix = synth.getModValue(Config.modulators.dictionary["granular"].index, channelIndex, instrumentIndex, false) / Config.granularRange;
-                granularMixEnd = synth.getModValue(Config.modulators.dictionary["granular"].index, channelIndex, instrumentIndex, true) / Config.granularRange;
+                this.granularMix = synth.getModValue(Config.modulators.dictionary["granular"].index, channelIndex, instrumentIndex, false) / Config.granularMixRange;
+                granularMixEnd = synth.getModValue(Config.modulators.dictionary["granular"].index, channelIndex, instrumentIndex, true) / Config.granularMixRange;
             }
             this.granularMix *= envelopeStarts[EnvelopeComputeIndex.granular];
             granularMixEnd *= envelopeEnds[EnvelopeComputeIndex.granular];
@@ -9917,6 +10030,7 @@ class InstrumentState {
             const distortionEnd: number = Math.pow(1.0 - 0.895 * (Math.pow(20.0, distortionSliderEnd) - 1.0) / 19.0, 2.0);
             const distortionDriveStart: number = (1.0 + 2.0 * distortionSliderStart) / Config.distortionBaseVolume;
             const distortionDriveEnd: number = (1.0 + 2.0 * distortionSliderEnd) / Config.distortionBaseVolume;
+            this.distortionMix = instrument.distortionMix / (Config.effectMixRange - 1);
             this.distortion = distortionStart;
             this.distortionDelta = (distortionEnd - distortionStart) / roundedSamplesPerTick;
             this.distortionDrive = distortionDriveStart;
@@ -9941,6 +10055,9 @@ class InstrumentState {
                 quantizationSettingStart = synth.getModValue(Config.modulators.dictionary["bit crush"].index, channelIndex, instrumentIndex, false) * Math.sqrt(envelopeStarts[EnvelopeComputeIndex.bitcrusherQuantization]);
                 quantizationSettingEnd = synth.getModValue(Config.modulators.dictionary["bit crush"].index, channelIndex, instrumentIndex, true) * Math.sqrt(envelopeEnds[EnvelopeComputeIndex.bitcrusherQuantization]);
             }
+
+            this.bitcrusherMix = instrument.bitcrusherMix / (Config.effectMixRange - 1);
+
             const basePitch: number = Config.keys[synth.song!.key].basePitch + (12 * synth.song!.octave);
             const freqStart: number = Instrument.frequencyFromPitch(basePitch + 60 - 69, 2 / 1, 12) * Math.pow(2.0, (Config.bitcrusherFreqRange - 1 - freqSettingStart) * Config.bitcrusherOctaveStep);  
             const freqEnd: number = Instrument.frequencyFromPitch(basePitch + 60 - 69, 2 / 1, 12) * Math.pow(2.0, (Config.bitcrusherFreqRange - 1 - freqSettingEnd) * Config.bitcrusherOctaveStep);
@@ -10120,27 +10237,17 @@ class InstrumentState {
         }
 
         if (usesChorus) {
-            const chorusEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.chorus];
-            const chorusEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.chorus];
-            let useChorusStart: number = instrument.chorus;
-            let useChorusEnd: number = instrument.chorus;
-            // Check for chorus mods
+            this.chorusMix = instrument.chorusMix / Config.chorusMixRange;
+            let chorusMixEnd = this.chorusMix;
             if (synth.isModActive(Config.modulators.dictionary["chorus"].index, channelIndex, instrumentIndex)) {
-                useChorusStart = synth.getModValue(Config.modulators.dictionary["chorus"].index, channelIndex, instrumentIndex, false);
-                useChorusEnd = synth.getModValue(Config.modulators.dictionary["chorus"].index, channelIndex, instrumentIndex, true);
+                this.chorusMix = synth.getModValue(Config.modulators.dictionary["chorus"].index, channelIndex, instrumentIndex, false) / Config.chorusMixRange;
+                chorusMixEnd = synth.getModValue(Config.modulators.dictionary["chorus"].index, channelIndex, instrumentIndex, true) / Config.chorusMixRange;
             }
+            this.chorusMix *= envelopeStarts[EnvelopeComputeIndex.chorus];
+            chorusMixEnd *= envelopeEnds[EnvelopeComputeIndex.chorus];
+            this.chorusMixDelta = (chorusMixEnd - this.chorusMix) / roundedSamplesPerTick;
 
-            let chorusStart: number = Math.min(1.0, chorusEnvelopeStart * useChorusStart / (Config.chorusRange - 1));
-            let chorusEnd: number = Math.min(1.0, chorusEnvelopeEnd * useChorusEnd / (Config.chorusRange - 1));
-            chorusStart = chorusStart * 0.6 + (Math.pow(chorusStart, 6.0)) * 0.4;
-            chorusEnd = chorusEnd * 0.6 + (Math.pow(chorusEnd, 6.0)) * 0.4;
-            const chorusCombinedMultStart = 1.0 / Math.sqrt(3.0 * chorusStart * chorusStart + 1.0);
-            const chorusCombinedMultEnd = 1.0 / Math.sqrt(3.0 * chorusEnd * chorusEnd + 1.0);
-            this.chorusVoiceMult = chorusStart;
-            this.chorusVoiceMultDelta = (chorusEnd - chorusStart) / roundedSamplesPerTick;
-            this.chorusCombinedMult = chorusCombinedMultStart;
-            this.chorusCombinedMultDelta = (chorusCombinedMultEnd - chorusCombinedMultStart) / roundedSamplesPerTick;
-            this.chorusStereo = instrument.chorusStereo / (Config.chorusStereoRange - 1);
+            this.chorusStereo = instrument.chorusStereo / (Config.effectStereoRange - 1);
         }
 
         if (usesRingModulation) {
@@ -10200,6 +10307,7 @@ class InstrumentState {
         let maxEchoMult = 0.0;
         let averageEchoDelaySeconds: number = 0.0;
         if (usesEcho) {
+            this.echoMix = instrument.echoMix / (Config.effectMixRange - 1);
 
             const echoSustainEnvelopeStart: number = envelopeStarts[EnvelopeComputeIndex.echoSustain];
             const echoSustainEnvelopeEnd: number = envelopeEnds[EnvelopeComputeIndex.echoSustain];
@@ -10246,7 +10354,8 @@ class InstrumentState {
             this.echoDelayOffsetRatio = 0.0;
             this.echoDelayOffsetRatioDelta = 1.0 / roundedSamplesPerTick;
 
-            const dampingFreq = echoValueToFreq(instrument.echoDamping);
+            this.echoIsolate = instrument.echoIsolate;
+            const dampingFreq = Math.min(synth.samplesPerSecond / 2, echoValueToFreq(instrument.echoDamping));
             const shelfRadians: number = 2.0 * Math.PI * dampingFreq / synth.samplesPerSecond;
             Synth.tempFilterStartCoefficients.highShelf1stOrder(shelfRadians, Config.echoShelfGain);
             this.echoShelfA1 = Synth.tempFilterStartCoefficients.a[1];
@@ -10367,8 +10476,9 @@ class InstrumentState {
             this.reverbShelfA1 = Synth.tempFilterStartCoefficients.a[1];
             this.reverbShelfB0 = Synth.tempFilterStartCoefficients.b[0];
             this.reverbShelfB1 = Synth.tempFilterStartCoefficients.b[1];
-            this.reverbMix = instrument.reverbMix / (Config.reverbMixRange - 1);
-            this.reverbStereo = instrument.reverbStereo / (Config.reverbStereoRange - 1);
+            this.reverbIsolate = instrument.reverbIsolate;
+            this.reverbMix = instrument.reverbMix / (Config.effectMixRange - 1);
+            this.reverbStereo = instrument.reverbStereo / (Config.effectStereoRange - 1);
         }
 
       
@@ -10622,7 +10732,7 @@ class InstrumentState {
             }
             if (usesColorizer) {
               let lowestFreq = Math.min(...instrument.colorizerFrequenciesStart.filter(freq => freq >= 20));
-              let delay = synth.samplesPerSecond / lowestFreq * Config.colorizerColorRange;
+              let delay = synth.samplesPerSecond / lowestFreq * (Config.colorizerColorRange - 1);
               totalDelaySamples += (delay | 0) + 328;
             }
 
@@ -15177,9 +15287,7 @@ export class Synth {
 
             if (usesGranular) {
                 effectsSource += `
-                let granularWet = instrumentState.granularMix;
-                const granularMixDelta = instrumentState.granularMixDelta;
-                let granularDry = 1.0 - granularWet; 
+                let granularMix = instrumentState.granularMix + instrumentState.granularMixDelta;
                 const granularDelayLine = instrumentState.granularDelayLine;
                 const granularGrains = instrumentState.granularGrains;
                 let granularGrainCount = instrumentState.granularGrainsLength;
@@ -15317,17 +15425,13 @@ export class Synth {
 
             if (usesChorus) {
                 effectsSource += `
+                let chorusMix = instrumentState.chorusMix + instrumentState.chorusMixDelta;
 				
 				const chorusMask = synth.chorusDelayBufferMask >>> 0;
 				const chorusDelayLineL = instrumentState.chorusDelayLineL;
 				const chorusDelayLineR = instrumentState.chorusDelayLineR;
 				instrumentState.chorusDelayLineDirty = true;
 				let chorusDelayPos = instrumentState.chorusDelayPos & chorusMask;
-				
-				let chorusVoiceMult = +instrumentState.chorusVoiceMult;
-				const chorusVoiceMultDelta = +instrumentState.chorusVoiceMultDelta;
-				let chorusCombinedMult = +instrumentState.chorusCombinedMult;
-				const chorusCombinedMultDelta = +instrumentState.chorusCombinedMultDelta;
 				
 				const chorusDuration = +beepbox.Config.chorusPeriodSeconds;
 				const chorusAngle = Math.PI * 2.0 / (chorusDuration * synth.samplesPerSecond);
@@ -15487,12 +15591,18 @@ export class Synth {
                         }
                     }
                 }
-                granularWet += granularMixDelta;
-                granularDry -= granularMixDelta;
                 granularOutput *= Config.granularOutputLoudnessCompensation;
                 granularDelayLine[granularDelayLineIndex] = sample;
                 granularDelayLineIndex = (granularDelayLineIndex + 1) & granularDelayLineMask;
-                sample = sample * granularDry + granularOutput * granularWet;
+                const granularSamples = Synth.getMixAndStereoSamples(
+                    granularMix, 
+                    1, 
+                    sample, 
+                    sample, 
+                    granularOutput, 
+                    granularOutput
+                );
+                sample = granularSamples[0];
                 tempMonoInstrumentSampleBuffer[sampleIndex] = 0.0;
                 `
             } else {
@@ -15504,8 +15614,9 @@ export class Synth {
                 effectsSource += `
 					
 					const distortionReverse = 1.0 - distortion;
-					const distortionNextInput = sample * distortionDrive;
-					sample = distortionNextOutput;
+                    let newDistortionSample = sample;
+					const distortionNextInput = newDistortionSample * distortionDrive;
+					newDistortionSample = distortionNextOutput;
 					distortionNextOutput = distortionNextInput / (distortionReverse * Math.abs(distortionNextInput) + distortion);
 					distortionFractionalInput1 = distortionFractionalDelayG1 * distortionNextInput + distortionPrevInput - distortionFractionalDelayG1 * distortionFractionalInput1;
 					distortionFractionalInput2 = distortionFractionalDelayG2 * distortionNextInput + distortionPrevInput - distortionFractionalDelayG2 * distortionFractionalInput2;
@@ -15514,8 +15625,18 @@ export class Synth {
 					const distortionOutput2 = distortionFractionalInput2 / (distortionReverse * Math.abs(distortionFractionalInput2) + distortion);
 					const distortionOutput3 = distortionFractionalInput3 / (distortionReverse * Math.abs(distortionFractionalInput3) + distortion);
 					distortionNextOutput += distortionOutput1 * distortionNextOutputWeight1 + distortionOutput2 * distortionNextOutputWeight2 + distortionOutput3 * distortionNextOutputWeight3;
-					sample += distortionOutput1 * distortionPrevOutputWeight1 + distortionOutput2 * distortionPrevOutputWeight2 + distortionOutput3 * distortionPrevOutputWeight3;
-					sample *= distortionOversampleCompensation;
+					newDistortionSample += distortionOutput1 * distortionPrevOutputWeight1 + distortionOutput2 * distortionPrevOutputWeight2 + distortionOutput3 * distortionPrevOutputWeight3;
+					newDistortionSample *= distortionOversampleCompensation;
+                    const distortionMix = +instrumentState.distortionMix;
+                    const distortionSamples = Synth.getMixAndStereoSamples(
+                        distortionMix,
+                        1,
+                        sample,
+                        sample,
+                        newDistortionSample,
+                        newDistortionSample
+                    );
+                    sample = distortionSamples[0];
 					distortionPrevInput = distortionNextInput;
 					distortion += distortionDelta;
 					distortionDrive += distortionDriveDelta;`
@@ -15525,15 +15646,16 @@ export class Synth {
                 effectsSource += `
 					
 					bitcrusherPhase += bitcrusherPhaseDelta;
+                    let newBitcrusherSample = sample;
 					if (bitcrusherPhase < 1.0) {
-						bitcrusherPrevInput = sample;
-						sample = bitcrusherCurrentOutput;
+						bitcrusherPrevInput = newBitcrusherSample;
+						newBitcrusherSample = bitcrusherCurrentOutput;
 					} else {
 						bitcrusherPhase -= (bitcrusherPhase | 0);
 						const ratio = bitcrusherPhase / bitcrusherPhaseDelta;
 						
-						const lerpedInput = sample + (bitcrusherPrevInput - sample) * ratio;
-						bitcrusherPrevInput = sample;
+						const lerpedInput = newBitcrusherSample + (bitcrusherPrevInput - newBitcrusherSample) * ratio;
+						bitcrusherPrevInput = newBitcrusherSample;
 						
 						const bitcrusherWrapLevel = bitcrusherFoldLevel * 4.0;
 						const wrappedSample = (((lerpedInput + bitcrusherFoldLevel) % bitcrusherWrapLevel) + bitcrusherWrapLevel) % bitcrusherWrapLevel;
@@ -15542,9 +15664,19 @@ export class Synth {
 						const oldValue = bitcrusherCurrentOutput;
 						const newValue = (((scaledSample > 0 ? scaledSample + 1 : scaledSample)|0)-.5) * bitcrusherScale;
 						
-						sample = oldValue + (newValue - oldValue) * ratio;
+						newBitcrusherSample = oldValue + (newValue - oldValue) * ratio;
 						bitcrusherCurrentOutput = newValue;
 					}
+                    const bitcrusherMix = +instrumentState.bitcrusherMix;
+                    const bitcrusherSamples = Synth.getMixAndStereoSamples(
+                        bitcrusherMix,
+                        1,
+                        sample,
+                        sample,
+                        newBitcrusherSample,
+                        newBitcrusherSample
+                    );
+                    sample = bitcrusherSamples[0];
 					bitcrusherPhaseDelta *= bitcrusherPhaseDeltaScale;
 					bitcrusherScale *= bitcrusherScaleScale;
 					bitcrusherFoldLevel *= bitcrusherFoldLevelScale;`
@@ -15555,7 +15687,15 @@ export class Synth {
                 
                 const ringModOutput = sample * waveform[(ringModPhase*waveformLength)|0];
                 const ringModMixF = Math.max(0, ringModMix * ringModMixFade);
-                sample = sample * (1 - ringModMixF) + ringModOutput * ringModMixF;
+                const ringModSamples = Synth.getMixAndStereoSamples(
+                    ringModMixF, 
+                    1, 
+                    sample, 
+                    sample, 
+                    ringModOutput, 
+                    ringModOutput
+                );
+                sample = ringModSamples[0];
 
                 ringModMix += ringModMixDelta;
                 ringModPhase += ringModPhaseDelta;
@@ -15644,24 +15784,26 @@ export class Synth {
 					const chorusTap5 = chorusTap5A + (chorusTap5B - chorusTap5A) * chorusTap5Ratio;
 					chorusDelayLineL[chorusDelayPos] = sampleL * delayInputMult;
 					chorusDelayLineR[chorusDelayPos] = sampleR * delayInputMult;
-				    const chorusStereo = +instrumentState.chorusStereo / 2 + 0.5;
-                    sampleL = chorusCombinedMult * (
-                        (    chorusStereo      * (sampleL + chorusVoiceMult * (chorusTap1 - chorusTap0 - chorusTap2))) 
-                        + (-(chorusStereo - 1) * (sampleL + chorusVoiceMult * (chorusTap4 - chorusTap3 - chorusTap5))) 
+				    const chorusStereo = +instrumentState.chorusStereo;
+                    const newChorusSampleL = (sampleL + (chorusTap1 - chorusTap0 - chorusTap2)) / 2;
+                    const newChorusSampleR = (sampleR + (chorusTap4 - chorusTap3 - chorusTap5)) / 2;
+                    const chorusSamples = Synth.getMixAndStereoSamples(
+                        chorusMix, 
+                        chorusStereo, 
+                        sampleL, 
+                        sampleR, 
+                        newChorusSampleL, 
+                        newChorusSampleR
                     );
-					sampleR = chorusCombinedMult * ( 
-                        (  -(chorusStereo - 1)  * (sampleR + chorusVoiceMult * (chorusTap1 - chorusTap0 - chorusTap2))) 
-                        + (  chorusStereo       * (sampleR + chorusVoiceMult * (chorusTap4 - chorusTap3 - chorusTap5)))
-                    );
+                    sampleL = chorusSamples[0];
+					sampleR = chorusSamples[1];
                     chorusDelayPos = (chorusDelayPos + 1) & chorusMask;
 					chorusTap0Index += chorusTap0Delta;
 					chorusTap1Index += chorusTap1Delta;
 					chorusTap2Index += chorusTap2Delta;
 					chorusTap3Index += chorusTap3Delta;
 					chorusTap4Index += chorusTap4Delta;
-					chorusTap5Index += chorusTap5Delta;
-					chorusVoiceMult += chorusVoiceMultDelta;
-					chorusCombinedMult += chorusCombinedMultDelta;`
+					chorusTap5Index += chorusTap5Delta;`
             }
 
             if (usesEcho) {
@@ -15680,11 +15822,25 @@ export class Synth {
 					echoShelfSampleR = echoShelfB0 * echoTapR + echoShelfB1 * echoShelfPrevInputR - echoShelfA1 * echoShelfSampleR;
 					echoShelfPrevInputL = echoTapL;
 					echoShelfPrevInputR = echoTapR;
-					sampleL += echoShelfSampleL;
-					sampleR += echoShelfSampleR;
+                    const echoProcessingSampleL = sampleL + echoShelfSampleL;
+                    const echoProcessingSampleR = sampleR + echoShelfSampleR;
+				    const echoIsolate = +instrumentState.echoIsolate;
+                    const newEchoSampleL = (echoIsolate ? 0 : sampleL) + echoShelfSampleL;
+                    const newEchoSampleR = (echoIsolate ? 0 : sampleR) + echoShelfSampleR;
+                    const echoMix = +instrumentState.echoMix;
+                    const echoSamples = Synth.getMixAndStereoSamples(
+                        echoMix,
+                        1,
+                        sampleL,
+                        sampleR,
+                        newEchoSampleL,
+                        newEchoSampleR
+                    );
+                    sampleL = echoSamples[0];
+					sampleR = echoSamples[1];
 					
-					echoDelayLineL[echoDelayPos] = sampleL * delayInputMult;
-					echoDelayLineR[echoDelayPos] = sampleR * delayInputMult;
+					echoDelayLineL[echoDelayPos] = echoProcessingSampleL * delayInputMult;
+					echoDelayLineR[echoDelayPos] = echoProcessingSampleR * delayInputMult;
 					echoDelayPos = (echoDelayPos + 1) & echoMask;
 					echoDelayOffsetRatio += echoDelayOffsetRatioDelta;
 					echoMult += echoMultDelta;
@@ -15726,24 +15882,42 @@ export class Synth {
 					reverbDelayLine[reverbDelayPos3] = reverbShelfSample2 * delayInputMult;
 					reverbDelayLine[reverbDelayPos ] = reverbShelfSample3 * delayInputMult;
 					reverbDelayPos = (reverbDelayPos + 1) & reverbMask;
+				    const reverbIsolate = +instrumentState.reverbIsolate;
                     const reverbMix = +instrumentState.reverbMix;
-				    const reverbStereo = +instrumentState.reverbStereo / 2 + 0.5;
-                    sampleL += reverbMix * (
-                            reverbStereo      * (reverbSample1 + reverbSample2 + reverbSample3) 
-                        + -(reverbStereo - 1) * (reverbSample0 + reverbSample2 - reverbSample3) 
+				    const reverbStereo = +instrumentState.reverbStereo;
+                    const newReverbSampleL = (reverbIsolate ? 0 : sampleL) + reverbSample1 + reverbSample2 + reverbSample3;
+                    const newReverbSampleR = (reverbIsolate ? 0 : sampleR) + reverbSample0 + reverbSample2 - reverbSample3;
+                    const reverbSamples = Synth.getMixAndStereoSamples(
+                        reverbMix,
+                        reverbStereo,
+                        sampleL,
+                        sampleR,
+                        newReverbSampleL,
+                        newReverbSampleR
                     );
-					sampleR += reverbMix * ( 
-                          -(reverbStereo - 1) * (reverbSample1 + reverbSample2 + reverbSample3) 
-                        +   reverbStereo      * (reverbSample0 + reverbSample2 - reverbSample3)
-                    );
+                    sampleL = reverbSamples[0];
+					sampleR = reverbSamples[1];
 					reverb += reverbDelta;`
             }
 
-            if(usesInvertWave) {
+            if (usesInvertWave) {
                 effectsSource += `
+                    const invertWaveMix = +instrumentState.invertWaveMix;
+                    const invertWaveStereo = +instrumentState.invertWaveStereo;
+                    console.log(invertWaveStereo);
                     const invertWavePan = +instrumentState.invertWavePan;
-                    sampleL = sampleL * Math.min(1, Math.max(-1, 1 + (invertWavePan - 100) / 25));
-                    sampleR = sampleR * Math.min(1, Math.max(-1, 1 - (invertWavePan      ) / 25));
+                    const newInvertWaveSampleL = sampleL * Math.min(1, Math.max(-1, 1 + (invertWavePan - 100) / 25));
+                    const newInvertWaveSampleR = sampleR * Math.min(1, Math.max(-1, 1 - (invertWavePan      ) / 25));
+                    const invertWaveSamples = Synth.getMixAndStereoSamples(
+                        invertWaveMix,
+                        invertWaveStereo,
+                        sampleL,
+                        sampleR,
+                        newInvertWaveSampleL,
+                        newInvertWaveSampleR
+                    );
+                    sampleL = invertWaveSamples[0];
+					sampleR = invertWaveSamples[1];
                 `
             }
 
@@ -15804,7 +15978,7 @@ export class Synth {
 
             if (usesGranular) {
                 effectsSource += `
-                    instrumentState.granularMix = granularWet;
+                    instrumentState.granularMix = granularMix;
                     instrumentState.granularGrainsLength = granularGrainCount;
                     instrumentState.granularDelayLineIndex = granularDelayLineIndex;
                 `
@@ -15884,13 +16058,12 @@ export class Synth {
 
             if (usesChorus) {
                 effectsSource += `
+                instrumentState.chorusMix = chorusMix;
 				
 				Synth.sanitizeDelayLine(chorusDelayLineL, chorusDelayPos, chorusMask);
 				Synth.sanitizeDelayLine(chorusDelayLineR, chorusDelayPos, chorusMask);
 				instrumentState.chorusPhase = chorusPhase;
-				instrumentState.chorusDelayPos = chorusDelayPos;
-				instrumentState.chorusVoiceMult = chorusVoiceMult;
-				instrumentState.chorusCombinedMult = chorusCombinedMult;`
+				instrumentState.chorusDelayPos = chorusDelayPos;`
             }
 
             if (usesEcho) {
@@ -16996,6 +17169,20 @@ export class Synth {
         // BeepBox formula, for reference:
         // return Math.sign(cents) * (Math.sqrt(1 + 8 * Math.abs(cents)) - 1) / 2.0;
         return cents + Config.detuneCenter;
+    }
+    
+    public static getMixAndStereoSamples(mix: number, stereo: number, oldSampleL: number, oldSampleR: number, newSampleL: number, newSampleR: number): [number, number] {
+        stereo = (stereo + 1) / 2;
+        return [
+            oldSampleL + mix * (
+                (    stereo      * (newSampleL - oldSampleL))
+                + (-(stereo - 1) * (newSampleR - oldSampleR))
+            ),
+            oldSampleR + mix * (
+                (  -(stereo - 1) * (newSampleL - oldSampleL))
+                + (  stereo      * (newSampleR - oldSampleR))
+            )
+        ];
     }
 
     public static getOperatorWave(waveform: number, pulseWidth: number) {

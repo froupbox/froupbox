@@ -89,6 +89,12 @@ export const enum DropdownID {
     NoteFilter = 15,
     SongEQFilter = 16,
     ColorizerMix = 17,
+    ChorusMix = 18,
+    ReverbMix = 19,
+    EchoDelay = 20,
+    InvertWaveMix = 21,
+    FlangerDelay = 22,
+    EchoMix = 23,
 }
 
 export const enum EffectType {
@@ -1025,10 +1031,17 @@ export class Config {
     public static readonly echoShelfGain:               number = Math.pow(2.0, -0.5);
     public static readonly echoDampingRange:            number = 64;
 
+    public static readonly effectMixRange:              number = 64;
+
+    // effectMixRange exceptions
+    public static readonly chorusMixRange:              number = 8;
+    public static readonly granularMixRange:            number = 10;
+    public static readonly phaserMixRange:              number = 32;
+
+    public static readonly effectStereoRange:           number = 64;
+
     public static readonly reverbShelfGain:             number = Math.pow(2.0, -1.5);
-    public static readonly reverbMixRange:              number = 64;
     public static readonly reverbRange:                 number = 32;
-    public static readonly reverbStereoRange:           number = 64;
     public static readonly reverbMaxFreqRange:          number = 64;
     public static readonly reverbDelayBufferSize:       number = 16384; // TODO: Compute a buffer size based on sample rate.
     public static readonly reverbDelayBufferMask:       number = Config.reverbDelayBufferSize - 1; // TODO: Compute a buffer size based on sample rate.
@@ -1038,7 +1051,6 @@ export class Config {
     public static readonly invertWavePanCenter:         number = 50;
     public static readonly invertWavePanMax:            number = Config.invertWavePanCenter * 2;
 
-    public static readonly phaserMixRange:              number = 32; 
     public static readonly phaserFeedbackRange:         number = 32; 
     public static readonly phaserFreqRange:             number = 32; 
     public static readonly phaserMinFreq:               number = 8.0; 
@@ -1047,7 +1059,6 @@ export class Config {
     public static readonly phaserMaxStages:             number = 2048; 
     public static readonly phaserSpreadRange:           number = 64; 
 
-    public static readonly flangerMixRange:             number = 64; 
     public static readonly flangerMinVoices:            number = 1; 
     public static readonly flangerMaxVoices:            number = 64; 
     public static readonly flangerDelayMin:             number = 0;
@@ -1056,10 +1067,9 @@ export class Config {
     public static readonly flangerPanMax:               number = Config.flangerPanCenter * 2;
     public static readonly flangerFeedmixRange:         number = 64; 
 
-    public static readonly colorizerMixRange:           number = 63; 
-    public static readonly colorizerColorRange:         number = 63; 
-    public static readonly colorizerMaxFreqRange:       number = 63; 
-    public static readonly colorizerMinFreqRange:       number = 63; 
+    public static readonly colorizerColorRange:         number = 64; 
+    public static readonly colorizerMaxFreqRange:       number = 64; 
+    public static readonly colorizerMinFreqRange:       number = 64; 
 
     public static readonly beatsPerBarMin:              number = 1;
     public static readonly beatsPerBarMax:              number = 64;
@@ -1356,9 +1366,11 @@ export class Config {
     // Beepbox's old volume scale used factor -0.5 and was [0~7] had roughly value 6 = 0.125 power. This new value is chosen to have -21 be the same,
     // given that the new scale is [-25~25]. This is such that conversion between the scales is roughly equivalent by satisfying (0.5*6 = 0.1428*21)
     public static readonly volumeLogScale: number = 0.1428;
+
     public static readonly panCenter: number = 50;
     public static readonly panMax: number = Config.panCenter * 2;
     public static readonly panDelaySecondsMax: number = 0.001;
+
     public static readonly ringModRange: number = 8;
     public static readonly ringModHzRange: number = 64;
     public static readonly ringModMinHz: number = 20;  
@@ -1366,20 +1378,20 @@ export class Config {
     public static readonly rmHzOffsetCenter: number = 200;
     public static readonly rmHzOffsetMax: number = 400;
     public static readonly rmHzOffsetMin: number = 0;
-    public static readonly granularRange: number = 10;
+
     public static readonly grainSizeMin: number = 40;
     public static readonly grainSizeMax: number = 2000;
     public static readonly grainSizeStep: number = 40;
     public static readonly grainRangeMax: number = 1600;
     public static readonly grainAmountsMax: number = 10; //2^grainAmountsMax is what is actually used
     public static readonly granularEnvelopeType: number = GranularEnvelopeType.parabolic; //here you can change which envelope implementation is used for grains (RaisedCosineBell still needs work)
-    public static readonly chorusRange: number = 8;
-    public static readonly chorusStereoRange: number = 64;
+
     public static readonly chorusPeriodSeconds: number = 2.0;
     public static readonly chorusDelayRange: number = 0.0034;
     public static readonly chorusDelayOffsets: ReadonlyArray<ReadonlyArray<number>> = [[1.51, 2.10, 3.35], [1.47, 2.15, 3.25]];
     public static readonly chorusPhaseOffsets: ReadonlyArray<ReadonlyArray<number>> = [[0.0, 2.1, 4.2], [3.2, 5.3, 1.0]];
     public static readonly chorusMaxDelay: number = Config.chorusDelayRange * (1.0 + Config.chorusDelayOffsets[0].concat(Config.chorusDelayOffsets[1]).reduce((x, y) => Math.max(x, y)));
+    
     public static readonly chords: DictionaryArray<Chord> = toNameMap([
         { name: "simultaneous", customInterval: false, arpeggiates: false, strumParts: 0, singleTone: false },
         { name: "strum", customInterval: false, arpeggiates: false, strumParts: 1, singleTone: false },
@@ -2187,7 +2199,7 @@ export class Config {
         }, 
         { name: "chorus", 
             pianoName: "Chorus", 
-            maxRawVol: Config.chorusRange - 1, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.chorus, maxIndex: 0,
+            maxRawVol: Config.chorusMixRange - 1, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.chorus, maxIndex: 0,
             promptName: "Instrument Chorus", 
             promptDesc: ["This setting controls the chorus strength of your instrument, just like the chorus slider.", "At $LO, the chorus effect will be disabled. The strength of the chorus effect increases up to the max value, $HI.", "[OVERWRITING] [$LO - $HI]"] },
         { name: "eq filt cut", 
@@ -2289,7 +2301,7 @@ export class Config {
             promptDesc: [ "This setting controls the Hertz (Hz) used in the Ring Modulation effect in your instrument.", "[OVERWRITING] [$LO - $HI]" ] },
         { name: "granular", 
             pianoName: "Granular", 
-            maxRawVol: Config.granularRange, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.granular, maxIndex: 0,
+            maxRawVol: Config.granularMixRange, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.granular, maxIndex: 0,
             promptName: "Granular", 
             promptDesc: [ "This setting controls the granular effect in your instrument.", "[OVERWRITING] [$LO - $HI]" ] },
         { name: "grain freq", 
@@ -2344,7 +2356,7 @@ export class Config {
             promptDesc: [ "This setting controls the number of phaser stages in your insturment, just like the phaser stages slider.", "At $LO, your instrument will have no phaser stages. At $HI, it will be at maximum.", "[OVERWRITING] [$LO - $HI]"] },                       
         { name: "flanger mix", 
             pianoName: "Flanger Mix", 
-            maxRawVol: Config.flangerMixRange, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.flanger, maxIndex: 0,
+            maxRawVol: Config.effectMixRange, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.flanger, maxIndex: 0,
             promptName: "Flanger Mix", 
             promptDesc: [ "This setting controls the flanger mix.", "[OVERWRITING] [$LO - $HI]"] },
         { name: "flanger delay", 
@@ -2374,12 +2386,12 @@ export class Config {
             promptDesc: [ "This setting controls the phaser spread of your instrument, just like the phaser spread slider.", "At $LO, your instrument will have no phaser spread. At $HI, it will be at maximum.", "[OVERWRITING] [$LO - $HI]"] },     
         { name: "colorizer mix", 
             pianoName: "Colorizer Mix", 
-            maxRawVol: Config.colorizerMixRange, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.colorizer, maxIndex: 0,
+            maxRawVol: Config.effectMixRange - 1, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.colorizer, maxIndex: 0,
             promptName: "Colorizer Mix", 
             promptDesc: [ "This setting controls the colorizer mix.", "[OVERWRITING] [$LO - $HI]"] },
         { name: "colorizer color", 
             pianoName: "Colorizer Color", 
-            maxRawVol: Config.colorizerColorRange, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.colorizer, maxIndex: 0,
+            maxRawVol: Config.colorizerColorRange - 1, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.colorizer, maxIndex: 0,
             promptName: "Colorizer Color", 
             promptDesc: [ "This setting controls the colorizer color.", "[OVERWRITING] [$LO - $HI]"] },
         ]);

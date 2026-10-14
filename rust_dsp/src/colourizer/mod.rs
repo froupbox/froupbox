@@ -7,6 +7,7 @@ use crate::{
     SamplePair,
     buffer::DspBuffer,
     flanger::{Flanger, FlangerParams},
+    lerp,
     util::{self, Interpolator},
 };
 
@@ -34,6 +35,12 @@ impl ColourizerInstanceParams {
     fn mix(&self) -> f32 {
         self.mix * (1.0 / 63.0)
     }
+    fn total_scale(&self, num_flangers: usize) -> f32 {
+        // modify this to your heart's content, but make sure it's never NaN/infinity
+        (num_flangers as f32 * self.voices * self.mix)
+            .powf(-0.5)
+            .min(1.0)
+    }
     fn for_freq(&self, sample_rate: f32, freq: f32) -> FlangerParams {
         FlangerParams {
             delay: sample_rate / freq,
@@ -54,6 +61,7 @@ pub struct ColourizerInstance {
 
     output_buf: DspBuffer,
     mix_interp: Interpolator<f32>,
+    total_scale_interp: Interpolator<f32>,
 }
 
 #[derive(Default)]
@@ -105,17 +113,30 @@ impl ColourizerInstance {
             flanger.i.interpolator = util::interpolate(run_length, params_start, params_end);
         }
 
-        self.cur_num_active_flangers = self
+        let num_flangers = self
             .flangers
             .iter_mut()
             .partition_in_place(|flanger| flanger.enabled);
+        self.cur_num_active_flangers = num_flangers;
 
         self.mix_interp = util::interpolate(run_length, start.mix(), end.mix());
+
+        // if you ever want to debug what the values are, you can do this with rust's string formatting
+        // crate::log!(
+        //     "{} => {}",
+        //     start.total_scale(num_flangers),
+        //     end.total_scale(num_flangers)
+        // );
+        self.total_scale_interp = util::interpolate(
+            run_length,
+            start.total_scale(num_flangers),
+            end.total_scale(num_flangers),
+        )
     }
 
     #[wasm_bindgen]
     pub fn process(&mut self, buffer: &mut DspBuffer) {
-        if self.cur_num_active_flangers == 0 {
+        if self.use_legacy_mix && self.cur_num_active_flangers == 0 {
             buffer.clear();
             return;
         }
@@ -131,8 +152,6 @@ impl ColourizerInstance {
                 debug_assert!(flanger.enabled);
             }
         }
-
-        let total_scale = 1.0 / self.cur_num_active_flangers as f32;
 
         for ((input_l, input_r), (output_l, output_r)) in
             zip(buffer.as_zipped(), self.output_buf.as_zipped())
@@ -152,7 +171,8 @@ impl ColourizerInstance {
             if self.use_legacy_mix {
                 output += input * (1.0 - wet);
             } else {
-                output *= total_scale;
+                output *= self.total_scale_interp.next();
+                output = lerp(input, output, wet);
             }
 
             *output_l = output.l;

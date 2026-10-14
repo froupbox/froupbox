@@ -42,10 +42,16 @@ export class TipPrompt implements Prompt {
 					p("This setting controls the speed of your song, measured in beats-per-minute. A \"beat\" is the duration of the little gray rectangles in the pattern editor. (In conventional music notation, a \"quarter note\" is usually equivalent to \"beat\".)"),
 				);
 			} break;
-			case "reverbMix": {
+			case "effectMix": {
 				message = div(
-					h2("Reverb Mix"),
-					p("This slider controls the dry-wet mix of the reverb."),
+					h2("Effect Mix"),
+					p("This slider controls the dry-wet mix of its associated effect."),
+				);
+			} break;
+			case "effectStereo": {
+				message = div(
+					h2("Effect Stereo"),
+					p("This controls how much the associated effect is panned."),
 				);
 			} break;
 			case "reverb": {
@@ -54,16 +60,16 @@ export class TipPrompt implements Prompt {
 					p("Reverb is like a continuous echo effect. A little bit helps instruments sound more natural. Adding a lot of reverb can add sense of depth or mystery, but too much reverb can kinda \"smear\" sounds so that it's harder to distinguish notes or instruments, especially for lower \"bass\" notes."),
 				);
 			} break;
-			case "reverbStereo": {
-				message = div(
-					h2("Reverb Stereo"),
-					p("This controls how much the reverb is panned."),
-				);
-			} break;
 			case "reverbMaxFreq": {
 				message = div(
 					h2("Reverb Max Freq"),
 					p("This controls where the frequency cutoff of the reverb is."),
+				);
+			} break;
+			case "effectIsolate": {
+				message = div(
+					h2("Effect Isolate"),
+					p("Isolates the changed part and removes the original sound."),
 				);
 			} break;
 			case "rhythm": {
@@ -352,18 +358,12 @@ export class TipPrompt implements Prompt {
 					p("The left side of the spectrum editor controls the noise energy at lower frequencies, and the right side controls higher frequencies."),
 				);
 			} break;
-			case "chorusMix": {
-				message = div(
-					h2("Chorus Mix"),
-					p("The chorus effect combines multiple copies of the instrument's sound and adds a bit of vibrato to simulate an ensemble of instruments or voices. Drag the slider to control how much chorus is added."),
-				);
-			} break;
-			case "chorusStereo": {
-				message = div(
-					h2("Chorus Stereo"),
-					p("This controls how much the chorus is panned."),
-				);
-			} break;
+			// case "chorus": {
+			// 	message = div(
+			// 		h2("Chorus"),
+			// 		p("The chorus effect combines multiple copies of the instrument's sound and adds a bit of vibrato to simulate an ensemble of instruments or voices. Drag the slider to control how much chorus is added."),
+			// 	);
+			// } break;
 			case "echoSustain": {
 				message = div(
 					h2("Echo Volume"),
@@ -717,13 +717,13 @@ export class TipPrompt implements Prompt {
 					p("This is the shape of the wave modulating your instrument's sound"),
 				);
 			} break;
-			case "granular": {
-				message = div(
-					h2("Granular Synthesis"),
-					p(`This effect is based on granular synthesis! It takes random points from a wave and rearranges them to form "sonic clouds".`),
-					p(`This particular slider controls the wet/dry mix of the granulation.`)
-				);
-			} break;
+			// case "granular": {
+			// 	message = div(
+			// 		h2("Granular Synthesis"),
+			// 		p(`This effect is based on granular synthesis! It takes random points from a wave and rearranges them to form "sonic clouds".`),
+			// 		p(`This particular slider controls the wet/dry mix of the granulation.`)
+			// 	);
+			// } break;
 			case "grainSize": {
 				message = div(
 					h2("Grain Size"),
@@ -742,12 +742,12 @@ export class TipPrompt implements Prompt {
 					p(`This setting controls the range of randomization for grain sizes. `),
 				);
 			} break;
-			case "phaserMix": {
-				message = div(
-					h2("Phaser Mix"),
-					p(`This setting adds holes (aka notches) or peaks in the frequency spectrum to the waveform its given. The placement of these peaks and notches in the waveform can be changed by using envelopes and/or modulators.`),
-				);
-			} break;
+			// case "phaser": {
+			// 	message = div(
+			// 		h2("Phaser"),
+			// 		p(`This setting adds holes (aka notches) or peaks in the frequency spectrum to the waveform its given. The placement of these peaks and notches in the waveform can be changed by using envelopes and/or modulators.`),
+			// 	);
+			// } break;
 			case "phaserFreq": {
 				message = div(
 					h2("Phaser Frequency"),
@@ -785,13 +785,13 @@ export class TipPrompt implements Prompt {
 					p(`Makes the phaser act as a disperser.`),
 				);
 			} break;
-			case "flangerMix": {
-				message = div(
-					h2("Flanger Mix"),
-					p(`This setting controls the volume of the original wave and the phase shifted wave.`),
-					p(`In the middle of the slider, both waves are equal volume. When the slider is all the way to the left only the original wave plays, and when the slider is all the way to the right, only the phase shifted wave plays.`),
-				);
-			} break;
+			// case "flangerMix": {
+			// 	message = div(
+			// 		h2("Flanger Mix"),
+			// 		p(`This setting controls the volume of the original wave and the phase shifted wave.`),
+			// 		p(`In the middle of the slider, both waves are equal volume. When the slider is all the way to the left only the original wave plays, and when the slider is all the way to the right, only the phase shifted wave plays.`),
+			// 	);
+			// } break;
 			case "flangerVoices": {
 				message = div(
 					h2("Flanger Voices"),
@@ -823,10 +823,10 @@ export class TipPrompt implements Prompt {
 					p(`This setting controls whether the phase shift uses feedback or feedforward, and can interpolate between the two.`),
 				);
 			} break;
-			case "colorizerMix": {
+			case "flangerHaas": {
 				message = div(
-					h2("Colorizer Mix"),
-					p(`This setting controls the dry-wet mix of the colorizer.`),
+					h2("Flanger Haas"),
+					p(`When this setting is checked the signal is completely delayed, creating a haas effect when combined with panning set to 0 or 100.`),
 				);
 			} break;
 			case "colorizerLegacyMix": {
