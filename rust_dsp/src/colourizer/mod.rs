@@ -136,6 +136,11 @@ impl ColourizerInstance {
 
     #[wasm_bindgen]
     pub fn process(&mut self, buffer: &mut DspBuffer) {
+        if self.use_legacy_mix && self.cur_num_active_flangers == 0 {
+            buffer.clear();
+            return;
+        }
+
         if self.output_buf.frame_size() != buffer.frame_size() {
             self.output_buf = DspBuffer::new(buffer.frame_size());
         }
