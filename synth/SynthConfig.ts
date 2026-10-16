@@ -65,6 +65,7 @@ export const enum InstrumentType {
     customChipWave,
     mod,
     fm6op,
+    //additive
     length,
 }
 
