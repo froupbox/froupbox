@@ -2099,6 +2099,9 @@ export class Instrument {
                 this.pulseWidth = Config.pulseWidthRange - 1;
                 this.decimalOffset = 0;
                 break;
+            case InstrumentType.additive:
+                this.chord = Config.chords.dictionary["simultaneous"].index;
+                break;
             default:
                 throw new Error("Unrecognized instrument type: " + type);
         }
@@ -2504,6 +2507,7 @@ export class Instrument {
                 instrumentObject["modFilterTypes"][mod] = this.modFilterTypes[mod];
                 instrumentObject["modEnvelopeNumbers"][mod] = this.modEnvelopeNumbers[mod];
             }
+        } else if (this.type == InstrumentType.additive) {
         } else {
             throw new Error("Unrecognized instrument type");
         }
@@ -4576,6 +4580,7 @@ export class Song {
                     buffer.push(SongTagCode.stringSustain, base64IntToCharCode[instrument.stringSustain | (instrument.stringSustainType << 5)]);
                 } else if (instrument.type == InstrumentType.mod) {
                     // Handled down below. Could be moved, but meh.
+                } else if (instrument.type == InstrumentType.additive) {
                 } else {
                     throw new Error("Unknown instrument type.");
                 }
@@ -9427,6 +9432,8 @@ class Tone {
     public initialNoteFilterInput1: number = 0.0;
     public initialNoteFilterInput2: number = 0.0;
 
+    public previousAdditiveSampleIndex: number = 0;
+
     public specialIntervalExpressionMult: number = 1.0;
     public readonly feedbackOutputs: number[] = [];
     public feedbackMult: number = 0.0;
@@ -11199,6 +11206,7 @@ export class Synth {
     private static readonly pulseFunctionCache: Function[] = [];
     private static readonly supersawFunctionCache: Function[] = [];
     private static readonly harmonicsFunctionCache: Function[] = [];
+    private static readonly additiveFunctionCache: Function[] = [];
     private static readonly loopableChipFunctionCache: Function[] = Array(Config.unisonVoicesMax + 1).fill(undefined); //For loopable chips, we have a matrix where the rows represent voices and the columns represent loop types
 
     public readonly channels: ChannelState[] = [];
@@ -13303,6 +13311,8 @@ export class Synth {
             expressionReferencePitch = 0;
             pitchDamping = 1.0;
             basePitch = 0;
+        } else if (instrument.type == InstrumentType.additive) {
+            baseExpression = Config.additiveBaseExpression;
         } else {
             throw new Error("Unknown instrument type in computeTone.");
         }
@@ -14385,6 +14395,8 @@ export class Synth {
             return Synth.drumsetSynth;
         } else if (instrument.type == InstrumentType.mod) {
             return Synth.modSynth;
+        } else if (instrument.type == InstrumentType.additive) {
+            return Synth.additiveSynth;
         } else if (instrument.type == InstrumentType.fm6op) {
             const voiceCount: number = instrument.unisonVoices;
             const fingerprint: string = instrument.customAlgorithm.name + "_" + instrument.customFeedbackType.name + "_" + voiceCount;
@@ -16412,6 +16424,61 @@ export class Synth {
         }
 
         supersawFunction(synth, bufferIndex, runLength, tone, instrumentState);
+    }
+
+    private static additiveSynth(synth: Synth, bufferIndex: number, roundedSamplesPerTick: number, tone: Tone, instrumentState: InstrumentState): void {
+        let additiveFunction: Function = Synth.additiveFunctionCache[0];
+        if (additiveFunction == undefined) {
+            let additiveSource: string = `return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {
+                const data = synth.tempMonoInstrumentSampleBuffer;
+
+                let expression = +tone.expression;
+                const expressionDelta = +tone.expressionDelta;
+
+                const stopIndex = bufferIndex + roundedSamplesPerTick;
+
+                const phaseDelta = tone.phaseDeltas[0]
+                
+                for (let sampleIndex = bufferIndex; sampleIndex < stopIndex; sampleIndex++) {
+
+                    let sample = 0;
+
+                    // sliders
+                    let frequencies = 64; // 1 - 64
+                    let inharmonicity = -1; // -3 - 3
+                    let dispersion = 0; // -10 - 10
+                    let falloff = 1; // -2 - 2
+
+                    for (let i = 1; i <= frequencies; i++) {
+                        sample += 
+                        Math.sin(
+                            (2 * Math.PI)
+                            * phaseDelta
+                            * (sampleIndex - bufferIndex + tone.previousAdditiveSampleIndex + dispersion * i)
+                            * (
+                                inharmonicity >= 0 
+                                ? inharmonicity * i - (inharmonicity - 1) // overtones
+                                : -inharmonicity / i - (-inharmonicity - 1) // undertones
+                            )
+                        ) / (i ** falloff);
+                    }
+                    
+                    const output = sample * expression;
+
+                    data[sampleIndex] = output;
+
+                    expression += expressionDelta;
+                }
+                tone.previousAdditiveSampleIndex += stopIndex - bufferIndex;
+
+                tone.expression = expression;
+            }`;
+
+            additiveFunction = new Function("Config", "Synth", additiveSource)(Config, Synth);
+            Synth.additiveFunctionCache[0] = additiveFunction;
+        }
+
+        additiveFunction(synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState);
     }
 
     // # denotes operator number, ~ denotes voice number for unison

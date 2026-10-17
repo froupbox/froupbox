@@ -65,11 +65,11 @@ export const enum InstrumentType {
     customChipWave,
     mod,
     fm6op,
-    //additive
+    additive,
     length,
 }
 
-export const TypePresets: ReadonlyArray<string> = ["chip", "FM", "noise", "spectrum", "drumset", "harmonics", "pulse width", "picked string", "supersaw", "chip (custom)", "mod", "FM (6-op)"];
+export const TypePresets: ReadonlyArray<string> = ["chip", "FM", "noise", "spectrum", "drumset", "harmonics", "pulse width", "picked string", "supersaw", "chip (custom)", "mod", "FM (6-op)", "additive"];
 
 export const enum DropdownID {
     Vibrato = 0,
@@ -1097,7 +1097,7 @@ export class Config {
         // { name: "absolute freedom (÷48)",stepsPerBeat: 48, /*ticksPerArpeggio: 3, arpeggioPatterns: [[0], [0, 1],[0, 1, 2, 1]],*/ roundUpThresholds: null},
 	]);
 
-    public static readonly instrumentTypeNames: ReadonlyArray<string> = ["chip", "FM", "noise", "spectrum", "drumset", "harmonics", "PWM", "Picked String", "supersaw", "custom chip", "mod", "FM6op"];
+    public static readonly instrumentTypeNames: ReadonlyArray<string> = ["chip", "FM", "noise", "spectrum", "drumset", "harmonics", "PWM", "Picked String", "supersaw", "custom chip", "mod", "FM6op", "additive"];
     public static readonly instrumentTypeHasSpecialInterval: ReadonlyArray<boolean> = [true, true, false, false, false, true, false, false, false, false, false];
     public static readonly chipBaseExpression: number = 0.03375; // Doubled by unison feature, but affected by expression adjustments per unison setting and wave shape. Custom chip is multiplied by 0.05 in instrumentState.updateWaves
     public static readonly fmBaseExpression: number = 0.03;
@@ -1108,6 +1108,7 @@ export class Config {
     public static readonly pwmBaseExpression: number = 0.04725; // It's actually closer to half of this, the synthesized pulse amplitude range is only .5 to -.5, but also note that the fundamental sine partial amplitude of a square wave is 4/π times the measured square wave amplitude.
     public static readonly supersawBaseExpression: number = 0.061425; // It's actually closer to half of this, the synthesized sawtooth amplitude range is only .5 to -.5.
     public static readonly pickedStringBaseExpression: number = 0.025; // Same as harmonics.
+    public static readonly additiveBaseExpression: number = 1.0;
     public static readonly distortionBaseVolume: number = 0.011; // Distortion is not affected by pitchDamping, which otherwise approximately halves expression for notes around the middle of the range.
     public static readonly bitcrusherBaseVolume: number = 0.010; // Also not affected by pitchDamping, used when bit crushing is maxed out (aka "1-bit" output).
     public static readonly granularOutputLoudnessCompensation: number = 0.5; //compensate for multiple grains playing at once
@@ -1359,6 +1360,7 @@ export class Config {
       InstrumentType.fm,
       InstrumentType.fm6op,
       InstrumentType.supersaw,
+      InstrumentType.additive,
     ]);
     public static readonly effectNames: ReadonlyArray<string> = ["reverb", "chorus", "panning", "distortion", "bitcrusher", "note filter", "echo", "pitch shift", "detune", "vibrato", "transition type", "chord type", "note range", "ring mod", "granular", "phaser", "", "invert wave", "compressor", "flanger", "colorizer"];
     public static readonly effectOrder: ReadonlyArray<EffectType> = [EffectType.panning, EffectType.transition, EffectType.chord, EffectType.pitchShift, EffectType.detune, EffectType.vibrato, EffectType.noteFilter, EffectType.granular, EffectType.distortion, EffectType.bitcrusher, EffectType.chorus, EffectType.echo, EffectType.reverb, EffectType.ringModulation, EffectType.phaser, EffectType.invertWave, EffectType.compressor, EffectType.noteRange, EffectType.flanger, EffectType.colorizer];
@@ -1948,7 +1950,7 @@ export class Config {
         { name: "noteVolume",             computeIndex: EnvelopeComputeIndex.noteVolume,                displayName: "note volume",      perNote: true,  interleave: false, isFilter: false, /*range: Config.volumeRange,             */    maxCount: 1, effect: null, compatibleInstruments: null },
         { name: "pulseWidth",             computeIndex: EnvelopeComputeIndex.pulseWidth,                displayName: "pulse width",      perNote: true,  interleave: false, isFilter: false, /*range: Config.pulseWidthRange,         */    maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.pwm, InstrumentType.supersaw] },
         { name: "stringSustain",          computeIndex: EnvelopeComputeIndex.stringSustain,             displayName: "sustain",          perNote: true,  interleave: false, isFilter: false, /*range: Config.stringSustainRange,      */    maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.pickedString] },
-        { name: "unison",                 computeIndex: EnvelopeComputeIndex.unison,                    displayName: "unison",           perNote: true,  interleave: false, isFilter: false, /*range: Config.defaultAutomationRange,  */    maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.chip, InstrumentType.harmonics, InstrumentType.pickedString, InstrumentType.customChipWave, InstrumentType.pwm, InstrumentType.noise, InstrumentType.spectrum, InstrumentType.drumset, InstrumentType.fm, InstrumentType.fm6op, InstrumentType.supersaw] },
+        { name: "unison",                 computeIndex: EnvelopeComputeIndex.unison,                    displayName: "unison",           perNote: true,  interleave: false, isFilter: false, /*range: Config.defaultAutomationRange,  */    maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.chip, InstrumentType.harmonics, InstrumentType.pickedString, InstrumentType.customChipWave, InstrumentType.pwm, InstrumentType.noise, InstrumentType.spectrum, InstrumentType.drumset, InstrumentType.fm, InstrumentType.fm6op, InstrumentType.supersaw, InstrumentType.additive] },
         { name: "operatorFrequency",      computeIndex: EnvelopeComputeIndex.operatorFrequency0,        displayName: "fm# freq",         perNote: true,  interleave: true, isFilter: false, /*range: Config.defaultAutomationRange,  */    maxCount: Config.operatorCount+2, effect: null, compatibleInstruments: [InstrumentType.fm, InstrumentType.fm6op] },
         { name: "operatorAmplitude",      computeIndex: EnvelopeComputeIndex.operatorAmplitude0,        displayName: "fm# volume",       perNote: true,  interleave: false, isFilter: false, /*range: Config.operatorAmplitudeMax + 1,*/    maxCount: Config.operatorCount+2, effect: null, compatibleInstruments: [InstrumentType.fm, InstrumentType.fm6op] },
         { name: "feedbackAmplitude",      computeIndex: EnvelopeComputeIndex.feedbackAmplitude,         displayName: "fm feedback",      perNote: true,  interleave: false, isFilter: false, /*range: Config.operatorAmplitudeMax + 1,*/    maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.fm, InstrumentType.fm6op] },

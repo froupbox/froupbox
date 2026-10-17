@@ -804,6 +804,8 @@ export class ExportPrompt implements Prompt {
                                     instrumentProgram = 0x19; // steel guitar
                                 } else if (instrument.type == InstrumentType.customChipWave) {
                                     instrumentProgram = 81; // sawtooth
+                                } else if (instrument.type == InstrumentType.additive) {
+                                    instrumentProgram = 14; // tubular bells
                                 } else {
                                     throw new Error("Unrecognized instrument type.");
                                 }
