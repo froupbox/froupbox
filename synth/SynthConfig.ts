@@ -185,6 +185,11 @@ export const enum EnvelopeComputeIndex {
     colorizerMix,
     colorizerColor,
 
+    additiveFreqs, 
+    additiveInharmonicity, 
+    additiveDispersion, 
+    additiveFalloff, 
+
     length,
 }
 
@@ -1108,7 +1113,7 @@ export class Config {
     public static readonly pwmBaseExpression: number = 0.04725; // It's actually closer to half of this, the synthesized pulse amplitude range is only .5 to -.5, but also note that the fundamental sine partial amplitude of a square wave is 4/π times the measured square wave amplitude.
     public static readonly supersawBaseExpression: number = 0.061425; // It's actually closer to half of this, the synthesized sawtooth amplitude range is only .5 to -.5.
     public static readonly pickedStringBaseExpression: number = 0.025; // Same as harmonics.
-    public static readonly additiveBaseExpression: number = 1.0;
+    public static readonly additiveBaseExpression: number = 0.01989;
     public static readonly distortionBaseVolume: number = 0.011; // Distortion is not affected by pitchDamping, which otherwise approximately halves expression for notes around the middle of the range.
     public static readonly bitcrusherBaseVolume: number = 0.010; // Also not affected by pitchDamping, used when bit crushing is maxed out (aka "1-bit" output).
     public static readonly granularOutputLoudnessCompensation: number = 0.5; //compensate for multiple grains playing at once
@@ -1690,6 +1695,19 @@ export class Config {
 	public static readonly supersawDynamismMax: number = 6;
 	public static readonly supersawSpreadMax: number = 12;
 	public static readonly supersawShapeMax: number = 6;
+
+	public static readonly additiveFreqsMin: number = 0;
+	public static readonly additiveFreqsMax: number = 32;
+
+	public static readonly additiveInharmonicityMin: number = -4.0000;
+	public static readonly additiveInharmonicityMax: number = 4.0000;
+
+	public static readonly additiveDispersionMin: number = -100;
+	public static readonly additiveDispersionMax: number = 100;
+
+	public static readonly additiveFalloffMin: number = -2.0;
+	public static readonly additiveFalloffMax: number = 2.0;
+
     public static readonly pitchChannelCountMin: number = 1;
     public static readonly pitchChannelCountMax: number = 60; //slarmoo: 60
     public static readonly noiseChannelCountMin: number = 0;
@@ -2007,6 +2025,10 @@ export class Config {
         { name: "phaserSpread",           computeIndex: EnvelopeComputeIndex.phaserSpread,              displayName: "phaser spread",    perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.phaser, compatibleInstruments: null }, 
         { name: "colorizerMix",           computeIndex: EnvelopeComputeIndex.colorizerMix,              displayName: "colorizer mix",    perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.colorizer, compatibleInstruments: null },
         { name: "colorizerColor",         computeIndex: EnvelopeComputeIndex.colorizerColor,            displayName: "colorizer color",  perNote: false, interleave: false, isFilter: false, maxCount: 1, effect: EffectType.colorizer, compatibleInstruments: null },
+        { name: "additiveFreqs",          computeIndex: EnvelopeComputeIndex.additiveFreqs,             displayName: "additive freqs",         perNote: true,  interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.additive]},
+        { name: "additiveInharmonicity",  computeIndex: EnvelopeComputeIndex.additiveInharmonicity,     displayName: "additive inharmonicity", perNote: true,  interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.additive]},
+        { name: "additiveDispersion",     computeIndex: EnvelopeComputeIndex.additiveDispersion,        displayName: "additive dispersion",    perNote: true,  interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.additive]},
+        { name: "additiveFalloff",        computeIndex: EnvelopeComputeIndex.additiveFalloff,           displayName: "additive falloff",       perNote: true,  interleave: false, isFilter: false, maxCount: 1, effect: null, compatibleInstruments: [InstrumentType.additive]},
     ]);
 
   static {
@@ -2397,6 +2419,26 @@ export class Config {
             maxRawVol: Config.colorizerColorRange - 1, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.colorizer, maxIndex: 0,
             promptName: "Colorizer Color", 
             promptDesc: [ "This setting controls the colorizer color.", "[OVERWRITING] [$LO - $HI]"] },
+        { name: "additive freqs", 
+            pianoName: "Additive Freqs", 
+            maxRawVol: Config.additiveFreqsMax, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.length, maxIndex: 0,
+            promptName: "Additive Freqs", 
+            promptDesc: ["This setting controls the additive freqs", "[OVERWRITING] [$LO - $HI]"] },
+        { name: "additive inharmonicity", 
+            pianoName: "Additive Inharmonicity", 
+            maxRawVol: Config.additiveInharmonicityMax, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.length, maxIndex: 0,
+            promptName: "Additive Inharmonicity", 
+            promptDesc: ["This setting controls the additive inharmonicity", "[OVERWRITING] [$LO - $HI]"] },
+        { name: "additive dispersion", 
+            pianoName: "Additive Dispersion", 
+            maxRawVol: Config.additiveDispersionMax, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.length, maxIndex: 0,
+            promptName: "Additive Dispersion", 
+            promptDesc: ["This setting controls the additive dispersion", "[OVERWRITING] [$LO - $HI]"] },
+        { name: "additive falloff", 
+            pianoName: "Additive Falloff", 
+            maxRawVol: Config.additiveFalloffMax, newNoteVol: 0, forSong: false, convertRealFactor: 0, associatedEffect: EffectType.length, maxIndex: 0,
+            promptName: "Additive Falloff", 
+            promptDesc: ["This setting controls the additive falloff", "[OVERWRITING] [$LO - $HI]"] },
         ]);
 }
 

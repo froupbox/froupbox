@@ -233,6 +233,32 @@ export class TipPrompt implements Prompt {
 					p("When a pulse wave shape is used, you can also control the pulse width with a separate setting."),
 				);
 			} break;
+			case "additiveFreqs": {
+				message = div(
+					h2("Additive Frequencies"),
+					p("Controls how many frequencies are used."),
+				);
+			} break;
+			case "additiveInharmonicity": {
+				message = div(
+					h2("Additive Inharmonicity"),
+					p("Controls how many spread apart the frequencies are, centered around the bass frequency."),
+					p("When this is positive, it generates overtones. When it is specifically 1, it generates harmonics."),
+					p("When this is negative, it generates undertones. When it is specifically -1, it generates subharmonics."),
+				);
+			} break;
+			case "additiveDispersion": {
+				message = div(
+					h2("Additive Dispersion"),
+					p("Controls how phase shifted the frequencies are."),
+				);
+			} break;
+			case "additiveFalloff": {
+				message = div(
+					h2("Additive Falloff"),
+					p("Controls how fast the frequencies' volume falls off."),
+				);
+			} break;
 			case "pulseWidth": {
 				message = div(
 					h2("Pulse Wave Width"),

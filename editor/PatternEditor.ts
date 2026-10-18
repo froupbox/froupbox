@@ -8,7 +8,7 @@ import { Slider } from "./HTMLWrapper";
 import { SongEditor } from "./SongEditor";
 import { HTML, SVG } from "imperative-html/dist/esm/elements-strict";
 import { ChangeSequence, UndoableChange } from "./Change";
-import { ChangeVolume, FilterMoveData, ChangeTempo, ChangePan, ChangeReverb, ChangeDistortion, ChangeOperatorAmplitude, ChangeFeedbackAmplitude, ChangePulseWidth, ChangeDetune, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangePanDelay, ChangeChorusMix, ChangeEQFilterSimplePeak, ChangeNoteFilterSimplePeak, ChangeStringSustain, ChangeEnvelopeSpeed, ChangeSupersawDynamism, ChangeSupersawShape, ChangeSupersawSpread, ChangePitchShift, ChangeChannelBar, ChangeDragSelectedNotes, ChangeEnsurePatternExists, ChangeNoteTruncate, ChangeNoteAdded, ChangePatternSelection, ChangePinTime, ChangeSizeBend, ChangePitchBend, ChangePitchAdded, ChangeArpeggioSpeed, ChangeBitcrusherQuantization, ChangeBitcrusherFreq, ChangeEchoSustain, ChangeEQFilterSimpleCut, ChangeNoteFilterSimpleCut, ChangeFilterMovePoint, ChangeDuplicateSelectedReusedPatterns, ChangeHoldingModRecording, ChangeDecimalOffset, ChangePerEnvelopeSpeed, ChangeSongFilterMovePoint, ChangeRingMod, ChangeRingModHz, ChangeGranularMix, ChangeGrainSize, ChangeEnvelopeLowerBound, ChangeEnvelopeUpperBound, ChangeGrainAmounts, ChangeGrainRange } from "./changes";
+import { ChangeVolume, FilterMoveData, ChangeTempo, ChangePan, ChangeReverb, ChangeDistortion, ChangeOperatorAmplitude, ChangeFeedbackAmplitude, ChangePulseWidth, ChangeDetune, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangePanDelay, ChangeChorusMix, ChangeEQFilterSimplePeak, ChangeNoteFilterSimplePeak, ChangeStringSustain, ChangeEnvelopeSpeed, ChangeSupersawDynamism, ChangeSupersawShape, ChangeSupersawSpread, ChangePitchShift, ChangeChannelBar, ChangeDragSelectedNotes, ChangeEnsurePatternExists, ChangeNoteTruncate, ChangeNoteAdded, ChangePatternSelection, ChangePinTime, ChangeSizeBend, ChangePitchBend, ChangePitchAdded, ChangeArpeggioSpeed, ChangeBitcrusherQuantization, ChangeBitcrusherFreq, ChangeEchoSustain, ChangeEQFilterSimpleCut, ChangeNoteFilterSimpleCut, ChangeFilterMovePoint, ChangeDuplicateSelectedReusedPatterns, ChangeHoldingModRecording, ChangeDecimalOffset, ChangePerEnvelopeSpeed, ChangeSongFilterMovePoint, ChangeRingMod, ChangeRingModHz, ChangeGranularMix, ChangeGrainSize, ChangeEnvelopeLowerBound, ChangeEnvelopeUpperBound, ChangeGrainAmounts, ChangeGrainRange, ChangeAdditiveFreqs, ChangeAdditiveInharmonicity, ChangeAdditiveDispersion, ChangeAdditiveFalloff } from "./changes";
 import { prettyNumber } from "./EditorConfig";
 import { EnvelopeEditor } from "./EnvelopeEditor";
 
@@ -1395,7 +1395,48 @@ export class PatternEditor {
             if (slider != null) {
                 instrument.supersawShape = slider.getValueBeforeProspectiveChange();
             }
-        } else if (change instanceof ChangePerEnvelopeSpeed) {
+        }
+        else if (change instanceof ChangeAdditiveFreqs) {
+            var modulator = Config.modulators.dictionary["additive freqs"];
+            applyToMods.push(modulator.index);
+            if (toApply) applyValues.push(instrument.additiveFreqs - modulator.convertRealFactor);
+            // Move the actual value back, since we just want to update the modulated value and not the base slider.
+            slider = songEditor.getSliderForModSetting(modulator.index);
+            if (slider != null) {
+                instrument.additiveFreqs = slider.getValueBeforeProspectiveChange();
+            }
+        }
+        else if (change instanceof ChangeAdditiveInharmonicity) {
+            var modulator = Config.modulators.dictionary["additive inharmonicity"];
+            applyToMods.push(modulator.index);
+            if (toApply) applyValues.push(instrument.additiveInharmonicity - modulator.convertRealFactor);
+            // Move the actual value back, since we just want to update the modulated value and not the base slider.
+            slider = songEditor.getSliderForModSetting(modulator.index);
+            if (slider != null) {
+                instrument.additiveInharmonicity = slider.getValueBeforeProspectiveChange();
+            }
+        }
+        else if (change instanceof ChangeAdditiveDispersion) {
+            var modulator = Config.modulators.dictionary["additive dispersion"];
+            applyToMods.push(modulator.index);
+            if (toApply) applyValues.push(instrument.additiveDispersion - modulator.convertRealFactor);
+            // Move the actual value back, since we just want to update the modulated value and not the base slider.
+            slider = songEditor.getSliderForModSetting(modulator.index);
+            if (slider != null) {
+                instrument.additiveDispersion = slider.getValueBeforeProspectiveChange();
+            }
+        }
+        else if (change instanceof ChangeAdditiveFalloff) {
+            var modulator = Config.modulators.dictionary["additive falloff"];
+            applyToMods.push(modulator.index);
+            if (toApply) applyValues.push(instrument.additiveFalloff - modulator.convertRealFactor);
+            // Move the actual value back, since we just want to update the modulated value and not the base slider.
+            slider = songEditor.getSliderForModSetting(modulator.index);
+            if (slider != null) {
+                instrument.additiveFalloff = slider.getValueBeforeProspectiveChange();
+            }
+        }
+        else if (change instanceof ChangePerEnvelopeSpeed) {
             var modulator = Config.modulators.dictionary["individual envelope speed"];
             applyToMods.push(modulator.index);
             const envelopeIndex: number = change.getIndex();

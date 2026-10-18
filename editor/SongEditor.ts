@@ -47,7 +47,7 @@ import { CustomThemePrompt } from "./CustomThemePrompt";
 import { CustomPresetsPrompt } from "./CustomPresetsPrompt";
 import { ThemePrompt } from "./ThemePrompt";
 import { TipPrompt } from "./TipPrompt";
-import { ChangeTempo, ChangeKeyOctave, ChangeChorusMix, ChangeEchoDelay, ChangeEchoSustain, ChangeEchoMix, ChangeReverb, ChangeVolume, ChangePan, ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeSetPatternInstruments, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranularMix, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, ChangeCompressor, ChangeCompressorTime, ChangeRmHzOffset, ChangePhaserDisperse, ChangeSlideSpeed, ChangeStrumSpeed, ChangeLoop, ChangeChannelBar, ChangeFlangerMix, ChangeFlangerDelay, ChangeFlangerPan, ChangeFlangerFeedmix, ChangeFlangerVoices, ChangeChannelTuning, ChangePitchShiftFiveLimit, ChangePitchShiftEquaveDivisions, ChangePitchShiftEquaveNumerator, ChangePitchShiftEquaveDenominator, ChangeVolumePitchCompensation, ChangeVolumeChordCompensation, ChangeChipWaveSampleChannel, ChangePhaserSpread, ChangePhaserFilterType, ChangeFlangerDistribute, ChangeColorizerMix, ChangeColorizerColor, ChangeColorizerChannel, ChangeColorizerMaxFreq, ChangeColorizerMinFreq, ChangeColorizerDetune, ChangeEQFilterCompensation, ChangeNoteFilterCompensation, ChangeChorusStereo, ChangeReverbStereo, ChangeReverbMix, ChangeReverbMaxFreq, ChangeEchoDamping, ChangeSongEQFilterCompensation, ChangeInvertWavePan, ChangeColorizerLegacyMix, ChangeDistortionMix, ChangeBitcrusherMix, ChangeInvertWaveMix, ChangeInvertWaveStereo, ChangeFlangerStereo, ChangeFlangerHaas, ChangeReverbIsolate, ChangeEchoIsolate } from "./changes";
+import { ChangeTempo, ChangeKeyOctave, ChangeChorusMix, ChangeEchoDelay, ChangeEchoSustain, ChangeEchoMix, ChangeReverb, ChangeVolume, ChangePan, ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeSetPatternInstruments, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranularMix, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, ChangeCompressor, ChangeCompressorTime, ChangeRmHzOffset, ChangePhaserDisperse, ChangeSlideSpeed, ChangeStrumSpeed, ChangeLoop, ChangeChannelBar, ChangeFlangerMix, ChangeFlangerDelay, ChangeFlangerPan, ChangeFlangerFeedmix, ChangeFlangerVoices, ChangeChannelTuning, ChangePitchShiftFiveLimit, ChangePitchShiftEquaveDivisions, ChangePitchShiftEquaveNumerator, ChangePitchShiftEquaveDenominator, ChangeVolumePitchCompensation, ChangeVolumeChordCompensation, ChangeChipWaveSampleChannel, ChangePhaserSpread, ChangePhaserFilterType, ChangeFlangerDistribute, ChangeColorizerMix, ChangeColorizerColor, ChangeColorizerChannel, ChangeColorizerMaxFreq, ChangeColorizerMinFreq, ChangeColorizerDetune, ChangeEQFilterCompensation, ChangeNoteFilterCompensation, ChangeChorusStereo, ChangeReverbStereo, ChangeReverbMix, ChangeReverbMaxFreq, ChangeEchoDamping, ChangeSongEQFilterCompensation, ChangeInvertWavePan, ChangeColorizerLegacyMix, ChangeDistortionMix, ChangeBitcrusherMix, ChangeInvertWaveMix, ChangeInvertWaveStereo, ChangeFlangerStereo, ChangeFlangerHaas, ChangeReverbIsolate, ChangeEchoIsolate, ChangeAdditiveFreqs, ChangeAdditiveInharmonicity, ChangeAdditiveDispersion, ChangeAdditiveFalloff } from "./changes";
 
 import { TrackEditor } from "./TrackEditor";
 import { oscilloscopeCanvas } from "../global/Oscilloscope";
@@ -2042,6 +2042,54 @@ export class SongEditor {
     private readonly _stringSustainLabel: HTMLSpanElement = span({ class: "tip", onclick: () => this._openPrompt("stringSustain") }, "Sustain:");
     private readonly _stringSustainRow: HTMLDivElement = div({ class: "selectRow" }, this._stringSustainLabel, this._stringSustainSlider.container);
 
+    // additive
+
+    private readonly _additiveFreqsSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: Config.additiveFreqsMin, max: Config.additiveFreqsMax, value: Config.additiveFreqsMax / 2, step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeAdditiveFreqs(this.doc, oldValue, newValue), false);
+    private readonly _additiveFreqsInputBox: HTMLInputElement = input({ style: "width: 4em; font-size: 80%; ", id: "additiveFreqsInputBox", type: "number", step: "1", min: Config.additiveFreqsMin, max: Config.additiveFreqsMax, value: Config.additiveFreqsMax / 2 });
+    private readonly _additiveFreqsRow: HTMLDivElement = div(
+        { class: "selectRow" }, 
+        div(
+            span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("additiveFreqs") }, "Freqs:"), 
+            div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this._additiveFreqsInputBox),
+        ),
+        this._additiveFreqsSlider.container
+    );
+
+    private readonly _additiveInharmonicitySlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: Config.additiveInharmonicityMin, max: Config.additiveInharmonicityMax, value: 1, step: "0.0001" }), this.doc, (oldValue: number, newValue: number) => new ChangeAdditiveInharmonicity(this.doc, oldValue, newValue), true);
+    private readonly _additiveInharmonicityInputBox: HTMLInputElement = input({ style: "width: 4em; font-size: 80%; ", id: "additiveInharmonicityInputBox", type: "number", step: "0.0001", min: Config.additiveInharmonicityMin, max: Config.additiveInharmonicityMax, value: 1 });
+    private readonly _additiveInharmonicityRow: HTMLDivElement = div(
+        { class: "selectRow" }, 
+        div(
+            span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("additiveInharmonicity") }, "Inharmonicity:"), 
+            div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this._additiveInharmonicityInputBox),
+        ),
+        this._additiveInharmonicitySlider.container
+    );
+
+    private readonly _additiveDispersionSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: Config.additiveDispersionMin, max: Config.additiveDispersionMax, value: 1, step: "0.0001" }), this.doc, (oldValue: number, newValue: number) => new ChangeAdditiveDispersion(this.doc, oldValue, newValue), true);
+    private readonly _additiveDispersionInputBox: HTMLInputElement = input({ style: "width: 4em; font-size: 80%; ", id: "additiveDispersionInputBox", type: "number", step: "0.0001", min: Config.additiveDispersionMin, max: Config.additiveDispersionMax, value: 1 });
+    private readonly _additiveDispersionRow: HTMLDivElement = div(
+        { class: "selectRow" }, 
+        div(
+            span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("additiveDispersion") }, "Dispersion:"), 
+            div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this._additiveDispersionInputBox),
+        ),
+        this._additiveDispersionSlider.container
+    );
+
+    private readonly _additiveFalloffSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: Config.additiveFalloffMin, max: Config.additiveFalloffMax, value: 1, step: "0.0001" }), this.doc, (oldValue: number, newValue: number) => new ChangeAdditiveFalloff(this.doc, oldValue, newValue), true);
+    private readonly _additiveFalloffInputBox: HTMLInputElement = input({ style: "width: 4em; font-size: 80%; ", id: "additiveFalloffInputBox", type: "number", step: "0.0001", min: Config.additiveFalloffMin, max: Config.additiveFalloffMax, value: 1 });
+    private readonly _additiveFalloffRow: HTMLDivElement = div(
+        { class: "selectRow" }, 
+        div(
+            span({ class: "tip", style: "height:1em; font-size: smaller;", onclick: () => this._openPrompt("additiveFalloff") }, "Falloff:"), 
+            div({ style: `color: ${ColorConfig.secondaryText}; margin-top: -3px;` }, this._additiveFalloffInputBox),
+        ),
+        this._additiveFalloffSlider.container
+    );
+
+    // unison
+
     private readonly _unisonDropdown: HTMLButtonElement = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.Unison) }, "▼");
 
     private readonly _unisonSelect: HTMLSelectElement = buildOptions(select(), Config.unisons.map(unison => unison.name));
@@ -2174,6 +2222,10 @@ export class SongEditor {
         this._pulseWidthRow,
         this._pulseWidthDropdownGroup,
         this._stringSustainRow,
+        this._additiveFreqsRow,
+        this._additiveInharmonicityRow,
+        this._additiveDispersionRow,
+        this._additiveFalloffRow,
         this._unisonSelectRow,
         this._unisonDropdownGroup,
         div({ style: `padding: 2px 0; margin-left: 2em; display: flex; align-items: center;` },
@@ -2663,6 +2715,11 @@ export class SongEditor {
         this._pwmSliderInputBox.addEventListener("input", () => { this.doc.record(new ChangePulseWidth(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].pulseWidth, Math.min(Config.pulseWidthRange, Math.max(1.0, Math.round(+this._pwmSliderInputBox.value))))) });
         this._detuneSliderInputBox.addEventListener("input", () => { this.doc.record(new ChangeDetune(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].detune, Math.min(Config.detuneMax - Config.detuneCenter, Math.max(Config.detuneMin - Config.detuneCenter, Math.round(+this._detuneSliderInputBox.value))))) });
         this._rmHzOffsetSliderInputBox.addEventListener("input", () => { this.doc.record(new ChangeRmHzOffset(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].ringModHzOffset, Math.min(Config.rmHzOffsetMax - Config.rmHzOffsetCenter, Math.max(Config.rmHzOffsetMin - Config.rmHzOffsetCenter, Math.round(+this._rmHzOffsetSliderInputBox.value))))) });
+
+        this._additiveFreqsInputBox.addEventListener("input", () => { this.doc.record(new ChangeAdditiveFreqs(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].additiveFreqs, Math.min(Config.additiveFreqsMax, Math.max(Config.additiveFreqsMin, Math.round(+this._additiveFreqsInputBox.value))))) });
+        this._additiveInharmonicityInputBox.addEventListener("input", () => { this.doc.record(new ChangeAdditiveInharmonicity(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].additiveInharmonicity, Math.min(Config.additiveInharmonicityMax, Math.max(Config.additiveInharmonicityMin, Math.round(+this._additiveInharmonicityInputBox.value))))) });
+        this._additiveDispersionInputBox.addEventListener("input", () => { this.doc.record(new ChangeAdditiveDispersion(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].additiveDispersion, Math.min(Config.additiveDispersionMax, Math.max(Config.additiveDispersionMin, Math.round(+this._additiveDispersionInputBox.value))))) });
+        this._additiveFalloffInputBox.addEventListener("input", () => { this.doc.record(new ChangeAdditiveFalloff(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].additiveFalloff, Math.min(Config.additiveFalloffMax, Math.max(Config.additiveFalloffMin, Math.round(+this._additiveFalloffInputBox.value))))) });
 
         this._unisonVoicesInputBox.addEventListener("input", () => { this.doc.record(new ChangeUnisonVoices(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].unisonVoices, Math.min(Config.unisonVoicesMax, Math.max(Config.unisonVoicesMin, Math.round(+this._unisonVoicesInputBox.value))))) });
         this._unisonSpreadInputBox.addEventListener("input", () => { this.doc.record(new ChangeUnisonSpread(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].unisonSpread, Math.min(Config.unisonSpreadMax, Math.max(Config.unisonSpreadMin, +this._unisonSpreadInputBox.value)))) });
@@ -3163,6 +3220,14 @@ export class SongEditor {
                 return this._supersawSpreadSlider;
             case Config.modulators.dictionary["saw shape"].index:
                 return this._supersawShapeSlider;
+            case Config.modulators.dictionary["additive freqs"].index:
+                return this._additiveFreqsSlider;
+            case Config.modulators.dictionary["additive inharmonicity"].index:
+                return this._additiveInharmonicitySlider;
+            case Config.modulators.dictionary["additive dispersion"].index:
+                return this._additiveDispersionSlider;
+            case Config.modulators.dictionary["additive falloff"].index:
+                return this._additiveFalloffSlider;
             case Config.modulators.dictionary["individual envelope speed"].index:
                 return this.envelopeEditor.perEnvelopeSpeedSliders[index];
             case Config.modulators.dictionary["individual envelope lower bound"].index:
@@ -3664,16 +3729,16 @@ export class SongEditor {
                 setSelectedValue(this._pitchedPresetSelect, instrument.preset, true);
             }
 
+            this._chipWaveSelectRow.style.display = "none";
+            this._chipWaveSampleChannelRow.style.display = "none";
+            this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
+            this._chipWaveLoopModeSelectRow.style.display = "none";
+            this._chipWaveLoopStartRow.style.display = "none";
+            this._chipWaveLoopEndRow.style.display = "none";
+            this._chipWaveStartOffsetRow.style.display = "none";
+            this._chipWavePlayBackwardsRow.style.display = "none";
+
             if (instrument.type == InstrumentType.noise) {
-                this._chipWaveSelectRow.style.display = "none";
-                this._chipWaveSampleChannelRow.style.display = "none";
-                // advloop addition
-                this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
-                this._chipWaveLoopModeSelectRow.style.display = "none";
-                this._chipWaveLoopStartRow.style.display = "none";
-                this._chipWaveLoopEndRow.style.display = "none";
-                this._chipWaveStartOffsetRow.style.display = "none";
-                this._chipWavePlayBackwardsRow.style.display = "none";
                 // advloop addition
                 this._chipNoiseSelectRow.style.display = "";
                 setSelectedValue(this._chipNoiseSelect, instrument.chipNoise, true);
@@ -3681,15 +3746,6 @@ export class SongEditor {
                 this._chipNoiseSelectRow.style.display = "none";
             }
             if (instrument.type == InstrumentType.spectrum) {
-                this._chipWaveSelectRow.style.display = "none";
-                this._chipWaveSampleChannelRow.style.display = "none";
-                // advloop addition
-                this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
-                this._chipWaveLoopModeSelectRow.style.display = "none";
-                this._chipWaveLoopStartRow.style.display = "none";
-                this._chipWaveLoopEndRow.style.display = "none";
-                this._chipWaveStartOffsetRow.style.display = "none";
-                this._chipWavePlayBackwardsRow.style.display = "none";
                 // advloop addition
                 this._spectrumRow.style.display = "";
                 this._spectrumEditor.render();
@@ -3697,15 +3753,6 @@ export class SongEditor {
                 this._spectrumRow.style.display = "none";
             }
             if (instrument.type == InstrumentType.harmonics || instrument.type == InstrumentType.pickedString) {
-                this._chipWaveSelectRow.style.display = "none";
-                this._chipWaveSampleChannelRow.style.display = "none";
-                // advloop addition
-                this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
-                this._chipWaveLoopModeSelectRow.style.display = "none";
-                this._chipWaveLoopStartRow.style.display = "none";
-                this._chipWaveLoopEndRow.style.display = "none";
-                this._chipWaveStartOffsetRow.style.display = "none";
-                this._chipWavePlayBackwardsRow.style.display = "none";
                 // advloop addition
                 this._harmonicsRow.style.display = "flex";
                 this._harmonicsEditor.render();
@@ -3713,15 +3760,6 @@ export class SongEditor {
                 this._harmonicsRow.style.display = "none";
             }
             if (instrument.type == InstrumentType.pickedString) {
-                this._chipWaveSelectRow.style.display = "none";
-                this._chipWaveSampleChannelRow.style.display = "none";
-                // advloop addition
-                this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
-                this._chipWaveLoopModeSelectRow.style.display = "none";
-                this._chipWaveLoopStartRow.style.display = "none";
-                this._chipWaveLoopEndRow.style.display = "none";
-                this._chipWaveStartOffsetRow.style.display = "none";
-                this._chipWavePlayBackwardsRow.style.display = "none";
                 // advloop addition
                 this._stringSustainRow.style.display = "";
                 this._stringSustainSlider.updateValue(instrument.stringSustain);
@@ -3731,15 +3769,6 @@ export class SongEditor {
             }
             if (instrument.type == InstrumentType.drumset) {
                 this._drumsetGroup.style.display = "";
-                this._chipWaveSelectRow.style.display = "none";
-                this._chipWaveSampleChannelRow.style.display = "none";
-                // advloop addition
-                this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
-                this._chipWaveLoopModeSelectRow.style.display = "none";
-                this._chipWaveLoopStartRow.style.display = "none";
-                this._chipWaveLoopEndRow.style.display = "none";
-                this._chipWaveStartOffsetRow.style.display = "none";
-                this._chipWavePlayBackwardsRow.style.display = "none";
                 // advloop addition
                 this._fadeInOutRow.style.display = "none";
                 for (let i: number = 0; i < Config.drumCount; i++) {
@@ -3778,12 +3807,6 @@ export class SongEditor {
                     this._chipWaveLoopEndRow.style.display = "";
                     this._chipWaveStartOffsetRow.style.display = "";
                     this._chipWavePlayBackwardsRow.style.display = "";
-                } else {
-                    this._chipWaveLoopModeSelectRow.style.display = "none";
-                    this._chipWaveLoopStartRow.style.display = "none";
-                    this._chipWaveLoopEndRow.style.display = "none";
-                    this._chipWaveStartOffsetRow.style.display = "none";
-                    this._chipWavePlayBackwardsRow.style.display = "none";
                 }
                 // advloop addition
                 setSelectedValue(this._chipWaveSelect, instrument.chipWave);
@@ -3802,15 +3825,6 @@ export class SongEditor {
 
             if (instrument.type == InstrumentType.customChipWave) {
                 this._customWaveDraw.style.display = "";
-                this._chipWaveSelectRow.style.display = "none";
-                this._chipWaveSampleChannelRow.style.display = "none";
-                // advloop addition
-                this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
-                this._chipWaveLoopModeSelectRow.style.display = "none";
-                this._chipWaveLoopStartRow.style.display = "none";
-                this._chipWaveLoopEndRow.style.display = "none";
-                this._chipWaveStartOffsetRow.style.display = "none";
-                this._chipWavePlayBackwardsRow.style.display = "none";
                 // advloop addition
             }
             else {
@@ -3829,16 +3843,24 @@ export class SongEditor {
                 this._supersawSpreadRow.style.display = "none";
                 this._supersawShapeRow.style.display = "none";
             }
+
+            if (instrument.type == InstrumentType.additive) {
+                this._additiveFreqsRow.style.display = "";
+                this._additiveInharmonicityRow.style.display = "";
+                this._additiveDispersionRow.style.display = "";
+                this._additiveFalloffRow.style.display = "";
+                this._additiveFreqsSlider.updateValue(instrument.additiveFreqs);
+                this._additiveInharmonicitySlider.updateValue(instrument.additiveInharmonicity);
+                this._additiveDispersionSlider.updateValue(instrument.additiveDispersion);
+                this._additiveFalloffSlider.updateValue(instrument.additiveFalloff);
+            } else {
+                this._additiveFreqsRow.style.display = "none";
+                this._additiveInharmonicityRow.style.display = "none";
+                this._additiveDispersionRow.style.display = "none";
+                this._additiveFalloffRow.style.display = "none";
+            }
+
             if (instrument.type == InstrumentType.pwm || instrument.type == InstrumentType.supersaw) {
-                this._chipWaveSelectRow.style.display = "none";
-                this._chipWaveSampleChannelRow.style.display = "none";
-                // advloop addition
-                this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
-                this._chipWaveLoopModeSelectRow.style.display = "none";
-                this._chipWaveLoopStartRow.style.display = "none";
-                this._chipWaveLoopEndRow.style.display = "none";
-                this._chipWaveStartOffsetRow.style.display = "none";
-                this._chipWavePlayBackwardsRow.style.display = "none";
                 // advloop addition
                 this._pulseWidthRow.style.display = "";
                 this._pulseWidthSlider.input.title = prettyNumber(instrument.pulseWidth) + "%";
@@ -3860,15 +3882,6 @@ export class SongEditor {
             if (instrument.type == InstrumentType.fm || instrument.type == InstrumentType.fm6op) {
                 this._phaseModGroup.style.display = "";
                 this._feedbackRow2.style.display = "";
-                this._chipWaveSelectRow.style.display = "none";
-                this._chipWaveSampleChannelRow.style.display = "none";
-                // advloop addition
-                this._useChipWaveAdvancedLoopControlsRow.style.display = "none";
-                this._chipWaveLoopModeSelectRow.style.display = "none";
-                this._chipWaveLoopStartRow.style.display = "none";
-                this._chipWaveLoopEndRow.style.display = "none";
-                this._chipWaveStartOffsetRow.style.display = "none";
-                this._chipWavePlayBackwardsRow.style.display = "none";
                 // advloop addition
                 setSelectedValue(this._algorithmSelect, instrument.algorithm);
                 setSelectedValue(this._feedbackTypeSelect, instrument.feedbackType);
@@ -4291,6 +4304,10 @@ export class SongEditor {
             this._channelTuningInfoRow.innerHTML = channel.equaveDivisions + "ED" + channel.equaveNumerator + "/" + channel.equaveDenominator;
             this._panSliderInputBox.value = instrument.pan + "";
             this._pwmSliderInputBox.value = instrument.pulseWidth + "";
+            this._additiveFreqsInputBox.value = instrument.additiveFreqs + "";
+            this._additiveInharmonicityInputBox.value = instrument.additiveInharmonicity + "";
+            this._additiveDispersionInputBox.value = instrument.additiveDispersion + "";
+            this._additiveFalloffInputBox.value = instrument.additiveFalloff + "";
             this._detuneSliderInputBox.value = (instrument.detune - Config.detuneCenter) + "";
             this._phaserStagesInputBox.value = instrument.phaserStages + "";
             this._flangerVoicesInputBox.value = instrument.flangerVoices + "";
@@ -4722,6 +4739,9 @@ export class SongEditor {
                         }
                         if (tgtInstrumentTypes.includes(InstrumentType.pickedString)) {
                             settingList.push("sustain");
+                        }
+                        if (tgtInstrumentTypes.includes(InstrumentType.additive)) {
+                            settingList.push("additive freqs");
                         }
                         if (anyInstrumentArps) {
                             settingList.push("arp speed");
@@ -5465,6 +5485,10 @@ export class SongEditor {
             || document.activeElement == this._channelEquaveNumeratorInputBox
             || document.activeElement == this._channelEquaveDenominatorInputBox
             || document.activeElement == this._pwmSliderInputBox
+            || document.activeElement == this._additiveFreqsInputBox
+            || document.activeElement == this._additiveInharmonicityInputBox
+            || document.activeElement == this._additiveDispersionInputBox
+            || document.activeElement == this._additiveFalloffInputBox
             || document.activeElement == this._detuneSliderInputBox
             || document.activeElement == this._phaserStagesInputBox
             || document.activeElement == this._flangerVoicesInputBox

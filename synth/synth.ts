@@ -249,7 +249,7 @@ const enum SongTagCode {
     harmonics = CharCode.H, // added in BeepBox URL version 7
     stringSustain = CharCode.I, // added in BeepBox URL version 9
     tuning = CharCode.J, // added in froupbox URL version 5
-    //                      = CharCode.K,
+    additive = CharCode.K, // added in froupbox URL version 12
     pan = CharCode.L, // added between 8 and 9, DEPRECATED
     customChipWave = CharCode.M, // added in JummBox URL version 1(?) for customChipWave
     songDetails = CharCode.N, // added in JummBox URL version 1(?) for songTitle
@@ -1695,6 +1695,11 @@ export class Instrument {
     public stringSustain: number = 10;
     public stringSustainType: SustainType = SustainType.acoustic;
 
+    public additiveFreqs: number = Config.additiveFreqsMax / 2;
+    public additiveInharmonicity: number = 1.0;
+    public additiveDispersion: number = 0.0;
+    public additiveFalloff: number = 1.0;
+
     public distortionMix: number = Config.effectMixRange - 1;
     public distortion: number = 0;
 
@@ -2101,6 +2106,10 @@ export class Instrument {
                 break;
             case InstrumentType.additive:
                 this.chord = Config.chords.dictionary["simultaneous"].index;
+                this.additiveFreqs = Config.additiveFreqsMax / 2;
+                this.additiveInharmonicity = 1.0;
+                this.additiveDispersion = 0.0;
+                this.additiveFalloff = 1.0;
                 break;
             default:
                 throw new Error("Unrecognized instrument type: " + type);
@@ -2443,6 +2452,11 @@ export class Instrument {
             if (Config.enableAcousticSustain) {
                 instrumentObject["stringSustainType"] = Config.sustainTypeNames[this.stringSustainType];
             }
+        } else if (this.type == InstrumentType.additive) {
+            instrumentObject["additiveFreqs"] = this.additiveFreqs;
+            instrumentObject["additiveInharmonicity"] = this.additiveInharmonicity;
+            instrumentObject["additiveDispersion"] = this.additiveDispersion;
+            instrumentObject["additiveFalloff"] = this.additiveFalloff;
         } else if (this.type == InstrumentType.harmonics) {
         } else if (this.type == InstrumentType.fm) {
             const operatorArray: Object[] = [];
@@ -2990,6 +3004,27 @@ export class Instrument {
             this.supersawShape = clamp(0, Config.supersawShapeMax + 1, Math.round(Config.supersawShapeMax * (instrumentObject["shape"] | 0) / 100));
         } else {
             this.supersawShape = 0;
+        }
+
+        if (instrumentObject["additiveFreqs"] != undefined) {
+            this.additiveFreqs = instrumentObject["additiveFreqs"];
+        } else {
+            this.additiveFreqs = Config.additiveFreqsMax / 2;
+        }
+        if (instrumentObject["additiveInharmonicity"] != undefined) {
+            this.additiveInharmonicity = instrumentObject["additiveInharmonicity"];
+        } else {
+            this.additiveInharmonicity = 1.0;
+        }
+        if (instrumentObject["additiveDispersion"] != undefined) {
+            this.additiveDispersion = instrumentObject["additiveDispersion"];
+        } else {
+            this.additiveDispersion = 0.0;
+        }
+        if (instrumentObject["additiveFalloff"] != undefined) {
+            this.additiveFalloff = instrumentObject["additiveFalloff"];
+        } else {
+            this.additiveFalloff = 1.0;
         }
 
         if (instrumentObject["harmonics"] != undefined) {
@@ -4581,6 +4616,11 @@ export class Song {
                 } else if (instrument.type == InstrumentType.mod) {
                     // Handled down below. Could be moved, but meh.
                 } else if (instrument.type == InstrumentType.additive) {
+                    buffer.push(SongTagCode.additive);
+                    buffer.push(base64IntToCharCode[instrument.additiveFreqs]);
+                    buffer.push(base64IntToCharCode[instrument.additiveInharmonicity]);
+                    buffer.push(base64IntToCharCode[instrument.additiveDispersion]);
+                    buffer.push(base64IntToCharCode[instrument.additiveFalloff]);
                 } else {
                     throw new Error("Unknown instrument type.");
                 }
@@ -6688,6 +6728,13 @@ export class Song {
                     instrument.supersawSpread = clamp(0, Config.supersawSpreadMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                     instrument.supersawShape = clamp(0, Config.supersawShapeMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                 }
+            } break;
+            case SongTagCode.additive: {
+                const instrument: Instrument = this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
+                instrument.additiveFreqs = clamp(0, Config.additiveFreqsMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                instrument.additiveInharmonicity = clamp(0, Config.additiveInharmonicityMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                instrument.additiveDispersion = clamp(0, Config.additiveDispersionMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                instrument.additiveFalloff = clamp(0, Config.additiveFalloffMax + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
             } break;
             case SongTagCode.feedbackType: {
                 const instrument: Instrument = this.channels[instrumentChannelIterator].instruments[instrumentIndexIterator];
@@ -9427,6 +9474,15 @@ class Tone {
     public supersawPrevPhaseDelta: number | null = null;
     public readonly pickedStrings: PickedString[] = [];
 
+    public additiveFreqs: number = 0.0;
+    public additiveFreqsDelta: number = 0.0;
+    public additiveInharmonicity: number = 0.0;
+    public additiveInharmonicityDelta: number = 0.0;
+    public additiveDispersion: number = 0.0;
+    public additiveDispersionDelta: number = 0.0;
+    public additiveFalloff: number = 0.0;
+    public additiveFalloffDelta: number = 0.0;
+
     public readonly noteFilters: DynamicBiquadFilter[] = [];
     public noteFilterCount: number = 0;
     public initialNoteFilterInput1: number = 0.0;
@@ -11117,6 +11173,7 @@ export class Synth {
                     || tgtInstrument.type != InstrumentType.fm6op && (str == "fm slider 5" || str == "fm slider 6")
                     || ((tgtInstrument.type != InstrumentType.pwm && tgtInstrument.type != InstrumentType.supersaw) && (str == "pulse width" || str == "decimal offset"))
                     || ((tgtInstrument.type != InstrumentType.supersaw) && (str == "dynamism" || str == "spread" || str == "saw shape"))
+                    || ((tgtInstrument.type != InstrumentType.additive) && (str == "additive freqs"))
                     // Arp check
                     || (!tgtInstrument.getChord().arpeggiates && (str == "arp speed" || str == "reset arp"))
                     // EQ Filter check
@@ -14250,6 +14307,61 @@ export class Synth {
                 supersawExpressionEnd *= (1.0 + (pulseExpressionRatio - 1.0) * shapeEnd) / Math.sqrt(1.0 + (Config.supersawVoiceCount - 1.0) * dynamismEnd * dynamismEnd);
             }
 
+            if (instrument.type == InstrumentType.additive) {
+
+                // Additive freqs mods
+                let additiveFreqsStart: number = instrument.additiveFreqs;
+                let additiveFreqsEnd: number = instrument.additiveFreqs;
+                if (this.isModActive(Config.modulators.dictionary["additive freqs"].index, channelIndex, tone.instrumentIndex)) {
+                    additiveFreqsStart = this.getModValue(Config.modulators.dictionary["additive freqs"].index, channelIndex, tone.instrumentIndex, false);
+                    additiveFreqsEnd = this.getModValue(Config.modulators.dictionary["additive freqs"].index, channelIndex, tone.instrumentIndex, true);
+                }
+                additiveFreqsStart *= envelopeStarts[EnvelopeComputeIndex.additiveFreqs];
+                additiveFreqsEnd *= envelopeEnds[EnvelopeComputeIndex.additiveFreqs];
+
+                tone.additiveFreqs = additiveFreqsStart;
+                tone.additiveFreqsDelta = (additiveFreqsEnd - additiveFreqsStart) / roundedSamplesPerTick;
+
+                // Additive inharmonicity mods
+                let additiveInharmonicityStart: number = instrument.additiveInharmonicity;
+                let additiveInharmonicityEnd: number = instrument.additiveInharmonicity;
+                if (this.isModActive(Config.modulators.dictionary["additive inharmonicity"].index, channelIndex, tone.instrumentIndex)) {
+                    additiveInharmonicityStart = this.getModValue(Config.modulators.dictionary["additive inharmonicity"].index, channelIndex, tone.instrumentIndex, false);
+                    additiveInharmonicityEnd = this.getModValue(Config.modulators.dictionary["additive inharmonicity"].index, channelIndex, tone.instrumentIndex, true);
+                }
+                additiveInharmonicityStart *= envelopeStarts[EnvelopeComputeIndex.additiveInharmonicity];
+                additiveInharmonicityEnd *= envelopeEnds[EnvelopeComputeIndex.additiveInharmonicity];
+
+                tone.additiveInharmonicity = additiveInharmonicityStart;
+                tone.additiveInharmonicityDelta = (additiveInharmonicityEnd - additiveInharmonicityStart) / roundedSamplesPerTick;
+
+                // Additive dispersion mods
+                let additiveDispersionStart: number = instrument.additiveDispersion;
+                let additiveDispersionEnd: number = instrument.additiveDispersion;
+                if (this.isModActive(Config.modulators.dictionary["additive dispersion"].index, channelIndex, tone.instrumentIndex)) {
+                    additiveDispersionStart = this.getModValue(Config.modulators.dictionary["additive dispersion"].index, channelIndex, tone.instrumentIndex, false);
+                    additiveDispersionEnd = this.getModValue(Config.modulators.dictionary["additive dispersion"].index, channelIndex, tone.instrumentIndex, true);
+                }
+                additiveDispersionStart *= envelopeStarts[EnvelopeComputeIndex.additiveDispersion];
+                additiveDispersionEnd *= envelopeEnds[EnvelopeComputeIndex.additiveDispersion];
+
+                tone.additiveDispersion = additiveDispersionStart;
+                tone.additiveDispersionDelta = (additiveDispersionEnd - additiveDispersionStart) / roundedSamplesPerTick;
+
+                // Additive falloff mods
+                let additiveFalloffStart: number = instrument.additiveFalloff;
+                let additiveFalloffEnd: number = instrument.additiveFalloff;
+                if (this.isModActive(Config.modulators.dictionary["additive falloff"].index, channelIndex, tone.instrumentIndex)) {
+                    additiveFalloffStart = this.getModValue(Config.modulators.dictionary["additive falloff"].index, channelIndex, tone.instrumentIndex, false);
+                    additiveFalloffEnd = this.getModValue(Config.modulators.dictionary["additive falloff"].index, channelIndex, tone.instrumentIndex, true);
+                }
+                additiveFalloffStart *= envelopeStarts[EnvelopeComputeIndex.additiveFalloff];
+                additiveFalloffEnd *= envelopeEnds[EnvelopeComputeIndex.additiveFalloff];
+
+                tone.additiveFalloff = additiveFalloffStart;
+                tone.additiveFalloffDelta = (additiveFalloffEnd - additiveFalloffStart) / roundedSamplesPerTick;
+            }
+
             let expressionStart: number = settingsExpressionMult * fadeExpressionStart * chordExpressionStart * pitchExpressionStart * envelopeStarts[EnvelopeComputeIndex.noteVolume] * supersawExpressionStart;
             let expressionEnd: number = settingsExpressionMult * fadeExpressionEnd * chordExpressionEnd * pitchExpressionEnd * envelopeEnds[EnvelopeComputeIndex.noteVolume] * supersawExpressionEnd;
 
@@ -16432,33 +16544,57 @@ export class Synth {
             let additiveSource: string = `return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {
                 const data = synth.tempMonoInstrumentSampleBuffer;
 
+                // TODO
+                // fix slide notes
+
+                if (tone.atNoteStart) { // doesn't properly reset on note recording
+                    tone.previousAdditiveSampleIndex = 0;
+                }
+
                 let expression = +tone.expression;
                 const expressionDelta = +tone.expressionDelta;
 
+                // sliders
+
+                const lerpedFreqs = +tone.additiveFreqs + +tone.additiveFreqsDelta;
+                const flooredFreqs = Math.floor(lerpedFreqs);
+                const topFreq = Math.ceil(lerpedFreqs);
+
+                const inharmonicity = +tone.additiveInharmonicity;
+                const inharmonicityDelta = +tone.additiveInharmonicityDelta;
+
+                const dispersion = +tone.additiveDispersion;
+                const dispersionDelta = +tone.additiveDispersionDelta;
+
+                const falloff = +tone.additiveFalloff;
+                const falloffDelta = +tone.additiveFalloffDelta;
+
                 const stopIndex = bufferIndex + roundedSamplesPerTick;
 
-                const phaseDelta = tone.phaseDeltas[0]
+                const phaseDelta = tone.phaseDeltas[0];
                 
                 for (let sampleIndex = bufferIndex; sampleIndex < stopIndex; sampleIndex++) {
-
                     let sample = 0;
 
-                    // sliders
-                    let frequencies = 64; // 1 - 64
-                    let inharmonicity = -1; // -3 - 3
-                    let dispersion = 0; // -10 - 10
-                    let falloff = 1; // -2 - 2
-
-                    for (let i = 1; i <= frequencies; i++) {
+                    for (let i = 1; i <= topFreq; i++) {
+                        let ampMult = 1;
+                        if (i == topFreq && lerpedFreqs > flooredFreqs) {
+                            ampMult = lerpedFreqs - flooredFreqs
+                        }
                         sample += 
-                        Math.sin(
+                        ampMult * Math.sin(
                             (2 * Math.PI)
                             * phaseDelta
-                            * (sampleIndex - bufferIndex + tone.previousAdditiveSampleIndex + dispersion * i)
+                            * (
+                                sampleIndex 
+                                - bufferIndex 
+                                + tone.previousAdditiveSampleIndex 
+                                + dispersion * i
+                            )
                             * (
                                 inharmonicity >= 0 
                                 ? inharmonicity * i - (inharmonicity - 1) // overtones
-                                : -inharmonicity / i - (-inharmonicity - 1) // undertones
+                                : (-inharmonicity / i) * -(inharmonicity ** -1) // undertones
                             )
                         ) / (i ** falloff);
                     }

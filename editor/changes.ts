@@ -2601,6 +2601,44 @@ export class ChangeSupersawShape extends ChangeInstrumentSlider {
     }
 }
 
+export class ChangeAdditiveFreqs extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.additiveFreqs = newValue;
+        doc.synth.unsetMod(Config.modulators.dictionary["additive freqs"].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+export class ChangeAdditiveInharmonicity extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.additiveInharmonicity = newValue;
+        doc.synth.unsetMod(Config.modulators.dictionary["additive inharmonicity"].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+export class ChangeAdditiveDispersion extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.additiveDispersion = newValue;
+        doc.synth.unsetMod(Config.modulators.dictionary["additive dispersion"].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
+export class ChangeAdditiveFalloff extends ChangeInstrumentSlider {
+    constructor(doc: SongDocument, oldValue: number, newValue: number) {
+        super(doc);
+        this._instrument.additiveFalloff = newValue;
+        doc.synth.unsetMod(Config.modulators.dictionary["additive falloff"].index, doc.channel, doc.getCurrentInstrument());
+        doc.notifier.changed();
+        if (oldValue != newValue) this._didSomething();
+    }
+}
+
 export class ChangeSlideSpeed extends ChangeInstrumentSlider {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
         super(doc);
