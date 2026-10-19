@@ -47,7 +47,7 @@ import { CustomThemePrompt } from "./CustomThemePrompt";
 import { CustomPresetsPrompt } from "./CustomPresetsPrompt";
 import { ThemePrompt } from "./ThemePrompt";
 import { TipPrompt } from "./TipPrompt";
-import { ChangeTempo, ChangeKeyOctave, ChangeChorusMix, ChangeEchoDelay, ChangeEchoSustain, ChangeEchoMix, ChangeReverb, ChangeVolume, ChangePan, ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeSetPatternInstruments, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranularMix, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, ChangeCompressor, ChangeCompressorTime, ChangeRmHzOffset, ChangePhaserDisperse, ChangeSlideSpeed, ChangeStrumSpeed, ChangeLoop, ChangeChannelBar, ChangeFlangerMix, ChangeFlangerDelay, ChangeFlangerPan, ChangeFlangerFeedmix, ChangeFlangerVoices, ChangeChannelTuning, ChangePitchShiftFiveLimit, ChangePitchShiftEquaveDivisions, ChangePitchShiftEquaveNumerator, ChangePitchShiftEquaveDenominator, ChangeVolumePitchCompensation, ChangeVolumeChordCompensation, ChangeChipWaveSampleChannel, ChangePhaserSpread, ChangePhaserFilterType, ChangeFlangerDistribute, ChangeColorizerMix, ChangeColorizerColor, ChangeColorizerChannel, ChangeColorizerMaxFreq, ChangeColorizerMinFreq, ChangeColorizerDetune, ChangeEQFilterCompensation, ChangeNoteFilterCompensation, ChangeChorusStereo, ChangeReverbStereo, ChangeReverbMix, ChangeReverbMaxFreq, ChangeEchoDamping, ChangeSongEQFilterCompensation, ChangeInvertWavePan, ChangeColorizerLegacyMix, ChangeDistortionMix, ChangeBitcrusherMix, ChangeInvertWaveMix, ChangeInvertWaveStereo, ChangeFlangerStereo, ChangeFlangerHaas, ChangeReverbIsolate, ChangeEchoIsolate } from "./changes";
+import { ChangeTempo, ChangeKeyOctave, ChangeChorusMix, ChangeEchoDelay, ChangeEchoSustain, ChangeEchoMix, ChangeReverb, ChangeVolume, ChangePan, ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeSetPatternInstruments, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranularMix, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, ChangeCompressor, ChangeCompressorTime, ChangeRmHzOffset, ChangePhaserDisperse, ChangeSlideSpeed, ChangeStrumSpeed, ChangeLoop, ChangeChannelBar, ChangeFlangerMix, ChangeFlangerDelay, ChangeFlangerPan, ChangeFlangerFeedmix, ChangeFlangerVoices, ChangeChannelTuning, ChangePitchShiftFiveLimit, ChangePitchShiftEquaveDivisions, ChangePitchShiftEquaveNumerator, ChangePitchShiftEquaveDenominator, ChangeVolumePitchCompensation, ChangeVolumeChordCompensation, ChangeChipWaveSampleChannel, ChangePhaserSpread, ChangePhaserFilterType, ChangeFlangerDistribute, ChangeColorizerMix, ChangeColorizerColor, ChangeColorizerChannel, ChangeColorizerMaxFreq, ChangeColorizerMinFreq, ChangeColorizerDetune, ChangeEQFilterCompensation, ChangeNoteFilterCompensation, ChangeChorusStereo, ChangeReverbStereo, ChangeReverbMix, ChangeReverbMaxFreq, ChangeEchoDamping, ChangeSongEQFilterCompensation, ChangeInvertWavePan, ChangeColorizerLegacyMix, ChangeDistortionMix, ChangeBitcrusherMix, ChangeInvertWaveMix, ChangeInvertWaveStereo, ChangeReverbIsolate, ChangeEchoIsolate } from "./changes";
 
 import { TrackEditor } from "./TrackEditor";
 import { oscilloscopeCanvas } from "../global/Oscilloscope";
@@ -1842,20 +1842,10 @@ export class SongEditor {
 
     private readonly _flangerMixSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.effectMixRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeFlangerMix(this.doc, oldValue, newValue), false);
     public readonly flangerMixText: HTMLParagraphElement = div("Mix:");
-    private readonly _flangerMixDropdown: HTMLButtonElement = button({ style: "margin-left:0em; height:1.5em; width: 10px; padding: 0px; font-size: 8px;", onclick: () => this._toggleDropdownMenu(DropdownID.FlangerMix) }, "▼");
     private readonly _flangerMixRow: HTMLDivElement = div(
         { class: "selectRow" }, 
-        span({ class: "tip", onclick: () => this._openPrompt("effectMix") }, this.flangerMixText), 
-        this._flangerMixDropdown, 
+        span({ class: "tip", onclick: () => this._openPrompt("effectMix") }, this.flangerMixText),
         this._flangerMixSlider.container
-    );
-
-    private readonly _flangerStereoSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.effectStereoRange - 1, value: "63", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeFlangerStereo(this.doc, oldValue, newValue), false);
-    private readonly _flangerStereoRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("effectStereo") }, "Stereo:"), this._flangerStereoSlider.container);
-
-    private readonly _flangerMixDropdownGroup: HTMLElement = div(
-        { class: "editor-controls", style: `display: none;` }, 
-        this._flangerStereoRow,
     );
 
     private readonly _flangerDelaySlider: Slider = new LogarithmicSlider(input({ style: "margin: 0;", type: "range", min: Config.flangerDelayMin, max: Config.flangerDelayMax, value: "0", step: "any" }), this.doc, (oldValue: number, newValue: number) => new ChangeFlangerDelay(this.doc, oldValue, newValue), false);
@@ -1892,17 +1882,12 @@ export class SongEditor {
     private readonly _flangerFeedmixSlider: Slider = new Slider(input({ style: "margin: 0;", type: "range", min: "0", max: Config.flangerFeedmixRange - 1, value: "0", step: "1" }), this.doc, (oldValue: number, newValue: number) => new ChangeFlangerFeedmix(this.doc, oldValue, newValue), false);
     private readonly _flangerFeedmixRow: HTMLDivElement = div({ class: "selectRow" }, span({ class: "tip", onclick: () => this._openPrompt("flangerFeedmix") }, span("Feedmix:")), this._flangerFeedmixSlider.container);
 
-    private readonly _flangerHaasBox: HTMLInputElement = input({ type: "checkbox", style: "width: 1em; padding: 0; margin-right: 4em;" });
-    private readonly _flangerHaasRow: HTMLElement = div({ class: "selectRow" }, span({ class: "tip", style: "margin-left:10px;", onclick: () => this._openPrompt("flangerHaas") }, "Haas:"), this._flangerHaasBox);
-
     private readonly _flangerGroupContainer = this._createGroupContainer("flanger", "flanger", div(
         this._flangerMixRow,
-        this._flangerMixDropdownGroup,
         this._flangerDelayRow,
         this._flangerDelayDropdownGroup,
         this._flangerPanSliderRow,
         this._flangerFeedmixRow,
-        this._flangerHaasRow,
     ));
 
     // colorizer
@@ -2338,7 +2323,6 @@ export class SongEditor {
     private _openEQFilterDropdown: boolean = false;
     private _openNoteFilterDropdown: boolean = false;
     private _openPhaserStagesDropdown: boolean = false;
-    private _openFlangerMixDropdown: boolean = false;
     private _openFlangerDelayDropdown: boolean = false;
     private _openChorusMixDropdown: boolean = false;
     private _openEchoDelayDropdown: boolean = false;
@@ -2698,7 +2682,6 @@ export class SongEditor {
         this._flangerDelayInputBox.addEventListener("input", () => { this.doc.record(new ChangeFlangerDelay(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].flangerDelay, Math.min(Config.flangerDelayMax, Math.max(Config.flangerDelayMin, Math.round(+this._flangerDelayInputBox.value))))) });
         this._flangerPanSliderInputBox.addEventListener("input", () => { this.doc.record(new ChangeFlangerPan(this.doc, this.doc.song.channels[this.doc.channel].instruments[this.doc.getCurrentInstrument()].flangerPan, Math.min(100.0, Math.max(0.0, Math.round(+this._flangerPanSliderInputBox.value))))) });
         this._flangerDistributeBox.addEventListener("input", () => { this.doc.record(new ChangeFlangerDistribute(this.doc, this._flangerDistributeBox.checked)) });
-        this._flangerHaasBox.addEventListener("input", () => { this.doc.record(new ChangeFlangerHaas(this.doc, this._flangerHaasBox.checked)) });
 
         this._echoIsolateBox.addEventListener("input", () => { this.doc.record(new ChangeEchoIsolate(this.doc, this._echoIsolateBox.checked)) });
 
@@ -2852,12 +2835,6 @@ export class SongEditor {
                 this._openInvertWaveMixDropdown = this._openInvertWaveMixDropdown ? false : true;
                 group = this._invertWaveMixDropdownGroup;
                 shouldOpen = this._openInvertWaveMixDropdown;
-                break;
-            case DropdownID.FlangerMix:
-                target = this._flangerMixDropdown;
-                this._openFlangerMixDropdown = this._openFlangerMixDropdown ? false : true;
-                group = this._flangerMixDropdownGroup;
-                shouldOpen = this._openFlangerMixDropdown;
                 break;
             case DropdownID.FlangerDelay:
                 target = this._flangerDelayDropdown;
@@ -4143,13 +4120,11 @@ export class SongEditor {
                 this._flangerGroupContainer.style.display = "";
 
                 this._flangerMixSlider.updateValue(instrument.flangerMix);
-                this._flangerStereoSlider.updateValue(instrument.flangerStereo);
                 this._flangerVoicesSlider.updateValue(instrument.flangerVoices);
                 this._flangerDistributeBox.checked = instrument.flangerDistribute;
                 this._flangerDelaySlider.updateValue(instrument.flangerDelay);
                 this._flangerPanSlider.updateValue(instrument.flangerPan);
                 this._flangerFeedmixSlider.updateValue(instrument.flangerFeedmix);
-                this._flangerHaasBox.checked = instrument.flangerHaas;
             } else {
                 this._flangerGroupContainer.style.display = "none";
             }

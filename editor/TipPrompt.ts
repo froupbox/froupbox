@@ -823,12 +823,6 @@ export class TipPrompt implements Prompt {
 					p(`This setting controls whether the phase shift uses feedback or feedforward, and can interpolate between the two.`),
 				);
 			} break;
-			case "flangerHaas": {
-				message = div(
-					h2("Flanger Haas"),
-					p(`When this setting is checked the signal is completely delayed, creating a haas effect when combined with panning set to 0 or 100.`),
-				);
-			} break;
 			case "colorizerLegacyMix": {
 				message = div(
 					h2("Colorizer Legacy Mix"),

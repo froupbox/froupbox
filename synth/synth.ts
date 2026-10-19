@@ -1754,13 +1754,11 @@ export class Instrument {
     public phaserFilterIndex: number = 0;
     
     public flangerMix: number = 32;
-    public flangerStereo: number = Config.effectStereoRange - 1;
     public flangerVoices: number = 1;
     public flangerDistribute: boolean = true;
     public flangerDelay: number = 256;
     public flangerPan: number = Config.flangerPanCenter;
     public flangerFeedmix: number = 0;
-    public flangerHaas: boolean = true;
 
     public colorizerMix: number = 32;
     public colorizerLegacyMix: boolean = false;
@@ -1934,13 +1932,11 @@ export class Instrument {
         this.phaserFilterIndex = 0;
 
         this.flangerMix = 32;
-        this.flangerStereo = Config.effectStereoRange - 1;
         this.flangerVoices = 1;
         this.flangerDistribute = true;
         this.flangerDelay = 256;
         this.flangerPan = Config.flangerPanCenter;
         this.flangerFeedmix = 0;
-        this.flangerHaas = true;
 
         this.colorizerMix = 32;
         this.colorizerLegacyMix = false;
@@ -2307,13 +2303,11 @@ export class Instrument {
         }
         if (effectsIncludeFlanger(this.effects)) {
             instrumentObject["flangerMix"] =  Math.round(100 * this.flangerMix/(Config.effectMixRange - 1));
-            instrumentObject["flangerStereo"] = this.flangerStereo;
             instrumentObject["flangerVoices"] =  this.flangerVoices;
             instrumentObject["flangerDistribute"] = this.flangerDistribute;
             instrumentObject["flangerDelay"] =  this.flangerDelay;
             instrumentObject["flangerPan"] =  Math.round(100 * (this.flangerPan - Config.flangerPanCenter) / Config.flangerPanCenter);
             instrumentObject["flangerFeedmix"] = Math.round(100 * this.flangerFeedmix/(Config.flangerFeedmixRange - 1));
-            instrumentObject["flangerHaas"] = this.flangerHaas;
         }
         if (effectsIncludeColorizer(this.effects)) {
             instrumentObject["colorizerMix"] =  this.colorizerMix;
@@ -2834,9 +2828,6 @@ export class Instrument {
         if (getFlangerVal("Mix") != undefined) {
           this.flangerMix = clamp(0, Config.effectMixRange, Math.round((Config.effectMixRange - 1) * (getFlangerVal("Mix") | 0) / 100));
         }
-        if (instrumentObject["flangerStereo"] != undefined) {
-            this.flangerStereo = +instrumentObject["flangerStereo"];
-        }
         if (getFlangerVal("Voices") != undefined) {
           this.flangerVoices = clamp(0, Config.flangerMaxVoices + 1, getFlangerVal("Voices"));
         }
@@ -2851,11 +2842,6 @@ export class Instrument {
         }
         if (getFlangerVal("Feedmix") != undefined) {
           this.flangerFeedmix = clamp(0, Config.flangerFeedmixRange, Math.round((Config.flangerFeedmixRange - 1) * (getFlangerVal("Feedmix") | 0) / 100));
-        }
-        if (typeof instrumentObject["flangerHaas"] === "boolean") {
-            this.flangerHaas = instrumentObject["flangerHaas"];
-        } else {
-            this.flangerHaas = true;
         }
 
         if (instrumentObject["colorizerMix"] != undefined) {
@@ -4296,7 +4282,6 @@ export class Song {
 
                 if (effectsIncludeFlanger(instrument.effects)) {
                     buffer.push(base64IntToCharCode[instrument.flangerMix]);
-                    buffer.push(base64IntToCharCode[instrument.flangerStereo]);
                     buffer.push(base64IntToCharCode[instrument.flangerVoices - 1]);
                     buffer.push(base64IntToCharCode[+instrument.flangerDistribute]);
                     buffer.push(base64IntToCharCode[instrument.flangerDelay >> 12]);
@@ -4305,7 +4290,6 @@ export class Song {
                     buffer.push(base64IntToCharCode[instrument.flangerPan >> 6]);
                     buffer.push(base64IntToCharCode[instrument.flangerPan & 0x3f]);
                     buffer.push(base64IntToCharCode[instrument.flangerFeedmix]);
-                    buffer.push(base64IntToCharCode[+instrument.flangerHaas]);
                 }
 
                 if (effectsIncludeColorizer(instrument.effects)) {
@@ -6306,7 +6290,9 @@ export class Song {
                         if (!beforeEleven) {
                             instrument.echoDamping = clamp(0, Config.echoDampingRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         }
-                        instrument.echoIsolate = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
+                        if (!beforeTwelve) {
+                            instrument.echoIsolate = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
+                        }
                     }
                     if (effectsIncludeReverb(instrument.effects)) {
                         if (fromBeepBox) {
@@ -6375,9 +6361,6 @@ export class Song {
                     }
                     if (effectsIncludeFlanger(instrument.effects)) {
                         instrument.flangerMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                        if (!beforeTwelve) {
-                            instrument.flangerStereo = clamp(0, Config.effectStereoRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                        }
                         if (!beforeSix) {
                             instrument.flangerVoices = clamp(1, Config.flangerMaxVoices + 1, base64CharCodeToInt[compressed.charCodeAt(charIndex++)] + 1);
                         }
@@ -6387,9 +6370,6 @@ export class Song {
                         instrument.flangerDelay = clamp(0, Config.flangerDelayMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.flangerPan = clamp(0, Config.flangerPanMax + 1, (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                         instrument.flangerFeedmix = clamp(0, Config.flangerFeedmixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                        if (!beforeTwelve) {
-                            instrument.flangerHaas = base64CharCodeToInt[compressed.charCodeAt(charIndex++)] === 1;
-                        }
                     }    
                     if (effectsIncludeColorizer(instrument.effects)) {
                         instrument.colorizerMix = clamp(0, Config.effectMixRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);

@@ -81,7 +81,7 @@ export const enum DropdownID {
     Envelope = 7,
     EnvelopeSettings = 8,
     PhaserStages = 9,
-    FlangerMix = 10,
+    UNUSED = 10, // repurpose this to whatever you want
     PitchShift = 11,
     InstrumentVolume = 12,
     ColorizerChannel = 13,
