@@ -9488,7 +9488,7 @@ class Tone {
     public initialNoteFilterInput1: number = 0.0;
     public initialNoteFilterInput2: number = 0.0;
 
-    public previousAdditiveSampleIndex: number = 0;
+    public additivePhaseDeltaIntegral: number = 0;
 
     public specialIntervalExpressionMult: number = 1.0;
     public readonly feedbackOutputs: number[] = [];
@@ -16544,15 +16544,22 @@ export class Synth {
             let additiveSource: string = `return (synth, bufferIndex, roundedSamplesPerTick, tone, instrumentState) => {
                 const data = synth.tempMonoInstrumentSampleBuffer;
 
+
                 // TODO
-                // fix slide notes
+                // fix note resets
+                // polyphony
+                // unison
+                // note filter
+                // inharmonicity modulation
+                    // add a checkbox for current broken modulation behavior? it creates interesting complex sounds
+                // dispersion modulation
+                // falloff modulation
+
 
                 if (tone.atNoteStart) { // doesn't properly reset on note recording
-                    tone.previousAdditiveSampleIndex = 0;
+                    additivePhaseDeltaIntegral = 0;
                 }
 
-                let expression = +tone.expression;
-                const expressionDelta = +tone.expressionDelta;
 
                 // sliders
 
@@ -16569,26 +16576,27 @@ export class Synth {
                 const falloff = +tone.additiveFalloff;
                 const falloffDelta = +tone.additiveFalloffDelta;
 
+
+                let expression = +tone.expression;
+                const expressionDelta = +tone.expressionDelta;
+
                 const stopIndex = bufferIndex + roundedSamplesPerTick;
 
-                const phaseDelta = tone.phaseDeltas[0];
-                
                 for (let sampleIndex = bufferIndex; sampleIndex < stopIndex; sampleIndex++) {
                     let sample = 0;
 
+                    tone.additivePhaseDeltaIntegral += tone.phaseDeltas[0];
+
                     for (let i = 1; i <= topFreq; i++) {
-                        let ampMult = 1;
+                        let ampMult = 1 / (i ** falloff);
                         if (i == topFreq && lerpedFreqs > flooredFreqs) {
-                            ampMult = lerpedFreqs - flooredFreqs
+                            ampMult *= lerpedFreqs - flooredFreqs
                         }
                         sample += 
                         ampMult * Math.sin(
                             (2 * Math.PI)
-                            * phaseDelta
                             * (
-                                sampleIndex 
-                                - bufferIndex 
-                                + tone.previousAdditiveSampleIndex 
+                                tone.additivePhaseDeltaIntegral
                                 + dispersion * i
                             )
                             * (
@@ -16596,7 +16604,7 @@ export class Synth {
                                 ? inharmonicity * i - (inharmonicity - 1) // overtones
                                 : (-inharmonicity / i) * -(inharmonicity ** -1) // undertones
                             )
-                        ) / (i ** falloff);
+                        );
                     }
                     
                     const output = sample * expression;
@@ -16605,7 +16613,6 @@ export class Synth {
 
                     expression += expressionDelta;
                 }
-                tone.previousAdditiveSampleIndex += stopIndex - bufferIndex;
 
                 tone.expression = expression;
             }`;
