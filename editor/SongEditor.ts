@@ -873,6 +873,7 @@ export class SongEditor {
             option({ value: "displayBrowserUrl" }, "Enable Song Data in URL"),
             option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"),
             option({ value: "rollNoveltyPresets" }, "Can Randomly Select Novelty Presets"),
+            option({ value: "hardClipMasterOutput" }, "Hard Clip Master Output"),
             option({ value: "recordingSetup" }, "Note Recording..."),
 	        option({ value: "customPresets" }, "Custom Presets..."),
         ), 
@@ -3469,6 +3470,7 @@ export class SongEditor {
             (prefs.displayBrowserUrl ? textOnIcon : textOffIcon) + "Enable Song Data in URL",
             (prefs.closePromptByClickoff ? textOnIcon : textOffIcon) + "Close Prompts on Click Off",
             (prefs.rollNoveltyPresets ? textOnIcon : textOffIcon) + "Can Randomly Select Novelty Presets",
+            (prefs.hardClipMasterOutput ? textOnIcon : textOffIcon) + "Hard Clip Master Output",
             textSpacingIcon + "Note Recording...",
 	        textSpacingIcon + "Custom Presets...",
             textSpacingIcon + "Appearance",
@@ -7036,6 +7038,9 @@ export class SongEditor {
                 break;
             case "rollNoveltyPresets":
                 this.doc.prefs.rollNoveltyPresets = !this.doc.prefs.rollNoveltyPresets;
+                break;
+            case "hardClipMasterOutput":
+                this.doc.synth.hardClipMasterOutput = this.doc.prefs.hardClipMasterOutput = !this.doc.prefs.hardClipMasterOutput;
                 break;
         }
         this._optionsMenu.selectedIndex = 0;

@@ -52,6 +52,7 @@ export class Preferences {
 	public showChannelName: boolean;
 	public showChannelTuning: boolean;
 	public rollNoveltyPresets: boolean;
+	public hardClipMasterOutput: boolean;
 
 	constructor() {
 		this.reload();
@@ -102,6 +103,7 @@ export class Preferences {
 		this.showChannelName = window.localStorage.getItem("showChannelName") != "false";
 		this.showChannelTuning = window.localStorage.getItem("showChannelTuning") != "false";
 		this.rollNoveltyPresets = window.localStorage.getItem("rollNoveltyPresets") == "true";
+		this.hardClipMasterOutput = window.localStorage.getItem("hardClipMasterOutput") != "false";
 
 		const defaultScale: Scale | undefined = Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
 		this.defaultScale = (defaultScale != undefined) ? defaultScale.index : 0;
@@ -164,5 +166,6 @@ export class Preferences {
 		window.localStorage.setItem("showChannelName", this.showChannelName ? "true" : "false");
 		window.localStorage.setItem("showChannelTuning", this.showChannelTuning ? "true" : "false");
 		window.localStorage.setItem("rollNoveltyPresets", this.rollNoveltyPresets ? "true" : "false");
+		window.localStorage.setItem("hardClipMasterOutput", this.hardClipMasterOutput ? "true" : "false");
 	}
 }

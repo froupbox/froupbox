@@ -91,6 +91,7 @@ export class SongDocument {
         this.synth = new Synth(this.song);
         this.synth.volume = this._calcVolume();
         this.synth.anticipatePoorPerformance = isMobile;
+        this.synth.hardClipMasterOutput = this.prefs.hardClipMasterOutput
 
         let state: HistoryState | null = this._getHistoryState();
         if (state == null) {
