@@ -10,7 +10,7 @@ use crate::{
     util::{Interpolator, Zippable},
 };
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct FlangerParams {
     pub delay: f32,
     pub mix: f32,
@@ -34,7 +34,7 @@ impl FlangerParams {
 }
 
 /// flanger using linear interpolation
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Flanger<T: Sample> {
     // 0 is delayed input, 1 is delayed output
     pub delay_line: DelayLine<Multisample<T, 2>>,

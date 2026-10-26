@@ -55,7 +55,7 @@ impl ColourizerInstanceParams {
 #[derive(Default)]
 pub struct ColourizerInstance {
     flangers: Vec<ColourizerFlanger>,
-    cur_num_active_flangers: usize,
+    num_active_flangers: usize,
 
     pub use_legacy_mix: bool,
 
@@ -64,7 +64,7 @@ pub struct ColourizerInstance {
     total_scale_interp: Interpolator<f32>,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 struct ColourizerFlanger {
     enabled: bool,
     i: Flanger<SamplePair>,
@@ -93,16 +93,17 @@ impl ColourizerInstance {
                 .resize_with(start.freqs.len(), Default::default);
         }
 
-        for flanger in &mut self.flangers {
-            flanger.enabled = false;
-        }
-        for ((&freq_start, &freq_end), flanger) in
-            zip(zip(&start.freqs, &end.freqs), &mut self.flangers)
-        {
+        let mut flangers_iter = self.flangers.iter_mut();
+
+        for (&freq_start, &freq_end) in zip(&start.freqs, &end.freqs) {
             if freq_start.min(freq_end) < FREQ_MIN {
                 // freq either -1 (nonexistent) or too low
                 continue;
             }
+            let flanger = flangers_iter
+                .next()
+                .expect("flangers.len() > freqs.len() from the if statement at the top of begin()");
+
             flanger.enabled = true;
             let params_start = start.for_freq(sample_rate, freq_start);
             let params_end = end.for_freq(sample_rate, freq_end);
@@ -113,11 +114,14 @@ impl ColourizerInstance {
             flanger.i.interpolator = util::interpolate(run_length, params_start, params_end);
         }
 
-        let num_flangers = self
-            .flangers
-            .iter_mut()
-            .partition_in_place(|flanger| flanger.enabled);
-        self.cur_num_active_flangers = num_flangers;
+        let unused_flangers = flangers_iter.as_mut_slice();
+        let num_unused_flangers = unused_flangers.len();
+
+        for flanger in unused_flangers {
+            flanger.enabled = false;
+        }
+
+        self.num_active_flangers = self.flangers.len() - num_unused_flangers;
 
         self.mix_interp = util::interpolate(run_length, start.mix(), end.mix());
 
@@ -129,14 +133,14 @@ impl ColourizerInstance {
         // );
         self.total_scale_interp = util::interpolate(
             run_length,
-            start.total_scale(num_flangers),
-            end.total_scale(num_flangers),
+            start.total_scale(self.num_active_flangers),
+            end.total_scale(self.num_active_flangers),
         )
     }
 
     #[wasm_bindgen]
     pub fn process(&mut self, buffer: &mut DspBuffer) {
-        if self.use_legacy_mix && self.cur_num_active_flangers == 0 {
+        if self.use_legacy_mix && self.num_active_flangers == 0 {
             buffer.clear();
             return;
         }
@@ -146,7 +150,7 @@ impl ColourizerInstance {
         }
         self.output_buf.run_length = buffer.run_length;
 
-        let flangers = &mut self.flangers[..self.cur_num_active_flangers];
+        let flangers = &mut self.flangers[..self.num_active_flangers];
         if cfg!(debug_assertions) {
             for flanger in &mut *flangers {
                 debug_assert!(flanger.enabled);

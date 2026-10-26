@@ -1,5 +1,5 @@
 #![feature(portable_simd)]
-#![feature(iter_partition_in_place)]
+#![feature(slice_iter_mut_as_mut_slice)]
 
 mod buffer;
 mod colourizer;

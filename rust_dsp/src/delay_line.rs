@@ -59,3 +59,9 @@ impl<T: Sample> DelayLine<T> {
         *self = new_delay_line;
     }
 }
+
+impl<T: Sample> std::fmt::Debug for DelayLine<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "DelayLine {{ <{}> }}", self.len())
+    }
+}
