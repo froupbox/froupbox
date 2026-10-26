@@ -5594,7 +5594,6 @@ export class ChangePatternScale extends Change {
 
 export class ChangeVolume extends Change {
     constructor(doc: SongDocument, oldValue: number, newValue: number) {
-        if(import.meta.env.PROD && DO_ALERTS) window.alert("THIS IS THE TESTING VERSION! ANY SONGS MADE HERE WILL BREAK! Go to https://froupbox.github.io/ for the non-testing version. (without the \"froupbox/dist/\" in the URL)");
         super();
         doc.song.channels[doc.channel].instruments[doc.getCurrentInstrument()].volume = newValue;
         // Not used currently as mod is implemented as multiplicative.
