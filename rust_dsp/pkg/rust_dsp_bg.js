@@ -745,6 +745,17 @@ export function __wbg_error_a6fa202b58aa1cd3(arg0, arg1) {
         wasm.__wbindgen_free(deferred0_0, deferred0_1, 1);
     }
 }
+export function __wbg_log_96e993ce19168460(arg0, arg1) {
+    let deferred0_0;
+    let deferred0_1;
+    try {
+        deferred0_0 = arg0;
+        deferred0_1 = arg1;
+        console.log(getStringFromWasm0(arg0, arg1));
+    } finally {
+        wasm.__wbindgen_free(deferred0_0, deferred0_1, 1);
+    }
+}
 export function __wbg_new_227d7c05414eb861() {
     const ret = new Error();
     return ret;

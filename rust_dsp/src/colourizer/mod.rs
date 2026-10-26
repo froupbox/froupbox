@@ -37,7 +37,7 @@ impl ColourizerInstanceParams {
     }
     fn total_scale(&self, num_flangers: usize) -> f32 {
         // modify this to your heart's content, but make sure it's never NaN/infinity
-        (num_flangers as f32 * self.voices * self.mix)
+        5.0 * ((num_flangers as f32 * 0.5) * self.voices * self.mix)
             .powf(-0.5)
             .min(1.0)
     }
@@ -126,11 +126,11 @@ impl ColourizerInstance {
         self.mix_interp = util::interpolate(run_length, start.mix(), end.mix());
 
         // if you ever want to debug what the values are, you can do this with rust's string formatting
-        // crate::log!(
-        //     "{} => {}",
-        //     start.total_scale(num_flangers),
-        //     end.total_scale(num_flangers)
-        // );
+        crate::log!(
+            "{} => {}",
+            start.total_scale(self.num_active_flangers),
+            end.total_scale(self.num_active_flangers)
+        );
         self.total_scale_interp = util::interpolate(
             run_length,
             start.total_scale(self.num_active_flangers),
