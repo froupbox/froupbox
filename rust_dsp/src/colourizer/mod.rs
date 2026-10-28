@@ -125,12 +125,11 @@ impl ColourizerInstance {
 
         self.mix_interp = util::interpolate(run_length, start.mix(), end.mix());
 
-        // if you ever want to debug what the values are, you can do this with rust's string formatting
-        crate::log!(
-            "{} => {}",
-            start.total_scale(self.num_active_flangers),
-            end.total_scale(self.num_active_flangers)
-        );
+        // crate::log!(
+        //     "{} => {}",
+        //     start.total_scale(self.num_active_flangers),
+        //     end.total_scale(self.num_active_flangers)
+        // );
         self.total_scale_interp = util::interpolate(
             run_length,
             start.total_scale(self.num_active_flangers),
