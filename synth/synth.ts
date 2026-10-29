@@ -1050,10 +1050,12 @@ export class FilterControlPoint {
     public freq: number = 0;
     public gain: number = Config.filterGainCenter;
     public type: FilterType = FilterType.peak;
+    public filterQ: number = 1.0;
 
-    public set(freqSetting: number, gainSetting: number): void {
+    public set(freqSetting: number, gainSetting: number, filterQSetting: number): void {
         this.freq = freqSetting;
         this.gain = gainSetting;
+        this.filterQ = filterQSetting;
     }
 
     public getHz(): number {
@@ -1070,6 +1072,9 @@ export class FilterControlPoint {
         return Math.max(0, Math.min(Config.filterFreqRange - 1, Math.round(FilterControlPoint.getSettingValueFromHz(hz))));
     }
 
+    public getFilterQ(): number {
+        return this.filterQ * Config.filterQStep;
+    }
     public getLinearGain(peakMult: number = 1.0): number {
         const power: number = (this.gain - Config.filterGainCenter) * Config.filterGainStep;
         const neutral: number = (this.type == FilterType.peak) ? 0.0 : -0.5;
@@ -1083,6 +1088,7 @@ export class FilterControlPoint {
     public toCoefficients(filter: FilterCoefficients, sampleRate: number, freqMult: number = 1.0, peakMult: number = 1.0): void {
         const cornerRadiansPerSample: number = 2.0 * Math.PI * Math.max(Config.filterFreqMinHz, Math.min(Config.filterFreqMaxHz, freqMult * this.getHz())) / sampleRate;
         const linearGain: number = this.getLinearGain(peakMult);
+        const filterQ: number = this.getFilterQ();
         switch (this.type) {
             case FilterType.lowPass:
                 filter.lowPass2ndOrderButterworth(cornerRadiansPerSample, linearGain);
@@ -1091,7 +1097,14 @@ export class FilterControlPoint {
                 filter.highPass2ndOrderButterworth(cornerRadiansPerSample, linearGain);
                 break;
             case FilterType.peak:
-                filter.peak2ndOrder(cornerRadiansPerSample, linearGain, 1.0);
+                filter.peak2ndOrder(cornerRadiansPerSample, linearGain, filterQ);
+                break;
+            case FilterType.lowShelf:
+                // filter.lowShelf2ndOrder(cornerRadiansPerSample, linearGain, filterQ);
+                // doesn't exist, maybe add eventually
+                break;
+            case FilterType.highShelf:
+                filter.highShelf2ndOrder(cornerRadiansPerSample, linearGain, filterQ);
                 break;
             default:
                 throw new Error();
@@ -1132,7 +1145,7 @@ export class FilterSettings {
         this.controlPointCount = 0;
     }
 
-    addPoint(type: FilterType, freqSetting: number, gainSetting: number): void {
+    addPoint(type: FilterType, freqSetting: number, gainSetting: number, filterQSetting: number): void {
         let controlPoint: FilterControlPoint;
         if (this.controlPoints.length <= this.controlPointCount) {
             controlPoint = new FilterControlPoint();
@@ -1142,7 +1155,7 @@ export class FilterSettings {
         }
         this.controlPointCount++;
         controlPoint.type = type;
-        controlPoint.set(freqSetting, gainSetting);
+        controlPoint.set(freqSetting, gainSetting, filterQSetting);
     }
 
     public toJsonObject(): Object {
@@ -1275,7 +1288,7 @@ export class FilterSettings {
             const convertedGain: number = Math.pow(2.0, logGain);
             const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
 
-            this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
+            this.addPoint(FilterType.lowPass, freqSetting, gainSetting, 1.0);
         } else {
             const intendedGain: number = 0.5 / (1.0 - legacyFilterMaxResonance * Math.sqrt(Math.max(0.0, legacyResonanceSetting - 1.0) / (legacyFilterResonanceRange - 2.0)));
             const invertedGain: number = 0.5 / intendedGain;
@@ -1304,7 +1317,7 @@ export class FilterSettings {
             if (!resonant) legacyFilterGain = Math.min(legacyFilterGain, Math.sqrt(0.5));
             const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
 
-            this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
+            this.addPoint(FilterType.lowPass, freqSetting, gainSetting, 1.0);
         }
 
         // Added for JummBox - making a 0 point filter does not truncate control points!
@@ -1353,7 +1366,7 @@ export class FilterSettings {
             const convertedGain: number = Math.pow(2.0, logGain);
             const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
 
-            this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
+            this.addPoint(FilterType.lowPass, freqSetting, gainSetting, 1.0);
         } else {
             const intendedGain: number = 0.5 / (1.0 - legacyFilterMaxResonance * Math.sqrt(Math.max(0.0, legacyResonanceSetting - 1.0) / (legacyFilterResonanceRange - 2.0)));
             const invertedGain: number = 0.5 / intendedGain;
@@ -1375,7 +1388,7 @@ export class FilterSettings {
             legacyFilterGain = response.magnitude();
             const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
 
-            this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
+            this.addPoint(FilterType.lowPass, freqSetting, gainSetting, 1.0);
         }
 
     }
