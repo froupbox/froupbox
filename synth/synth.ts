@@ -15897,7 +15897,6 @@ export class Synth {
                 effectsSource += `
                     const invertWaveMix = +instrumentState.invertWaveMix;
                     const invertWaveStereo = +instrumentState.invertWaveStereo;
-                    console.log(invertWaveStereo);
                     const invertWavePan = +instrumentState.invertWavePan;
                     const newInvertWaveSampleL = sampleL * Math.min(1, Math.max(-1, 1 + (invertWavePan - 100) / 25));
                     const newInvertWaveSampleR = sampleR * Math.min(1, Math.max(-1, 1 - (invertWavePan      ) / 25));
