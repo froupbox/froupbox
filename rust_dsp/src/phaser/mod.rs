@@ -1,4 +1,5 @@
-use core::simd::{cmp::SimdPartialOrd as _, f32x4, num::SimdFloat as _};
+// use core::simd::{cmp::SimdPartialOrd as _, f32x4, num::SimdFloat as _};
+use core::simd::f32x4;
 use std::{fmt::Debug, iter::zip};
 
 use wasm_bindgen::prelude::*;
@@ -68,7 +69,7 @@ struct SimdPhaserWrapper<S: SimdPhaserStage> {
 
     // invariant: `self.stages.len() * 4 >= self.num_stages`
     num_stages: usize,
-    are_all_stages_zero: bool,
+    // are_all_stages_zero: bool,
     stages: Vec<S>,
 }
 impl<S: SimdPhaserStage> SimdPhaserWrapper<S> {
@@ -80,37 +81,38 @@ impl<S: SimdPhaserStage> SimdPhaserWrapper<S> {
         S::calculate_coefficients(self.i_w0.next(), self.i_q.next())
     }
 
-    fn compute_simd(&mut self) {
-        fn is_silent(simd: f32x4) -> bool {
-            const SILENCE_THRESHOLD: f32 = 1e-5;
-            simd.abs().simd_le(f32x4::splat(SILENCE_THRESHOLD)).all()
-        }
+    // fn compute_simd(&mut self) {
+    //     fn is_silent(simd: f32x4) -> bool {
+    //         const SILENCE_THRESHOLD: f32 = 1e-5;
+    //         simd.abs().simd_le(f32x4::splat(SILENCE_THRESHOLD)).all()
+    //     }
 
-        let prev_sample = self.wet_simd;
-        let mut sample = self.dry_simd + prev_sample * f32x4::splat(self.i_feedback_mult.next());
-        if is_silent(sample) {
-            sample = f32x4::splat(0.0);
+    //     let prev_sample = self.wet_simd;
+    //     let mut sample = self.dry_simd + prev_sample * f32x4::splat(self.i_feedback_mult.next());
+    //     if is_silent(sample) {
+    //         sample = f32x4::splat(0.0);
 
-            if is_silent(prev_sample) {
-                self.wet_simd = f32x4::splat(0.0);
+    //         if is_silent(prev_sample) {
+    //             self.wet_simd = f32x4::splat(0.0);
 
-                if !self.are_all_stages_zero {
-                    self.are_all_stages_zero = true;
-                    // reset all stages to prevent denormals
-                    for stage in &mut self.stages {
-                        *stage = Default::default();
-                    }
-                }
-                return;
-            }
-        } else {
-            self.are_all_stages_zero = false;
-        }
-        self.compute_simd_inner(&mut sample);
-        self.wet_simd = sample;
-    }
+    //             if !self.are_all_stages_zero {
+    //                 self.are_all_stages_zero = true;
+    //                 // reset all stages to prevent denormals
+    //                 for stage in &mut self.stages {
+    //                     *stage = Default::default();
+    //                 }
+    //             }
+    //             return;
+    //         }
+    //     } else {
+    //         self.are_all_stages_zero = false;
+    //     }
+    //     self.compute_simd_inner(&mut sample);
+    //     self.wet_simd = sample;
+    // }
 
-    fn compute_simd_inner(&mut self, val_simd: &mut f32x4) {
+    // fn compute_simd_inner(&mut self, val_simd: &mut f32x4) {
+    fn compute_simd(&mut self, val_simd: &mut f32x4) {
         let simd_len = self.num_stages / 4;
         assert!(self.stages.len() >= simd_len);
 
@@ -224,17 +226,33 @@ impl<S: SimdPhaserStage> PhaserAlgorithm for SimdPhaserWrapper<S> {
             ..
         } = self;
 
-        let simd_index_usize = *simd_index as usize;
-        assert!(simd_index_usize < 4);
-        let dry = std::mem::replace(&mut dry_simd.as_mut_array()[simd_index_usize], sample);
-        let wet = wet_simd.as_mut_array()[simd_index_usize];
+        let mut simd_index = *simd_index as usize;
+        assert!(simd_index < 4);
+        let dry = std::mem::replace(&mut dry_simd.as_mut_array()[simd_index], sample);
+        let wet = wet_simd.as_mut_array()[simd_index];
 
-        *simd_index += 1;
-        if *simd_index >= 4 {
-            *simd_index = 0;
+        simd_index += 1;
+        if simd_index >= 4 {
+            simd_index = 0;
 
-            self.compute_simd();
+            let mut sample = *dry_simd + self.wet_simd * f32x4::splat(self.i_feedback_mult.next());
+            self.compute_simd(&mut sample);
+            self.wet_simd = sample;
         }
+
+        self.simd_index = simd_index as u8;
+
+        // let simd_index_usize = *simd_index as usize;
+        // assert!(simd_index_usize < 4);
+        // let dry = std::mem::replace(&mut dry_simd.as_mut_array()[simd_index_usize], sample);
+        // let wet = wet_simd.as_mut_array()[simd_index_usize];
+
+        // *simd_index += 1;
+        // if *simd_index >= 4 {
+        //     *simd_index = 0;
+
+        //     self.compute_simd();
+        // }
 
         (dry, wet)
     }
