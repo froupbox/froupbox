@@ -934,7 +934,7 @@ export class SongEditor {
 
     // octave
 
-    private readonly _octaveStepper: HTMLInputElement = input({ style: "width: 59.5%;", type: "number", min: Config.octaveMin, max: Config.octaveMax, value: "0" });
+    private readonly _octaveStepper: HTMLInputElement = input({ style: "width: 4em; font-size: 80%; margin-left: 0.4em; vertical-align: middle;", type: "number", min: Config.octaveMin + 4, max: Config.octaveMax + 4, value: "4" });
 
 
 
@@ -1000,11 +1000,10 @@ export class SongEditor {
             ),
             div({ class: "selectRow" },
                 span({ class: "tip", onclick: () => this._openPrompt("key") }, "Key: "),
-                div({ class: "selectContainer" }, this._keySelect),
-            ),
-            div({ class: "selectRow" },
-                span({ class: "tip", onclick: () => this._openPrompt("key_octave") }, "Octave: "),
-                this._octaveStepper,
+                span({ style: "display: flex;" },
+                    div({ style: "width: 100%;", class: "selectContainer" }, this._keySelect),
+                    this._octaveStepper,
+                )
             ),
             div({ class: "selectRow" },
                 span({ class: "tip", onclick: () => this._openPrompt("tempo") }, "Tempo: "),
@@ -3534,7 +3533,7 @@ export class SongEditor {
         setSelectedValue(this._scaleSelect, this.doc.song.scale);
         this._scaleSelect.title = Config.scales[this.doc.song.scale].realName + " " + (Config.scales[this.doc.song.scale].realName == "custom" ? this.doc.song.scaleCustom : Config.scales[this.doc.song.scale].intervals);
         setSelectedValue(this._keySelect, Config.keys.length - 1 - this.doc.song.key);
-        this._octaveStepper.value = Math.round(this.doc.song.octave).toString();
+        this._octaveStepper.value = (Math.round(this.doc.song.octave) + 4).toString();
         this._tempoSlider.updateValue(Math.max(0, Math.round(this.doc.song.tempo)));
         this._tempoStepper.value = Math.round(this.doc.song.tempo).toString();
         this._songTitleInputBox.updateValue(this.doc.song.title);
@@ -6496,7 +6495,7 @@ export class SongEditor {
     }
 
     private _whenSetOctave = (): void => {
-        this.doc.record(new ChangeKeyOctave(this.doc, this.doc.song.octave, parseInt(this._octaveStepper.value) | 0));
+        this.doc.record(new ChangeKeyOctave(this.doc, this.doc.song.octave, (parseInt(this._octaveStepper.value) | 0) - 4));
         this._piano.forceRender();
     }
 
