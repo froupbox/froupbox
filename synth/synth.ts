@@ -11123,7 +11123,6 @@ export class Synth {
     public song: Song | null = null;
     public preferLowerLatency: boolean = false; // enable when recording performances from keyboard or MIDI. Takes effect next time you activate audio.
     public anticipatePoorPerformance: boolean = false; // enable on mobile devices to reduce audio stutter glitches. Takes effect next time you activate audio.
-    public hardClipMasterOutput: boolean = true; // firefox...
     public liveInputDuration: number = 0;
     public liveBassInputDuration: number = 0;
     public liveInputStarted: boolean = false;
@@ -11805,17 +11804,17 @@ export class Synth {
             this.deactivateAudio();
         } else {
             this.synthesize(outputDataL, outputDataR, outputBuffer.length, this.isPlayingSong);
-            if (this.hardClipMasterOutput) {
-                for (let i = 0; i < outputDataL.length; i++) {
-                    if (outputDataL[i] < -1.0)
-                        outputDataL[i] = -1.0;
-                    else if (outputDataL[i] > 1.0)
-                        outputDataL[i] = 1.0;
-                    if (outputDataR[i] < -1.0)
-                        outputDataR[i] = -1.0;
-                    else if (outputDataR[i] > 1.0)
-                        outputDataR[i] = 1.0;
-                }
+
+            // hard clip master output -1.0 to 1.0
+            for (let i = 0; i < outputDataL.length; i++) {
+                if (outputDataL[i] < -1.0)
+                    outputDataL[i] = -1.0;
+                else if (outputDataL[i] > 1.0)
+                    outputDataL[i] = 1.0;
+                if (outputDataR[i] < -1.0)
+                    outputDataR[i] = -1.0;
+                else if (outputDataR[i] > 1.0)
+                    outputDataR[i] = 1.0;
             }
 
             if (this.oscEnabled) {

@@ -872,8 +872,6 @@ export class SongEditor {
             option({ value: "instrumentImportExport" }, "Enable Import/Export Buttons"),
             option({ value: "displayBrowserUrl" }, "Enable Song Data in URL"),
             option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"),
-            option({ value: "rollNoveltyPresets" }, "Can Randomly Select Novelty Presets"),
-            option({ value: "hardClipMasterOutput" }, "Hard Clip Master Output"),
             option({ value: "recordingSetup" }, "Note Recording..."),
 	        option({ value: "customPresets" }, "Custom Presets..."),
         ), 
@@ -3468,8 +3466,6 @@ export class SongEditor {
             (prefs.instrumentImportExport ? textOnIcon : textOffIcon) + "Enable Import/Export Buttons",
             (prefs.displayBrowserUrl ? textOnIcon : textOffIcon) + "Enable Song Data in URL",
             (prefs.closePromptByClickoff ? textOnIcon : textOffIcon) + "Close Prompts on Click Off",
-            (prefs.rollNoveltyPresets ? textOnIcon : textOffIcon) + "Can Randomly Select Novelty Presets",
-            (prefs.hardClipMasterOutput ? textOnIcon : textOffIcon) + "Hard Clip Master Output",
             textSpacingIcon + "Note Recording...",
 	        textSpacingIcon + "Custom Presets...",
             textSpacingIcon + "Appearance",
@@ -5851,7 +5847,6 @@ export class SongEditor {
                     this.doc.prefs.layout = "wide";
                     this.doc.prefs.visibleOctaves = 5;
                     this.doc.prefs.colorTheme = "jummbox classic";
-                    this.doc.prefs.rollNoveltyPresets = false;
                     this.doc.prefs.save();
                     event.preventDefault();
                     location.reload();
@@ -6001,7 +5996,6 @@ export class SongEditor {
                     this.doc.prefs.instrumentImportExport = true;
                     this.doc.prefs.notesFlashWhenPlayed = true;
                     this.doc.prefs.showOscilloscope = true;
-                    this.doc.prefs.rollNoveltyPresets = false;
                     this.doc.prefs.save();
                     event.preventDefault();
                     location.reload();
@@ -6482,7 +6476,7 @@ export class SongEditor {
   
     private _randomPreset(): void {
         const isNoise: boolean = this.doc.song.getChannelIsNoise(this.doc.channel);
-        this.doc.record(new ChangePreset(this.doc, pickRandomPresetValue(isNoise,this.doc.prefs.rollNoveltyPresets)));
+        this.doc.record(new ChangePreset(this.doc, pickRandomPresetValue(isNoise)));
     }
 
     private _randomGenerated(usesCurrentInstrumentType: boolean): void {
@@ -7034,12 +7028,6 @@ export class SongEditor {
                 break;
             case "frostedGlassBackground":
                 this.doc.prefs.frostedGlassBackground = !this.doc.prefs.frostedGlassBackground;
-                break;
-            case "rollNoveltyPresets":
-                this.doc.prefs.rollNoveltyPresets = !this.doc.prefs.rollNoveltyPresets;
-                break;
-            case "hardClipMasterOutput":
-                this.doc.synth.hardClipMasterOutput = this.doc.prefs.hardClipMasterOutput = !this.doc.prefs.hardClipMasterOutput;
                 break;
         }
         this._optionsMenu.selectedIndex = 0;
