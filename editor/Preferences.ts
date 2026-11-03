@@ -49,6 +49,7 @@ export class Preferences {
 	public collapseEffects: boolean;
 	public showChannelName: boolean;
 	public showChannelTuning: boolean;
+	public clipWithSongVolume: boolean;
 
 	constructor() {
 		this.reload();
@@ -96,6 +97,7 @@ export class Preferences {
 		this.collapseEffects = window.localStorage.getItem("collapseEffects") == "true";
 		this.showChannelName = window.localStorage.getItem("showChannelName") != "false";
 		this.showChannelTuning = window.localStorage.getItem("showChannelTuning") != "false";
+		this.clipWithSongVolume = window.localStorage.getItem("clipWithSongVolume") != "false";
 
 		const defaultScale: Scale | undefined = Config.scales.dictionary[window.localStorage.getItem("defaultScale")!];
 		this.defaultScale = (defaultScale != undefined) ? defaultScale.index : 0;
@@ -155,5 +157,6 @@ export class Preferences {
 		window.localStorage.setItem("collapseEffects", this.collapseEffects ? "true" : "false");
 		window.localStorage.setItem("showChannelName", this.showChannelName ? "true" : "false");
 		window.localStorage.setItem("showChannelTuning", this.showChannelTuning ? "true" : "false");
+		window.localStorage.setItem("clipWithSongVolume", this.clipWithSongVolume ? "true" : "false");
 	}
 }

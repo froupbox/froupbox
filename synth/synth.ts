@@ -11135,6 +11135,7 @@ export class Synth {
     public liveBassInputInstruments: number[] = [];
     public loopRepeatCount: number = -1;
     public volume: number = 1.0;
+    public clipWithSongVolume: boolean = true;
     public oscRefreshEventTimer: number = 0;
     public oscEnabled: boolean = true;
     public enableMetronome: boolean = false;
@@ -11805,16 +11806,17 @@ export class Synth {
         } else {
             this.synthesize(outputDataL, outputDataR, outputBuffer.length, this.isPlayingSong);
 
-            // hard clip master output -1.0 to 1.0
+            const clippingBoundary: number = this.clipWithSongVolume ? this.volume : 1.0;
+            // hard clip master output -clippingBoundary to clippingBoundary
             for (let i = 0; i < outputDataL.length; i++) {
-                if (outputDataL[i] < -1.0)
-                    outputDataL[i] = -1.0;
-                else if (outputDataL[i] > 1.0)
-                    outputDataL[i] = 1.0;
-                if (outputDataR[i] < -1.0)
-                    outputDataR[i] = -1.0;
-                else if (outputDataR[i] > 1.0)
-                    outputDataR[i] = 1.0;
+                if (outputDataL[i] < -clippingBoundary)
+                    outputDataL[i] = -clippingBoundary;
+                else if (outputDataL[i] > clippingBoundary)
+                    outputDataL[i] = clippingBoundary;
+                if (outputDataR[i] < -clippingBoundary)
+                    outputDataR[i] = -clippingBoundary;
+                else if (outputDataR[i] > clippingBoundary)
+                    outputDataR[i] = clippingBoundary;
             }
 
             if (this.oscEnabled) {

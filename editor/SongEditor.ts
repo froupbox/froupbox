@@ -873,6 +873,7 @@ export class SongEditor {
             option({ value: "instrumentImportExport" }, "Enable Import/Export Buttons"),
             option({ value: "displayBrowserUrl" }, "Enable Song Data in URL"),
             option({ value: "closePromptByClickoff" }, "Close Prompts on Click Off"),
+            option({ value: "clipWithSongVolume" }, "Clip with Song Volume"),
             option({ value: "recordingSetup" }, "Note Recording..."),
 	        option({ value: "customPresets" }, "Custom Presets..."),
         ), 
@@ -3403,6 +3404,7 @@ export class SongEditor {
         this._instrumentCopyGroup.style.display = this.doc.prefs.instrumentCopyPaste ? "" : "none";
         this._instrumentExportGroup.style.display = this.doc.prefs.instrumentImportExport ? "" : "none";
         this._instrumentSettingsArea.style.scrollbarWidth = this.doc.prefs.showInstrumentScrollbars ? "" : "none";
+        this.doc.synth.clipWithSongVolume = this.doc.prefs.clipWithSongVolume;
         if (document.getElementById('text-content'))
             document.getElementById('text-content')!.style.display = this.doc.prefs.showDescription ? "" : "none";
 
@@ -3469,6 +3471,7 @@ export class SongEditor {
             (prefs.instrumentImportExport ? textOnIcon : textOffIcon) + "Enable Import/Export Buttons",
             (prefs.displayBrowserUrl ? textOnIcon : textOffIcon) + "Enable Song Data in URL",
             (prefs.closePromptByClickoff ? textOnIcon : textOffIcon) + "Close Prompts on Click Off",
+            (prefs.clipWithSongVolume ? textOnIcon : textOffIcon) + "Clip with Song Volume",
             textSpacingIcon + "Note Recording...",
 	        textSpacingIcon + "Custom Presets...",
             textSpacingIcon + "Appearance",
@@ -6974,6 +6977,9 @@ export class SongEditor {
                 break;
             case "collapseEffects":
                 this.doc.prefs.collapseEffects = !this.doc.prefs.collapseEffects;
+                break;
+            case "clipWithSongVolume":
+                this.doc.prefs.clipWithSongVolume = !this.doc.prefs.clipWithSongVolume;
                 break;
             case "noteHighlights":
                 this._openPrompt("noteHighlights");
