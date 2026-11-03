@@ -2941,23 +2941,46 @@ export class PatternEditor {
 
     private _redrawNoteBackground(): void {
         const divisions = this._doc.song.channels[this._doc.channel].equaveDivisions;
+        const equaveNumerator = this._doc.song.channels[this._doc.channel].equaveNumerator;
+        const equaveDenominator = this._doc.song.channels[this._doc.channel].equaveDenominator;
 
         while (this._svgNoteBackground.lastChild) {
             this._svgNoteBackground.removeChild(this._svgNoteBackground.lastChild);
         }
         this._backgroundPitchRows = [];
 
+        let intervalBools = scaleToBools(localStorage.getItem("noteHighlights") || `1/1, 3/2`, divisions, equaveNumerator, equaveDenominator);
+
         for (let i: number = 0; i < divisions; i++) {
             const rectangle: SVGRectElement = SVG.rect();
             rectangle.setAttribute("x", "1");
-            rectangle.setAttribute("fill", (i == 0 && this._doc.prefs.showTonic) ? ColorConfig.tonic : ColorConfig.pitchBackground);
+            if (intervalBools[i] == true) {
+                if (i == 0) {
+                    rectangle.setAttribute("fill", ColorConfig.tonic);
+                } else {
+                    rectangle.setAttribute("fill", ColorConfig.fifthNote);
+
+                    // const fifthLocation: number = Math.round(
+                    //     this._doc.song.channels[this._doc.channel].equaveDivisions
+                    //     * Math.log(3 / 2) 
+                    //     / Math.log(
+                    //         this._doc.song.channels[this._doc.channel].equaveNumerator 
+                    //         / this._doc.song.channels[this._doc.channel].equaveDenominator
+                    //     )
+                    // );
+
+                    // if (i == fifthLocation) {
+                    //     rectangle.setAttribute("fill", ColorConfig.fifthNote);
+                    // } else {
+                    //     // do custom colors for this in the future
+                    //     rectangle.setAttribute("fill", customColor);
+                    // }
+                }
+            } else {
+                rectangle.setAttribute("fill", ColorConfig.pitchBackground);
+            }
             this._svgNoteBackground.appendChild(rectangle);
             this._backgroundPitchRows[i] = rectangle;
-        }
-
-        const fifthLocation: number = Math.round(this._doc.song.channels[this._doc.channel].equaveDivisions * Math.log(3 / 2) / Math.log(this._doc.song.channels[this._doc.channel].equaveNumerator / this._doc.song.channels[this._doc.channel].equaveDenominator));
-        if (fifthLocation < divisions) {
-            this._backgroundPitchRows[fifthLocation].setAttribute("fill", this._doc.prefs.showFifth ? ColorConfig.fifthNote : ColorConfig.pitchBackground);
         }
     }
 

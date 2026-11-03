@@ -167,7 +167,7 @@ export class RecordingSetupPrompt implements Prompt {
                     if (scale[scalePitch]) {
                         if (scalePitch == 0) {
                             key.style.background = ColorConfig.tonic;
-                        } else if (scalePitch == Math.round(this._doc.song.defaultEquaveDivisions * Math.log2(3 / 2)) && this._doc.prefs.showFifth) {
+                        } else if (scalePitch == Math.round(this._doc.song.defaultEquaveDivisions * Math.log2(3 / 2))) {
                             key.style.background = ColorConfig.fifthNote;
                         } else {
                             key.style.background = ColorConfig.pitchBackground;

@@ -34,7 +34,6 @@ export class HarmonicsEditor {
     private _mouseDown: boolean = false;
     private _change: ChangeHarmonics | null = null;
     private _renderedPath: String = "";
-    private _renderedFifths: boolean = true;
     private instrument: Instrument;
 
     private _undoHistoryState: number = 0;
@@ -272,10 +271,6 @@ export class HarmonicsEditor {
         if (this._renderedPath != path) {
             this._renderedPath = path;
             this._curve.setAttribute("d", path);
-        }
-        if (this._renderedFifths != this._doc.prefs.showFifth) {
-            this._renderedFifths = this._doc.prefs.showFifth;
-            this._fifths.style.display = this._doc.prefs.showFifth ? "" : "none";
         }
     }
 }

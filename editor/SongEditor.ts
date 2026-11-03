@@ -45,6 +45,7 @@ import { RecordingSetupPrompt } from "./RecordingSetupPrompt";
 import { SpectrumEditor, SpectrumEditorPrompt } from "./SpectrumEditor";
 import { CustomThemePrompt } from "./CustomThemePrompt";
 import { CustomPresetsPrompt } from "./CustomPresetsPrompt";
+import { NoteHighlightsPrompt } from "./NoteHighlightsPrompt";
 import { ThemePrompt } from "./ThemePrompt";
 import { TipPrompt } from "./TipPrompt";
 import { ChangeTempo, ChangeKeyOctave, ChangeChorusMix, ChangeEchoDelay, ChangeEchoSustain, ChangeEchoMix, ChangeReverb, ChangeVolume, ChangePan, ChangePatternSelection, ChangePatternsPerChannel, ChangePatternNumbers, ChangeSupersawDynamism, ChangeSupersawSpread, ChangeSupersawShape, ChangePulseWidth, ChangeFeedbackAmplitude, ChangeOperatorAmplitude, ChangeOperatorFrequency, ChangeDrumsetEnvelope, ChangePasteInstrument, ChangePreset, pickRandomPresetValue, ChangeRandomGeneratedInstrument, ChangeEQFilterType, ChangeNoteFilterType, ChangeEQFilterSimpleCut, ChangeEQFilterSimplePeak, ChangeNoteFilterSimpleCut, ChangeNoteFilterSimplePeak, ChangeScale, ChangeKey, ChangeRhythm, ChangeFeedbackType, ChangeAlgorithm, ChangeChipWave, ChangeNoiseWave, ChangeTransition, ChangeToggleEffects, ChangeVibrato, ChangeUnison, ChangeChord, ChangeSong, ChangePitchShift, ChangeDetune, ChangeDistortion, ChangeStringSustain, ChangeBitcrusherFreq, ChangeBitcrusherQuantization, ChangeAddEnvelope, ChangeEnvelopeSpeed, ChangeAddChannelInstrument, ChangeRemoveChannelInstrument, ChangeCustomWave, ChangeOperatorWaveform, ChangeOperatorPulseWidth, ChangeSongTitle, ChangeVibratoDepth, ChangeVibratoSpeed, ChangeVibratoDelay, ChangeVibratoType, ChangePanDelay, ChangeArpeggioSpeed, ChangeFastTwoNoteArp, ChangeClicklessTransition, ChangeAliasing, ChangeSetPatternInstruments, ChangeHoldingModRecording, ChangeChipWavePlayBackwards, ChangeChipWaveStartOffset, ChangeChipWaveLoopEnd, ChangeChipWaveLoopStart, ChangeChipWaveLoopMode, ChangeChipWaveUseAdvancedLoopControls, ChangeDecimalOffset, ChangeUnisonVoices, ChangeUnisonSpread, ChangeUnisonOffset, ChangeUnisonExpression, ChangeUnisonSign, Change6OpFeedbackType, Change6OpAlgorithm, ChangeCustomAlgorythmorFeedback, ChangeRingMod, ChangeRingModHz, ChangeRingModChipWave, ChangeRingModPulseWidth, ChangeGranularMix, ChangeGrainSize, ChangeGrainAmounts, ChangeGrainRange, ChangeMonophonicTone, ChangePhaserMix, ChangePhaserFreq, ChangePhaserFeedback, ChangePhaserStages, ChangeInvertWave, ChangeUpperLimit, ChangeLowerLimit, ChangeCompressor, ChangeCompressorTime, ChangeRmHzOffset, ChangePhaserDisperse, ChangeSlideSpeed, ChangeStrumSpeed, ChangeLoop, ChangeChannelBar, ChangeFlangerMix, ChangeFlangerDelay, ChangeFlangerPan, ChangeFlangerFeedmix, ChangeFlangerVoices, ChangeChannelTuning, ChangePitchShiftFiveLimit, ChangePitchShiftEquaveDivisions, ChangePitchShiftEquaveNumerator, ChangePitchShiftEquaveDenominator, ChangeVolumePitchCompensation, ChangeVolumeChordCompensation, ChangeChipWaveSampleChannel, ChangePhaserSpread, ChangePhaserFilterType, ChangeFlangerDistribute, ChangeColorizerMix, ChangeColorizerColor, ChangeColorizerChannel, ChangeColorizerMaxFreq, ChangeColorizerMinFreq, ChangeColorizerDetune, ChangeEQFilterCompensation, ChangeNoteFilterCompensation, ChangeChorusStereo, ChangeReverbStereo, ChangeReverbMix, ChangeReverbMaxFreq, ChangeEchoDamping, ChangeSongEQFilterCompensation, ChangeInvertWavePan, ChangeColorizerLegacyMix, ChangeDistortionMix, ChangeBitcrusherMix, ChangeInvertWaveMix, ChangeInvertWaveStereo, ChangeReverbIsolate, ChangeEchoIsolate } from "./changes";
@@ -876,8 +877,6 @@ export class SongEditor {
 	        option({ value: "customPresets" }, "Custom Presets..."),
         ), 
         optgroup({ label: "Appearance" },
-            option({ value: "showTonic" }, 'Highlight "Tonic" Note'),
-            option({ value: "showFifth" }, 'Highlight "Fifth" Note'),
             option({ value: "notesFlashWhenPlayed" }, "Notes Flash When Played"),
             option({ value: "instrumentButtonsAtTop" }, "Instrument Buttons at Top"),
             option({ value: "frostedGlassBackground" }, "Frosted Glass Prompt Backdrop"),
@@ -894,6 +893,7 @@ export class SongEditor {
             option({ value: "showChannelName" }, "Show Channel Name"),
             option({ value: "showChannelTuning" }, "Show Channel Tuning"),
             option({ value: "showDescription" }, "Show Description"),
+	        option({ value: "noteHighlights" }, "Note Highlights..."),
             option({ value: "layout" }, "Set Layout..."),
             option({ value: "colorTheme" }, "Set Theme..."),
 	        option({ value: "customTheme" }, "Custom Theme..."),
@@ -3273,6 +3273,9 @@ export class SongEditor {
                 case "generateEuclideanRhythm":
                     this.prompt = new EuclideanRhythmPrompt(this.doc);
                     break;
+                case "noteHighlights":
+                    this.prompt = new NoteHighlightsPrompt(this.doc);
+                    break;
                 case "customTheme":
                     this.prompt = new CustomThemePrompt(this.doc, this._patternEditor, this._trackArea, document.getElementById("beepboxEditorContainer")!);
                     break;
@@ -3469,8 +3472,6 @@ export class SongEditor {
             textSpacingIcon + "Note Recording...",
 	        textSpacingIcon + "Custom Presets...",
             textSpacingIcon + "Appearance",
-            (prefs.showTonic ? textOnIcon : textOffIcon) + 'Highlight "Tonic" Note',
-            (prefs.showFifth ? textOnIcon : textOffIcon) + 'Highlight "Fifth" Note',
             (prefs.notesFlashWhenPlayed ? textOnIcon : textOffIcon) + "Notes Flash When Played",
             (prefs.instrumentButtonsAtTop ? textOnIcon : textOffIcon) + "Instrument Buttons at Top",
             (prefs.frostedGlassBackground ? textOnIcon : textOffIcon) + "Frosted Glass Prompt Backdrop",
@@ -3487,6 +3488,7 @@ export class SongEditor {
             (prefs.showChannelName ? textOnIcon : textOffIcon) + "Show Channel Name",
             (prefs.showChannelTuning ? textOnIcon : textOffIcon) + "Show Channel Tuning",
             (prefs.showDescription ? textOnIcon : textOffIcon) + "Show Description",
+	        textSpacingIcon + "Note Highlights...",
             textSpacingIcon + "Set Layout...",
             textSpacingIcon + "Set Theme...",
 	        textSpacingIcon + "Custom Theme...",
@@ -3951,7 +3953,7 @@ export class SongEditor {
                 this._pitchShiftSlider.updateValue(instrument.pitchShift);
                 this._pitchShiftSlider.input.title = (instrument.pitchShift - Config.pitchShiftCenter) + " semitone" + (((instrument.pitchShift - Config.pitchShiftCenter) != 1) ? "s" : "");
                 for (const marker of this._pitchShiftFifthMarkers) {
-                    marker.style.display = prefs.showFifth ? "" : "none";
+                    marker.style.display = "";
                 }
                 /*
                 this._pitchShiftEquaveDivisionsInputBox.value = String(instrument.pitchShiftEquaveDivisions);
@@ -5834,7 +5836,6 @@ export class SongEditor {
                     this.doc.prefs.autoPlay = false;
                     this.doc.prefs.autoFollow = false;
                     this.doc.prefs.enableNotePreview = true;
-                    this.doc.prefs.showFifth = true;
                     this.doc.prefs.notesOutsideScale = false;
                     this.doc.prefs.defaultScale = 0;
                     this.doc.prefs.showLetters = true;
@@ -5976,7 +5977,6 @@ export class SongEditor {
                     this.doc.prefs.autoPlay = false;
                     this.doc.prefs.autoFollow = true;
                     this.doc.prefs.enableNotePreview = true;
-                    this.doc.prefs.showFifth = true;
                     this.doc.prefs.notesOutsideScale = false;
                     this.doc.prefs.defaultScale = 0;
                     this.doc.prefs.showLetters = true;
@@ -6932,12 +6932,6 @@ export class SongEditor {
             case "showLetters":
                 this.doc.prefs.showLetters = !this.doc.prefs.showLetters;
                 break;
-            case "showTonic":
-                this.doc.prefs.showTonic = !this.doc.prefs.showTonic;
-                break;
-            case "showFifth":
-                this.doc.prefs.showFifth = !this.doc.prefs.showFifth;
-                break;
             case "notesOutsideScale":
                 this.doc.prefs.notesOutsideScale = !this.doc.prefs.notesOutsideScale;
                 break;
@@ -6980,6 +6974,9 @@ export class SongEditor {
                 break;
             case "collapseEffects":
                 this.doc.prefs.collapseEffects = !this.doc.prefs.collapseEffects;
+                break;
+            case "noteHighlights":
+                this._openPrompt("noteHighlights");
                 break;
             case "layout":
                 this._openPrompt("layout");

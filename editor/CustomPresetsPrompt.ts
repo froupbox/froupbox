@@ -366,7 +366,6 @@ export class CustomPresetsPrompt implements Prompt {
 			presetCategory.presets = <DictionaryArray<Preset>>toNameMap(instruments[i]);
 			customPresetCategories.push(presetCategory);
 		}
-		console.table(customPresetCategories);
 
         window.localStorage.setItem("customPresetsCompiled", JSON.stringify(toNameMap(customPresetCategories)));
     }
