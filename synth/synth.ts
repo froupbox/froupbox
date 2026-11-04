@@ -1093,6 +1093,12 @@ export class FilterControlPoint {
             case FilterType.peak:
                 filter.peak2ndOrder(cornerRadiansPerSample, linearGain, 1.0);
                 break;
+            case FilterType.lowShelf:
+                filter.lowShelf2ndOrder(cornerRadiansPerSample, linearGain, 1.0);
+                break;
+            case FilterType.highShelf:
+                filter.highShelf2ndOrder(cornerRadiansPerSample, linearGain, 1.0);
+                break;
             default:
                 throw new Error();
         }
@@ -1114,6 +1120,10 @@ export class FilterControlPoint {
                 const distanceFromCenter: number = octave + Math.log2(Config.filterFreqReferenceHz / 2000.0);
                 const freqLoudness: number = Math.pow(1.0 / (1.0 + Math.pow(distanceFromCenter / 3.0, 2.0)), 2.0);
                 return Math.pow(0.5, 0.125 * Math.max(0.0, gainPow) + 0.1 * freqLoudness * Math.min(0.0, gainPow));
+            case FilterType.lowShelf:
+                return Math.pow(0.5, gainPow) * ((gainPow < 0) ? ((1    ) + 3 * (octave + 7) / 8.25) : ((1 + 3) - 3 * (octave + 7) / 8.25) );
+            case FilterType.highShelf:
+                return Math.pow(0.5, gainPow) * ((gainPow < 0) ? ((1 + 3) - 3 * (octave + 7) / 8.25) : ((1    ) + 3 * (octave + 7) / 8.25) );
             default:
                 throw new Error();
         }

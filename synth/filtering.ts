@@ -385,6 +385,22 @@ export class FilterCoefficients {
 		this.order = 2;
 	}
 
+	public lowShelf2ndOrder(cornerRadiansPerSample: number, shelfLinearGain: number, slope: number): void {  
+		const A: number = Math.sqrt(shelfLinearGain);
+		const c: number = -Math.cos(cornerRadiansPerSample);
+		const Aplus: number = A + 1.0;
+		const Aminus: number = A - 1.0;
+		const alpha: number = Math.sin(cornerRadiansPerSample) * 0.5 * Math.sqrt((Aplus / A) * (1.0 / slope - 1.0) + 2.0);
+		const sqrtA2Alpha: number = 2.0 * Math.sqrt(A) * alpha;
+		const a0: number =   (Aplus  - Aminus * c + sqrtA2Alpha);
+		this.a[1] = -2 *     (Aminus - Aplus  * c              ) / a0;
+		this.a[2] =          (Aplus  - Aminus * c - sqrtA2Alpha) / a0;
+		this.b[0] =      A * (Aplus  + Aminus * c + sqrtA2Alpha) / a0;
+		this.b[1] =  2 * A * (Aminus + Aplus  * c              ) / a0;
+		this.b[2] =      A * (Aplus  + Aminus * c - sqrtA2Alpha) / a0;
+		this.order = 2;
+	}
+
 	public peak2ndOrder(cornerRadiansPerSample: number, peakLinearGain: number, bandWidthScale: number): void {
 		const sqrtGain: number = Math.sqrt(peakLinearGain);
 		const bandWidth: number = bandWidthScale * cornerRadiansPerSample / (sqrtGain >= 1 ? sqrtGain : 1/sqrtGain);

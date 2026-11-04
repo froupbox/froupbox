@@ -263,10 +263,14 @@ export class FilterEditor {
         }
         if (this._addingPoint) {
             const ratio: number = this._mouseX / this._editorWidth;
-            if (ratio < 0.2) {
+            if (ratio < 0.15) {
                 this._addedType = FilterType.highPass;
-            } else if (ratio < 0.8) {
+            } else if (ratio < 0.3) {
+                this._addedType = FilterType.lowShelf;
+            } else if (ratio < 0.7) {
                 this._addedType = FilterType.peak;
+            } else if (ratio < 0.85) {
+                this._addedType = FilterType.highShelf;
             } else {
                 this._addedType = FilterType.lowPass;
             }
