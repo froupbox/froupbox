@@ -1050,10 +1050,12 @@ export class FilterControlPoint {
     public freq: number = 0;
     public gain: number = Config.filterGainCenter;
     public type: FilterType = FilterType.peak;
+    public filterQ: number = 1.0;
 
-    public set(freqSetting: number, gainSetting: number): void {
+    public set(freqSetting: number, gainSetting: number, filterQ: number): void {
         this.freq = freqSetting;
         this.gain = gainSetting;
+        this.filterQ = filterQ;
     }
 
     public getHz(): number {
@@ -1091,13 +1093,13 @@ export class FilterControlPoint {
                 filter.highPass2ndOrderButterworth(cornerRadiansPerSample, linearGain);
                 break;
             case FilterType.peak:
-                filter.peak2ndOrder(cornerRadiansPerSample, linearGain, 1.0);
+                filter.peak2ndOrder(cornerRadiansPerSample, linearGain, this.filterQ);
                 break;
             case FilterType.lowShelf:
-                filter.lowShelf2ndOrder(cornerRadiansPerSample, linearGain, 1.0);
+                filter.lowShelf2ndOrder(cornerRadiansPerSample, linearGain, this.filterQ);
                 break;
             case FilterType.highShelf:
-                filter.highShelf2ndOrder(cornerRadiansPerSample, linearGain, 1.0);
+                filter.highShelf2ndOrder(cornerRadiansPerSample, linearGain, this.filterQ);
                 break;
             default:
                 throw new Error();
@@ -1142,7 +1144,7 @@ export class FilterSettings {
         this.controlPointCount = 0;
     }
 
-    addPoint(type: FilterType, freqSetting: number, gainSetting: number): void {
+    addPoint(type: FilterType, freqSetting: number, gainSetting: number, filterQ: number): void {
         let controlPoint: FilterControlPoint;
         if (this.controlPoints.length <= this.controlPointCount) {
             controlPoint = new FilterControlPoint();
@@ -1152,7 +1154,7 @@ export class FilterSettings {
         }
         this.controlPointCount++;
         controlPoint.type = type;
-        controlPoint.set(freqSetting, gainSetting);
+        controlPoint.set(freqSetting, gainSetting, filterQ);
     }
 
     public toJsonObject(): Object {
@@ -1163,6 +1165,7 @@ export class FilterSettings {
                 "type": Config.filterTypeNames[point.type],
                 "cutoffHz": Math.round(point.getHz() * 100) / 100,
                 "linearGain": Math.round(point.getLinearGain() * 10000) / 10000,
+                "filterQ": Math.round(point.filterQ * 10000) / 10000,
             });
         }
         return filterArray;
@@ -1184,6 +1187,11 @@ export class FilterSettings {
                     point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(pointObject["linearGain"]);
                 } else {
                     point.gain = Config.filterGainCenter;
+                }
+                if (pointObject["filterQ"] != undefined) {
+                    point.filterQ = Math.max(Config.filterQMin, Math.min(Config.filterQMax, pointObject["filterQ"]));
+                } else {
+                    point.filterQ = 1.0;
                 }
                 this.controlPoints.push(point);
             }
@@ -1224,6 +1232,7 @@ export class FilterSettings {
                 lerpedFilter.controlPoints[i].type = filterA.controlPoints[i].type;
                 lerpedFilter.controlPoints[i].freq = filterA.controlPoints[i].freq + (filterB.controlPoints[i].freq - filterA.controlPoints[i].freq) * pos;
                 lerpedFilter.controlPoints[i].gain = filterA.controlPoints[i].gain + (filterB.controlPoints[i].gain - filterA.controlPoints[i].gain) * pos;
+                lerpedFilter.controlPoints[i].filterQ = filterA.controlPoints[i].filterQ + (filterB.controlPoints[i].filterQ - filterA.controlPoints[i].filterQ) * pos;
             }
 
             lerpedFilter.controlPointCount = filterA.controlPointCount;
@@ -1285,7 +1294,7 @@ export class FilterSettings {
             const convertedGain: number = Math.pow(2.0, logGain);
             const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
 
-            this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
+            this.addPoint(FilterType.lowPass, freqSetting, gainSetting, 1.0);
         } else {
             const intendedGain: number = 0.5 / (1.0 - legacyFilterMaxResonance * Math.sqrt(Math.max(0.0, legacyResonanceSetting - 1.0) / (legacyFilterResonanceRange - 2.0)));
             const invertedGain: number = 0.5 / intendedGain;
@@ -1314,7 +1323,7 @@ export class FilterSettings {
             if (!resonant) legacyFilterGain = Math.min(legacyFilterGain, Math.sqrt(0.5));
             const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
 
-            this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
+            this.addPoint(FilterType.lowPass, freqSetting, gainSetting, 1.0);
         }
 
         // Added for JummBox - making a 0 point filter does not truncate control points!
@@ -1363,7 +1372,7 @@ export class FilterSettings {
             const convertedGain: number = Math.pow(2.0, logGain);
             const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
 
-            this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
+            this.addPoint(FilterType.lowPass, freqSetting, gainSetting, 1.0);
         } else {
             const intendedGain: number = 0.5 / (1.0 - legacyFilterMaxResonance * Math.sqrt(Math.max(0.0, legacyResonanceSetting - 1.0) / (legacyFilterResonanceRange - 2.0)));
             const invertedGain: number = 0.5 / intendedGain;
@@ -1385,7 +1394,7 @@ export class FilterSettings {
             legacyFilterGain = response.magnitude();
             const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
 
-            this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
+            this.addPoint(FilterType.lowPass, freqSetting, gainSetting, 1.0);
         }
 
     }
@@ -3584,7 +3593,7 @@ export class Song {
     private static readonly _oldestSlarmoosBoxVersion: number = 1;
     private static readonly _latestSlarmoosBoxVersion: number = 5;
     private static readonly _oldestFroupBoxVersion: number = 1;
-    private static readonly _latestFroupBoxVersion: number = 12;
+    private static readonly _latestFroupBoxVersion: number = 13;
     // One-character variant detection at the start of URL to distinguish variants such as JummBox, Or Goldbox. "j" and "g" respectively
     //also "u" is ultrabox lol
     private static readonly _variant = 0x66; //"f" ~ froupbox
@@ -4055,7 +4064,18 @@ export class Song {
             buffer.push(base64IntToCharCode[this.eqFilter.controlPointCount]);
             for (let j: number = 0; j < this.eqFilter.controlPointCount; j++) {
                 const point: FilterControlPoint = this.eqFilter.controlPoints[j];
-                buffer.push(base64IntToCharCode[point.type], base64IntToCharCode[Math.round(point.freq)], base64IntToCharCode[Math.round(point.gain)]);
+
+                buffer.push(base64IntToCharCode[point.type]);
+
+                buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+
+                buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+
+                // filterQ: 0.0001 - 10.0000
+                const convertedFilterQ = Math.round(point.filterQ * 10000); // 1 - 100000
+                buffer.push(base64IntToCharCode[convertedFilterQ >> 12]);
+                buffer.push(base64IntToCharCode[convertedFilterQ >> 6 & 0x3f]);
+                buffer.push(base64IntToCharCode[convertedFilterQ & 0x3f]);
             }
         }
 
@@ -4072,7 +4092,18 @@ export class Song {
                 buffer.push(base64IntToCharCode[this.eqSubFilters[j + 1]!.controlPointCount]);
                 for (let k: number = 0; k < this.eqSubFilters[j + 1]!.controlPointCount; k++) {
                     const point: FilterControlPoint = this.eqSubFilters[j + 1]!.controlPoints[k];
-                    buffer.push(base64IntToCharCode[point.type], base64IntToCharCode[Math.round(point.freq)], base64IntToCharCode[Math.round(point.gain)]);
+                    
+                    buffer.push(base64IntToCharCode[point.type]);
+
+                    buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+
+                    buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+
+                    // filterQ: 0.0001 - 10.0000
+                    const convertedFilterQ = Math.round(point.filterQ * 10000); // 1 - 100000
+                    buffer.push(base64IntToCharCode[convertedFilterQ >> 12]);
+                    buffer.push(base64IntToCharCode[convertedFilterQ >> 6 & 0x3f]);
+                    buffer.push(base64IntToCharCode[convertedFilterQ & 0x3f]);
                 }
             }
         }
@@ -4127,7 +4158,18 @@ export class Song {
                         buffer.push(base64IntToCharCode[instrument.eqFilter.controlPointCount]);
                         for (let j: number = 0; j < instrument.eqFilter.controlPointCount; j++) {
                             const point: FilterControlPoint = instrument.eqFilter.controlPoints[j];
-                            buffer.push(base64IntToCharCode[point.type], base64IntToCharCode[Math.round(point.freq)], base64IntToCharCode[Math.round(point.gain)]);
+                
+                            buffer.push(base64IntToCharCode[point.type]);
+
+                            buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+
+                            buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+
+                            // filterQ: 0.0001 - 10.0000
+                            const convertedFilterQ = Math.round(point.filterQ * 10000); // 1 - 100000
+                            buffer.push(base64IntToCharCode[convertedFilterQ >> 12]);
+                            buffer.push(base64IntToCharCode[convertedFilterQ >> 6 & 0x3f]);
+                            buffer.push(base64IntToCharCode[convertedFilterQ & 0x3f]);
                         }
                     }
 
@@ -4144,7 +4186,18 @@ export class Song {
                             buffer.push(base64IntToCharCode[instrument.eqSubFilters[j + 1]!.controlPointCount]);
                             for (let k: number = 0; k < instrument.eqSubFilters[j + 1]!.controlPointCount; k++) {
                                 const point: FilterControlPoint = instrument.eqSubFilters[j + 1]!.controlPoints[k];
-                                buffer.push(base64IntToCharCode[point.type], base64IntToCharCode[Math.round(point.freq)], base64IntToCharCode[Math.round(point.gain)]);
+                
+                                buffer.push(base64IntToCharCode[point.type]);
+
+                                buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+
+                                buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+
+                                // filterQ: 0.0001 - 10.0000
+                                const convertedFilterQ = Math.round(point.filterQ * 10000); // 1 - 100000
+                                buffer.push(base64IntToCharCode[convertedFilterQ >> 12]);
+                                buffer.push(base64IntToCharCode[convertedFilterQ >> 6 & 0x3f]);
+                                buffer.push(base64IntToCharCode[convertedFilterQ & 0x3f]);
                             }
                         }
                     }
@@ -4173,7 +4226,18 @@ export class Song {
                             buffer.push(base64IntToCharCode[instrument.noteFilter.controlPointCount]);
                             for (let j: number = 0; j < instrument.noteFilter.controlPointCount; j++) {
                                 const point: FilterControlPoint = instrument.noteFilter.controlPoints[j];
-                                buffer.push(base64IntToCharCode[point.type], base64IntToCharCode[Math.round(point.freq)], base64IntToCharCode[Math.round(point.gain)]);
+                
+                                buffer.push(base64IntToCharCode[point.type]);
+
+                                buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+
+                                buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+
+                                // filterQ: 0.0001 - 10.0000
+                                const convertedFilterQ = Math.round(point.filterQ * 10000); // 1 - 100000
+                                buffer.push(base64IntToCharCode[convertedFilterQ >> 12]);
+                                buffer.push(base64IntToCharCode[convertedFilterQ >> 6 & 0x3f]);
+                                buffer.push(base64IntToCharCode[convertedFilterQ & 0x3f]);
                             }
                         }
 
@@ -4190,7 +4254,18 @@ export class Song {
                                 buffer.push(base64IntToCharCode[instrument.noteSubFilters[j + 1]!.controlPointCount]);
                                 for (let k: number = 0; k < instrument.noteSubFilters[j + 1]!.controlPointCount; k++) {
                                     const point: FilterControlPoint = instrument.noteSubFilters[j + 1]!.controlPoints[k];
-                                    buffer.push(base64IntToCharCode[point.type], base64IntToCharCode[Math.round(point.freq)], base64IntToCharCode[Math.round(point.gain)]);
+                                    
+                                    buffer.push(base64IntToCharCode[point.type]);
+
+                                    buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+
+                                    buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+
+                                    // filterQ: 0.0001 - 10.0000
+                                    const convertedFilterQ = Math.round(point.filterQ * 10000); // 1 - 100000
+                                    buffer.push(base64IntToCharCode[convertedFilterQ >> 12]);
+                                    buffer.push(base64IntToCharCode[convertedFilterQ >> 6 & 0x3f]);
+                                    buffer.push(base64IntToCharCode[convertedFilterQ & 0x3f]);
                                 }
                             }
                         }
@@ -4950,6 +5025,7 @@ export class Song {
         const beforeTen: boolean = version < 10;
         const beforeEleven: boolean = version < 11;
         const beforeTwelve: boolean = version < 12;
+        const beforeThirteen: boolean = version < 13;
         this.initToDefault((fromBeepBox && beforeNine) || ((fromJummBox && beforeFive) || (beforeFour && fromGoldBox)));
         const forceSimpleFilter: boolean = (fromBeepBox && beforeNine || fromJummBox && beforeFive);
         let willLoadLegacySamplesForOldSongs: boolean = false;
@@ -5557,9 +5633,20 @@ export class Song {
                             point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            if (fromFroupBox && !beforeThirteen) {
+                                point.filterQ = (
+                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                ) / 10000;
+                            }
                         }
                         for (let i: number = instrument.eqFilter.controlPointCount; i < originalControlPointCount; i++) {
-                            charIndex += 3;
+                            if (fromFroupBox && !beforeThirteen) {
+                                charIndex += 6;
+                            } else {
+                                charIndex += 3;
+                            }
                         }
 
                         // Get subfilters as well. Skip Index 0, is a copy of the base filter.
@@ -5581,9 +5668,20 @@ export class Song {
                                         point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                         point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                         point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                        if (fromFroupBox && !beforeThirteen) {
+                                            point.filterQ = (
+                                                (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                                + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                                + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                            ) / 10000;
+                                        }
                                     }
                                     for (let i: number = instrument.eqSubFilters[j + 1]!.controlPointCount; i < originalSubfilterControlPointCount; i++) {
-                                        charIndex += 3;
+                                        if (fromFroupBox && !beforeThirteen) {
+                                            charIndex += 6;
+                                        } else {
+                                            charIndex += 3;
+                                        }
                                     }
                                 }
                             }
@@ -5926,9 +6024,20 @@ export class Song {
                             point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                             point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            if (fromFroupBox && !beforeThirteen) {
+                                point.filterQ = (
+                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                ) / 10000;
+                            }
                         }
                         for (let i: number = this.eqFilter.controlPointCount; i < originalControlPointCount; i++) {
-                            charIndex += 3;
+                            if (fromFroupBox && !beforeThirteen) {
+                                charIndex += 6;
+                            } else {
+                                charIndex += 3;
+                            }
                         }
 
                         // Get subfilters as well. Skip Index 0, is a copy of the base filter.
@@ -5949,9 +6058,20 @@ export class Song {
                                     point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                     point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                     point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                    if (fromFroupBox && !beforeThirteen) {
+                                        point.filterQ = (
+                                            (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                            + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                            + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                        ) / 10000;
+                                    }
                                 }
                                 for (let i: number = this.eqSubFilters[j + 1]!.controlPointCount; i < originalSubfilterControlPointCount; i++) {
-                                    charIndex += 3;
+                                    if (fromFroupBox && !beforeThirteen) {
+                                        charIndex += 6;
+                                    } else {
+                                        charIndex += 3;
+                                    }
                                 }
                             }
                         }
@@ -6146,9 +6266,20 @@ export class Song {
                                 point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                 point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                 point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                if (fromFroupBox && !beforeThirteen) {
+                                    point.filterQ = (
+                                        (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                        + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                        + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                    ) / 10000;
+                                }
                             }
                             for (let i: number = instrument.noteFilter.controlPointCount; i < typeCheck; i++) {
-                                charIndex += 3;
+                                if (fromFroupBox && !beforeThirteen) {
+                                    charIndex += 6;
+                                } else {
+                                    charIndex += 3;
+                                }
                             }
 
                             // Get subfilters as well. Skip Index 0, is a copy of the base filter.
@@ -6170,9 +6301,20 @@ export class Song {
                                             point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                             point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
                                             point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                            if (fromFroupBox && !beforeThirteen) {
+                                                point.filterQ = (
+                                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                                ) / 10000;
+                                            }
                                         }
                                         for (let i: number = instrument.noteSubFilters[j + 1]!.controlPointCount; i < originalSubfilterControlPointCount; i++) {
-                                            charIndex += 3;
+                                            if (fromFroupBox && !beforeThirteen) {
+                                                charIndex += 6;
+                                            } else {
+                                                charIndex += 3;
+                                            }
                                         }
                                     }
                                 }

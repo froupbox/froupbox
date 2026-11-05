@@ -42,6 +42,7 @@ export class FilterEditor {
     private _useNoteFilter: boolean = false;
     private _larger: boolean = false;
     private _touchMode: boolean = false;
+    private _changingFilterQ: boolean = false;
     private _mouseX: number = 0;
     private _mouseY: number = 0;
     private _mouseOver: boolean = false;
@@ -139,6 +140,7 @@ export class FilterEditor {
         }
 
         this.container.addEventListener("mousedown", this._whenMousePressed);
+        this.container.addEventListener("contextmenu", (event) => event.preventDefault());
         this.container.addEventListener("mouseover", this._whenMouseOver);
         this.container.addEventListener("mouseout", this._whenMouseOut);
         document.addEventListener("mousemove", this._whenMouseMoved);
@@ -192,6 +194,7 @@ export class FilterEditor {
 
     private _whenMousePressed = (event: MouseEvent): void => {
         event.preventDefault();
+        this._changingFilterQ = (event.button == 2);
         this._touchMode = false;
         const boundingRect: ClientRect = this._svg.getBoundingClientRect();
         this._mouseX = ((event.clientX || event.pageX) - boundingRect.left) * this._editorWidth / (boundingRect.right - boundingRect.left);
@@ -348,6 +351,7 @@ export class FilterEditor {
                     point.type = this._addedType;
                     point.freq = freq;
                     point.gain = gain;
+                    point.filterQ = 1.0;
 
                     if (this._forSong) {
                         sequence.append(new ChangeSongFilterAddPoint(this._doc, this._useFilterSettings, point, this._useFilterSettings.controlPointCount));
@@ -365,43 +369,48 @@ export class FilterEditor {
                 this._dragChange = null;
                 this._mouseDown = false;
             } else {
-                const freqDelta: number = this._xToFreq(this._mouseX) - this._freqStart;
-                const gainDelta: number = this._yToGain(this._mouseY) - this._gainStart;
                 let point: FilterControlPoint = this._useFilterSettings.controlPoints[this._selectedIndex];
-                const gain: number = Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(point.gain + gainDelta)));
-                const freq: number = this._findNearestFreqSlot(this._useFilterSettings, point.freq + freqDelta, this._selectedIndex);
+                if (this._changingFilterQ) {
+                    const newFilterQ = 0.1 * Math.pow(100, Math.max(0.0, Math.min(1.0, 1 - (this._mouseY - 0.5) / (this._editorHeight - 1))));
+                    point.filterQ = Math.round(10000 * Math.max(Config.filterQMin, Math.min(Config.filterQMax, newFilterQ))) / 10000;
+                } else {
+                    const freqDelta: number = this._xToFreq(this._mouseX) - this._freqStart;
+                    const gainDelta: number = this._yToGain(this._mouseY) - this._gainStart;
+                    const gain: number = Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(point.gain + gainDelta)));
+                    const freq: number = this._findNearestFreqSlot(this._useFilterSettings, point.freq + freqDelta, this._selectedIndex);
 
-                if (Math.round(freqDelta) != 0.0 || Math.round(gainDelta) != 0.0 || freq != point.freq || gain != point.gain) {
-                    this._mouseDragging = true;
-                }
-
-                if (freq >= 0 && freq < Config.filterFreqRange) {
-                    if (this._forSong) {
-                        sequence.append(new ChangeSongFilterMovePoint(this._doc, point, point.freq, freq, point.gain, gain, this._selectedIndex));
-                    } else {
-                        sequence.append(new ChangeFilterMovePoint(this._doc, point, point.freq, freq, point.gain, gain, this._useNoteFilter, this._selectedIndex));
+                    if (Math.round(freqDelta) != 0.0 || Math.round(gainDelta) != 0.0 || freq != point.freq || gain != point.gain) {
+                        this._mouseDragging = true;
                     }
-                    if (this.coordText != null) {
-                        this.coordText.innerText = "(" + freq + ", " + gain + ")";
-                        if (!this._writingMods) {
-                            if (this._forSong) {
-                                this._doc.song.tmpEqFilterStart = this._doc.song.eqFilter;
-                                this._doc.song.tmpEqFilterEnd = null;
-                            } else {
-                                const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
-                                instrument.tmpEqFilterStart = instrument.eqFilter;
-                                instrument.tmpEqFilterEnd = null;
-                                instrument.tmpNoteFilterStart = instrument.noteFilter;
-                                instrument.tmpNoteFilterEnd = null;
+
+                    if (freq >= 0 && freq < Config.filterFreqRange) {
+                        if (this._forSong) {
+                            sequence.append(new ChangeSongFilterMovePoint(this._doc, point, point.freq, freq, point.gain, gain, this._selectedIndex));
+                        } else {
+                            sequence.append(new ChangeFilterMovePoint(this._doc, point, point.freq, freq, point.gain, gain, this._useNoteFilter, this._selectedIndex));
+                        }
+                        if (this.coordText != null) {
+                            this.coordText.innerText = "(" + freq + ", " + gain + ")";
+                            if (!this._writingMods) {
+                                if (this._forSong) {
+                                    this._doc.song.tmpEqFilterStart = this._doc.song.eqFilter;
+                                    this._doc.song.tmpEqFilterEnd = null;
+                                } else {
+                                    const instrument: Instrument = this._doc.song.channels[this._doc.channel].instruments[this._doc.getCurrentInstrument()];
+                                    instrument.tmpEqFilterStart = instrument.eqFilter;
+                                    instrument.tmpEqFilterEnd = null;
+                                    instrument.tmpNoteFilterStart = instrument.noteFilter;
+                                    instrument.tmpNoteFilterEnd = null;
+                                }
                             }
                         }
-                    }
-                } else {
-                    if (this._forSong) {
-                        sequence.append(new ChangeSongFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, true));
                     } else {
-                        sequence.append(new ChangeFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, this._useNoteFilter, true));
-                    }                    this._deletingPoint = true;
+                        if (this._forSong) {
+                            sequence.append(new ChangeSongFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, true));
+                        } else {
+                            sequence.append(new ChangeFilterAddPoint(this._doc, this._useFilterSettings, point, this._selectedIndex, this._useNoteFilter, true));
+                        }                    this._deletingPoint = true;
+                    }
                 }
             }
         }
@@ -421,7 +430,7 @@ export class FilterEditor {
         }
 
         if (this.container.offsetParent == null) return;
-        if (this._mouseDown && (this._doc.lastChangeWas(this._dragChange) || this._writingMods) && this._dragChange != null) {
+        if (this._mouseDown && (this._doc.lastChangeWas(this._dragChange) || this._writingMods) && this._dragChange != null && !this._changingFilterQ) {
             if (!this._addingPoint && !this._mouseDragging && !this._touchMode) {
                 if (this._selectedIndex < this._useFilterSettings.controlPointCount && this._selectedIndex != -1) {
                     const point: FilterControlPoint = this._useFilterSettings.controlPoints[this._selectedIndex];
@@ -512,7 +521,7 @@ export class FilterEditor {
                 }
             }
             if ((this._selectedIndex == i || (this._addingPoint && this._mouseDown && i == this._useFilterSettings.controlPointCount - 1)) && (this._mouseOver || this._mouseDown) && !this._deletingPoint) {
-                this._label.textContent = (i + 1) + ": " + Config.filterTypeNames[point.type] + (this._larger ? " @" + prettyNumber(point.getHz()) + "Hz" : "");
+                this._label.textContent = (i + 1) + ": " + Config.filterTypeNames[point.type] + (this._larger ? " @" + prettyNumber(point.getHz()) + "Hz" : "") + ((Config.filterTypeNames[point.type] == "peak" || Config.filterTypeNames[point.type] == "low-shelf" || Config.filterTypeNames[point.type] == "high-shelf") ? ", Q: " + point.filterQ : "" );
             }
 
             if (this._larger) {
@@ -547,7 +556,7 @@ export class FilterEditor {
 
         const response: FrequencyResponse = new FrequencyResponse();
         let responsePath: string = "M 0 " + this._editorHeight + " ";
-        for (let i: number = -1; i <= Config.filterFreqRange; i++) {
+        for (let i: number = -1; i <= Config.filterFreqRange; i += 0.2) {
             const hz: number = FilterControlPoint.getHzFromSettingValue(i);
             const cornerRadiansPerSample: number = 2.0 * Math.PI * hz / standardSampleRate;
             const real: number = Math.cos(cornerRadiansPerSample);
