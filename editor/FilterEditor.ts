@@ -375,11 +375,15 @@ export class FilterEditor {
                 let gainDelta: number = 0;
                 
                 if(this._changingFilterQ) {
-                    if(isNaN(this._qStart))
-                        this._qStart = point.filterQ;
-                    const mouseDelta = this._mouseY - this._mouseYStart;
-                    const newFilterQ = this._qStart * Math.pow(100, -mouseDelta / this._editorHeight);
-                    point.filterQ = Math.round(10000 * Math.max(Config.filterQMin, Math.min(Config.filterQMax, newFilterQ))) / 10000;
+                    if (Config.filterTypeNames[point.type] == "low-pass" || Config.filterTypeNames[point.type] == "high-pass") {
+                        point.filterQ = 1.0;
+                    } else {
+                        if(isNaN(this._qStart))
+                            this._qStart = point.filterQ;
+                        const mouseDelta = this._mouseY - this._mouseYStart;
+                        const newFilterQ = this._qStart * Math.pow(8, -mouseDelta / this._editorHeight);
+                        point.filterQ = Math.round(10000 * Math.max(Config.filterQMin, Math.min(Config.filterQMax, newFilterQ))) / 10000;
+                    }
                 } else {
                     freqDelta = this._xToFreq(this._mouseX) - this._freqStart;
                     gainDelta = this._yToGain(this._mouseY) - this._gainStart;
@@ -398,7 +402,7 @@ export class FilterEditor {
                         sequence.append(new ChangeFilterMovePoint(this._doc, point, point.freq, freq, point.gain, gain, this._useNoteFilter, this._selectedIndex));
                     }
                     if (this.coordText != null) {
-                        if(this._changingFilterQ) {
+                        if(this._changingFilterQ && Config.filterTypeNames[point.type] != "low-pass" && Config.filterTypeNames[point.type] != "high-pass") {
                             this.coordText.innerText = "Q: " + point.filterQ;
                         } else {
                             this.coordText.innerText = "(" + freq + ", " + gain + ")";
