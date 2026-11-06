@@ -1089,7 +1089,7 @@ export class FilterControlPoint {
                 filter.highPass2ndOrderButterworth(cornerRadiansPerSample, linearGain);
                 break;
             case FilterType.peak:
-                filter.peak2ndOrder(cornerRadiansPerSample, linearGain, Math.min((Math.abs(this.gain - 7) / 7) * 1200 * Math.pow(0.84, this.freq), this.filterQ));
+                filter.peak2ndOrder(cornerRadiansPerSample, linearGain, Math.min(Math.max(0.1, (Math.abs(this.gain - 7) / 7)) * 1200 * Math.pow(0.84, this.freq), this.filterQ));
                 break;
             case FilterType.lowShelf:
                 filter.lowShelf2ndOrder(cornerRadiansPerSample, linearGain, this.filterQ);
