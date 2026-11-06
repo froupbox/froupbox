@@ -268,9 +268,9 @@ export class FilterEditor {
             const ratio: number = this._mouseX / this._editorWidth;
             if (ratio < 0.15) {
                 this._addedType = FilterType.highPass;
-            } else if (ratio < 0.3) {
+            } else if (ratio < 0.25) {
                 this._addedType = FilterType.lowShelf;
-            } else if (ratio < 0.7) {
+            } else if (ratio < 0.75) {
                 this._addedType = FilterType.peak;
             } else if (ratio < 0.85) {
                 this._addedType = FilterType.highShelf;
@@ -405,7 +405,7 @@ export class FilterEditor {
                     }
                 }
 
-                if (Math.round(freqDelta) != 0.0 || Math.round(gainDelta) != 0.0 || this._changingFilterQ) {
+                if (freqDelta != 0.0 || gainDelta != 0.0 || this._changingFilterQ) {
                     this._mouseDragging = true;
                 }
 
