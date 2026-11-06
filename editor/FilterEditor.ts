@@ -162,10 +162,10 @@ export class FilterEditor {
     }
 
     private _xToFreq(x: number): number {
-        return Config.filterFreqRange * x / this._editorWidth - 0.5;
+        return (Config.filterFreqRange + 8) * x / this._editorWidth - 0.5 - 8;
     }
     private _freqToX(freq: number): number {
-        return this._editorWidth * (freq + 0.5) / Config.filterFreqRange;
+        return this._editorWidth * (freq + 8 + 0.5) / (Config.filterFreqRange + 8);
     }
     private _yToGain(y: number): number {
         return (Config.filterGainRange - 1) * (1 - (y - .5) / (this._editorHeight - 1));
@@ -344,9 +344,16 @@ export class FilterEditor {
             this._doc.setProspectiveChange(this._dragChange);
 
             if (this._addingPoint) {
-                const gain: number = Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(this._yToGain(this._mouseY))));
-                const freq: number = this._findNearestFreqSlot(this._useFilterSettings, this._xToFreq(this._mouseX), -1);
-                if (freq >= 0 && freq < Config.filterFreqRange) {
+                const gain: number = Math.round(10000 * Math.max(0, Math.min(Config.filterGainRange - 1, this._yToGain(this._mouseY)))) / 10000;
+                let freq: number = Math.round(10000 * this._xToFreq(this._mouseX)) / 10000;
+                if (freq < -8 || freq > 33) {
+                    if (freq > -9 || freq < 34) {
+                        freq = Math.trunc(freq);
+                    } else {
+                        freq *= 2; // put it outside of the range so it is removed
+                    }
+                }
+                if (freq >= -8 && freq < Config.filterFreqRange) {
                     const point: FilterControlPoint = new FilterControlPoint();
                     point.type = this._addedType;
                     point.freq = freq;
@@ -388,14 +395,21 @@ export class FilterEditor {
                     freqDelta = this._xToFreq(this._mouseX) - this._freqStart;
                     gainDelta = this._yToGain(this._mouseY) - this._gainStart;
                 }
-                const gain: number = Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(point.gain + gainDelta)));
-                const freq: number = this._findNearestFreqSlot(this._useFilterSettings, point.freq + freqDelta, this._selectedIndex);
+                const gain: number = Math.round(10000 * Math.max(0, Math.min(Config.filterGainRange - 1, point.gain + gainDelta))) / 10000;
+                let freq: number = Math.round(10000 * (point.freq + freqDelta)) / 10000;
+                if (freq < -8 || freq > 33) {
+                    if (freq > -9 || freq < 34) {
+                        freq = Math.trunc(freq);
+                    } else {
+                        freq *= 2; // put it outside of the range so it is removed
+                    }
+                }
 
                 if (Math.round(freqDelta) != 0.0 || Math.round(gainDelta) != 0.0 || this._changingFilterQ) {
                     this._mouseDragging = true;
                 }
 
-                if (freq >= 0 && freq < Config.filterFreqRange) {
+                if (freq >= -8 && freq < Config.filterFreqRange) {
                     if (this._forSong) {
                         sequence.append(new ChangeSongFilterMovePoint(this._doc, point, point.freq, freq, point.gain, gain, this._selectedIndex));
                     } else {
@@ -479,28 +493,6 @@ export class FilterEditor {
         this._updateCursor();
     }
 
-    private _findNearestFreqSlot(filterSettings: FilterSettings, targetFreq: number, ignoreIndex: number): number {
-        const roundedFreq: number = Math.round(targetFreq);
-        let lowerFreq: number = roundedFreq;
-        let upperFreq: number = roundedFreq;
-        let tryingLower: boolean = (roundedFreq <= targetFreq);
-        while (true) {
-            let foundConflict: boolean = false;
-            const currentFreq: number = tryingLower ? lowerFreq : upperFreq;
-            for (let i: number = 0; i < filterSettings.controlPointCount; i++) {
-                if (i == ignoreIndex) continue;
-                if (filterSettings.controlPoints[i].freq == currentFreq) {
-                    foundConflict = true;
-                    break;
-                }
-            }
-            if (!foundConflict) return currentFreq;
-            tryingLower = !tryingLower;
-            if (tryingLower) lowerFreq--;
-            if (!tryingLower) upperFreq++;
-        }
-    }
-
     private static _circlePath(cx: number, cy: number, radius: number, reverse: boolean = false): string {
         return `M ${cx - radius} ${cy} ` +
             `a ${radius} ${radius} 0 1 ${reverse ? 1 : 0} ${radius * 2} 0 ` +
@@ -571,7 +563,7 @@ export class FilterEditor {
 
         const response: FrequencyResponse = new FrequencyResponse();
         let responsePath: string = "M 0 " + this._editorHeight + " ";
-        for (let i: number = -1; i <= Config.filterFreqRange; i += 0.2) {
+        for (let i: number = -9; i <= Config.filterFreqRange; i += 0.2) {
             const hz: number = FilterControlPoint.getHzFromSettingValue(i);
             const cornerRadiansPerSample: number = 2.0 * Math.PI * hz / standardSampleRate;
             const real: number = Math.cos(cornerRadiansPerSample);

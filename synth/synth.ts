@@ -1162,7 +1162,7 @@ export class FilterSettings {
             const point: FilterControlPoint = this.controlPoints[i];
             filterArray.push({
                 "type": Config.filterTypeNames[point.type],
-                "cutoffHz": Math.round(point.getHz() * 100) / 100,
+                "cutoffHz": Math.round(point.getHz() * 10000) / 10000,
                 "linearGain": Math.round(point.getLinearGain() * 10000) / 10000,
                 "filterQ": Math.round(point.filterQ * 10000) / 10000,
             });
@@ -4066,9 +4066,18 @@ export class Song {
 
                 buffer.push(base64IntToCharCode[point.type]);
 
-                buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+                // freq: -8.0000 - 33.0000
+                const convertedFilterFreq = Math.round((point.freq + 8.0) * 10000); // 0 - 410000
+                buffer.push(base64IntToCharCode[convertedFilterFreq >> 18]);
+                buffer.push(base64IntToCharCode[convertedFilterFreq >> 12 & 0x3f]);
+                buffer.push(base64IntToCharCode[convertedFilterFreq >> 6 & 0x3f]);
+                buffer.push(base64IntToCharCode[convertedFilterFreq & 0x3f]);
 
-                buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+                // gain: 0.0000 - 14.0000
+                const convertedFilterGain = Math.round(point.gain * 10000); // 0 - 140000
+                buffer.push(base64IntToCharCode[convertedFilterGain >> 12]);
+                buffer.push(base64IntToCharCode[convertedFilterGain >> 6 & 0x3f]);
+                buffer.push(base64IntToCharCode[convertedFilterGain & 0x3f]);
 
                 if (Config.filterTypeNames[point.type] == "low-pass" || Config.filterTypeNames[point.type] == "high-pass") {
                     point.filterQ = 1.0;
@@ -4098,9 +4107,18 @@ export class Song {
                     
                     buffer.push(base64IntToCharCode[point.type]);
 
-                    buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+                    // freq: -8.0000 - 33.0000
+                    const convertedFilterFreq = Math.round((point.freq + 8.0) * 10000); // 0 - 410000
+                    buffer.push(base64IntToCharCode[convertedFilterFreq >> 18]);
+                    buffer.push(base64IntToCharCode[convertedFilterFreq >> 12 & 0x3f]);
+                    buffer.push(base64IntToCharCode[convertedFilterFreq >> 6 & 0x3f]);
+                    buffer.push(base64IntToCharCode[convertedFilterFreq & 0x3f]);
 
-                    buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+                    // gain: 0.0000 - 14.0000
+                    const convertedFilterGain = Math.round(point.gain * 10000); // 0 - 140000
+                    buffer.push(base64IntToCharCode[convertedFilterGain >> 12]);
+                    buffer.push(base64IntToCharCode[convertedFilterGain >> 6 & 0x3f]);
+                    buffer.push(base64IntToCharCode[convertedFilterGain & 0x3f]);
 
                     if (Config.filterTypeNames[point.type] == "low-pass" || Config.filterTypeNames[point.type] == "high-pass") {
                         point.filterQ = 1.0;
@@ -4168,9 +4186,18 @@ export class Song {
                 
                             buffer.push(base64IntToCharCode[point.type]);
 
-                            buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+                            // freq: -8.0000 - 33.0000
+                            const convertedFilterFreq = Math.round((point.freq + 8.0) * 10000); // 0 - 410000
+                            buffer.push(base64IntToCharCode[convertedFilterFreq >> 18]);
+                            buffer.push(base64IntToCharCode[convertedFilterFreq >> 12 & 0x3f]);
+                            buffer.push(base64IntToCharCode[convertedFilterFreq >> 6 & 0x3f]);
+                            buffer.push(base64IntToCharCode[convertedFilterFreq & 0x3f]);
 
-                            buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+                            // gain: 0.0000 - 14.0000
+                            const convertedFilterGain = Math.round(point.gain * 10000); // 0 - 140000
+                            buffer.push(base64IntToCharCode[convertedFilterGain >> 12]);
+                            buffer.push(base64IntToCharCode[convertedFilterGain >> 6 & 0x3f]);
+                            buffer.push(base64IntToCharCode[convertedFilterGain & 0x3f]);
 
                             if (Config.filterTypeNames[point.type] == "low-pass" || Config.filterTypeNames[point.type] == "high-pass") {
                                 point.filterQ = 1.0;
@@ -4200,9 +4227,18 @@ export class Song {
                 
                                 buffer.push(base64IntToCharCode[point.type]);
 
-                                buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+                                // freq: -8.0000 - 33.0000
+                                const convertedFilterFreq = Math.round((point.freq + 8.0) * 10000); // 0 - 410000
+                                buffer.push(base64IntToCharCode[convertedFilterFreq >> 18]);
+                                buffer.push(base64IntToCharCode[convertedFilterFreq >> 12 & 0x3f]);
+                                buffer.push(base64IntToCharCode[convertedFilterFreq >> 6 & 0x3f]);
+                                buffer.push(base64IntToCharCode[convertedFilterFreq & 0x3f]);
 
-                                buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+                                // gain: 0.0000 - 14.0000
+                                const convertedFilterGain = Math.round(point.gain * 10000); // 0 - 140000
+                                buffer.push(base64IntToCharCode[convertedFilterGain >> 12]);
+                                buffer.push(base64IntToCharCode[convertedFilterGain >> 6 & 0x3f]);
+                                buffer.push(base64IntToCharCode[convertedFilterGain & 0x3f]);
 
                                 if (Config.filterTypeNames[point.type] == "low-pass" || Config.filterTypeNames[point.type] == "high-pass") {
                                     point.filterQ = 1.0;
@@ -4244,9 +4280,18 @@ export class Song {
                 
                                 buffer.push(base64IntToCharCode[point.type]);
 
-                                buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+                                // freq: -8.0000 - 33.0000
+                                const convertedFilterFreq = Math.round((point.freq + 8.0) * 10000); // 0 - 410000
+                                buffer.push(base64IntToCharCode[convertedFilterFreq >> 18]);
+                                buffer.push(base64IntToCharCode[convertedFilterFreq >> 12 & 0x3f]);
+                                buffer.push(base64IntToCharCode[convertedFilterFreq >> 6 & 0x3f]);
+                                buffer.push(base64IntToCharCode[convertedFilterFreq & 0x3f]);
 
-                                buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+                                // gain: 0.0000 - 14.0000
+                                const convertedFilterGain = Math.round(point.gain * 10000); // 0 - 140000
+                                buffer.push(base64IntToCharCode[convertedFilterGain >> 12]);
+                                buffer.push(base64IntToCharCode[convertedFilterGain >> 6 & 0x3f]);
+                                buffer.push(base64IntToCharCode[convertedFilterGain & 0x3f]);
 
                                 if (Config.filterTypeNames[point.type] == "low-pass" || Config.filterTypeNames[point.type] == "high-pass") {
                                     point.filterQ = 1.0;
@@ -4276,9 +4321,18 @@ export class Song {
                                     
                                     buffer.push(base64IntToCharCode[point.type]);
 
-                                    buffer.push(base64IntToCharCode[Math.round(point.freq)]);
+                                    // freq: -8.0000 - 33.0000
+                                    const convertedFilterFreq = Math.round((point.freq + 8.0) * 10000); // 0 - 410000
+                                    buffer.push(base64IntToCharCode[convertedFilterFreq >> 18]);
+                                    buffer.push(base64IntToCharCode[convertedFilterFreq >> 12 & 0x3f]);
+                                    buffer.push(base64IntToCharCode[convertedFilterFreq >> 6 & 0x3f]);
+                                    buffer.push(base64IntToCharCode[convertedFilterFreq & 0x3f]);
 
-                                    buffer.push(base64IntToCharCode[Math.round(point.gain)]);
+                                    // gain: 0.0000 - 14.0000
+                                    const convertedFilterGain = Math.round(point.gain * 10000); // 0 - 140000
+                                    buffer.push(base64IntToCharCode[convertedFilterGain >> 12]);
+                                    buffer.push(base64IntToCharCode[convertedFilterGain >> 6 & 0x3f]);
+                                    buffer.push(base64IntToCharCode[convertedFilterGain & 0x3f]);
 
                                     if (Config.filterTypeNames[point.type] == "low-pass" || Config.filterTypeNames[point.type] == "high-pass") {
                                         point.filterQ = 1.0;
@@ -5654,9 +5708,24 @@ export class Song {
                         for (let i: number = 0; i < instrument.eqFilter.controlPointCount; i++) {
                             const point: FilterControlPoint = instrument.eqFilter.controlPoints[i];
                             point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                            point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                            point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            if (beforeThirteen) {
+                                point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            }
                             if (fromFroupBox && !beforeThirteen) {
+                                point.freq = -8.0 + (
+                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
+                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                ) / 10000;
+
+                                point.gain = (
+                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                ) / 10000;
+
                                 point.filterQ = (
                                     (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
                                     + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
@@ -5667,7 +5736,7 @@ export class Song {
                         }
                         for (let i: number = instrument.eqFilter.controlPointCount; i < originalControlPointCount; i++) {
                             if (fromFroupBox && !beforeThirteen) {
-                                charIndex += 7;
+                                charIndex += 12;
                             } else {
                                 charIndex += 3;
                             }
@@ -5690,9 +5759,24 @@ export class Song {
                                     for (let i: number = 0; i < instrument.eqSubFilters[j + 1]!.controlPointCount; i++) {
                                         const point: FilterControlPoint = instrument.eqSubFilters[j + 1]!.controlPoints[i];
                                         point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                        point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                        point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                        if (beforeThirteen) {
+                                            point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                            point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                        }
                                         if (fromFroupBox && !beforeThirteen) {
+                                            point.freq = -8.0 + (
+                                                (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
+                                                + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                                + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                                + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                            ) / 10000;
+
+                                            point.gain = (
+                                                (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                                + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                                + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                            ) / 10000;
+
                                             point.filterQ = (
                                                 (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
                                                 + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
@@ -5703,7 +5787,7 @@ export class Song {
                                     }
                                     for (let i: number = instrument.eqSubFilters[j + 1]!.controlPointCount; i < originalSubfilterControlPointCount; i++) {
                                         if (fromFroupBox && !beforeThirteen) {
-                                            charIndex += 7;
+                                            charIndex += 12;
                                         } else {
                                             charIndex += 3;
                                         }
@@ -6047,9 +6131,24 @@ export class Song {
                         for (let i: number = 0; i < this.eqFilter.controlPointCount; i++) {
                             const point: FilterControlPoint = this.eqFilter.controlPoints[i];
                             point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                            point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                            point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            if (beforeThirteen) {
+                                point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                            }
                             if (fromFroupBox && !beforeThirteen) {
+                                point.freq = -8.0 + (
+                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
+                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                ) / 10000;
+
+                                point.gain = (
+                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                ) / 10000;
+
                                 point.filterQ = (
                                     (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
                                     + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
@@ -6060,7 +6159,7 @@ export class Song {
                         }
                         for (let i: number = this.eqFilter.controlPointCount; i < originalControlPointCount; i++) {
                             if (fromFroupBox && !beforeThirteen) {
-                                charIndex += 7;
+                                charIndex += 12;
                             } else {
                                 charIndex += 3;
                             }
@@ -6082,9 +6181,24 @@ export class Song {
                                 for (let i: number = 0; i < this.eqSubFilters[j + 1]!.controlPointCount; i++) {
                                     const point: FilterControlPoint = this.eqSubFilters[j + 1]!.controlPoints[i];
                                     point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                    point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                    point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                    if (beforeThirteen) {
+                                        point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                        point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                    }
                                     if (fromFroupBox && !beforeThirteen) {
+                                        point.freq = -8.0 + (
+                                            (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
+                                            + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                            + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                            + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                        ) / 10000;
+
+                                        point.gain = (
+                                            (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                            + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                            + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                        ) / 10000;
+
                                         point.filterQ = (
                                             (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
                                             + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
@@ -6095,7 +6209,7 @@ export class Song {
                                 }
                                 for (let i: number = this.eqSubFilters[j + 1]!.controlPointCount; i < originalSubfilterControlPointCount; i++) {
                                     if (fromFroupBox && !beforeThirteen) {
-                                        charIndex += 7;
+                                        charIndex += 12;
                                     } else {
                                         charIndex += 3;
                                     }
@@ -6291,9 +6405,24 @@ export class Song {
                             for (let i: number = 0; i < instrument.noteFilter.controlPointCount; i++) {
                                 const point: FilterControlPoint = instrument.noteFilter.controlPoints[i];
                                 point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                if (beforeThirteen) {
+                                    point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                    point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                }
                                 if (fromFroupBox && !beforeThirteen) {
+                                    point.freq = -8.0 + (
+                                        (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
+                                        + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                        + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                        + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                    ) / 10000;
+
+                                    point.gain = (
+                                        (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                        + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                        + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                    ) / 10000;
+
                                     point.filterQ = (
                                         (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
                                         + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
@@ -6304,7 +6433,7 @@ export class Song {
                             }
                             for (let i: number = instrument.noteFilter.controlPointCount; i < typeCheck; i++) {
                                 if (fromFroupBox && !beforeThirteen) {
-                                    charIndex += 7;
+                                    charIndex += 12;
                                 } else {
                                     charIndex += 3;
                                 }
@@ -6327,9 +6456,24 @@ export class Song {
                                         for (let i: number = 0; i < instrument.noteSubFilters[j + 1]!.controlPointCount; i++) {
                                             const point: FilterControlPoint = instrument.noteSubFilters[j + 1]!.controlPoints[i];
                                             point.type = clamp(0, FilterType.length, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                            point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
-                                            point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                            if (beforeThirteen) {
+                                                point.freq = clamp(0, Config.filterFreqRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                                point.gain = clamp(0, Config.filterGainRange, base64CharCodeToInt[compressed.charCodeAt(charIndex++)]);
+                                            }
                                             if (fromFroupBox && !beforeThirteen) {
+                                                point.freq = -8.0 + (
+                                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
+                                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                                ) / 10000;
+
+                                                point.gain = (
+                                                    (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
+                                                    + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 6) 
+                                                    + base64CharCodeToInt[compressed.charCodeAt(charIndex++)]
+                                                ) / 10000;
+
                                                 point.filterQ = (
                                                     (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 18) 
                                                     + (base64CharCodeToInt[compressed.charCodeAt(charIndex++)] << 12) 
@@ -6340,7 +6484,7 @@ export class Song {
                                         }
                                         for (let i: number = instrument.noteSubFilters[j + 1]!.controlPointCount; i < originalSubfilterControlPointCount; i++) {
                                             if (fromFroupBox && !beforeThirteen) {
-                                                charIndex += 7;
+                                                charIndex += 12;
                                             } else {
                                                 charIndex += 3;
                                             }
