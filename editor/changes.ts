@@ -756,7 +756,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
                 if (Math.random() > potentialPoint.chance) continue;
                 const point: FilterControlPoint = new FilterControlPoint();
                 point.type = potentialPoint.type;
-                point.freq = selectCurvedDistribution(potentialPoint.minFreq, potentialPoint.maxFreq, FilterControlPoint.getRoundedSettingValueFromHz(potentialPoint.centerHz), 1.0 / Config.filterFreqStep);
+                point.freq = selectCurvedDistribution(potentialPoint.minFreq, potentialPoint.maxFreq, FilterControlPoint.getSettingValueFromHz(potentialPoint.centerHz), 1.0 / Config.filterFreqStep);
                 point.gain = selectCurvedDistribution(0, Config.filterGainRange - 1, Config.filterGainCenter + potentialPoint.centerGain, 2.0 / Config.filterGainStep);
                 if (point.type == FilterType.peak && point.gain == Config.filterGainCenter) continue; // skip pointless points. :P
                 if (usedFreqs.includes(point.freq)) continue;
@@ -772,7 +772,7 @@ export class ChangeRandomGeneratedInstrument extends Change {
         instrument.aliases = false;
         instrument.envelopeCount = 0;
 
-        const midFreq: number = FilterControlPoint.getRoundedSettingValueFromHz(700.0);
+        const midFreq: number = FilterControlPoint.getSettingValueFromHz(700.0);
         const maxFreq: number = Config.filterFreqRange - 1;
         applyFilterPoints(instrument.eqFilter, [
             new PotentialFilterPoint(0.8, FilterType.lowPass, midFreq, maxFreq, 4000.0, -1),

@@ -1067,9 +1067,6 @@ export class FilterControlPoint {
     public static getSettingValueFromHz(hz: number): number {
         return Math.log2(hz / Config.filterFreqReferenceHz) / Config.filterFreqStep + Config.filterFreqReferenceSetting;
     }
-    public static getRoundedSettingValueFromHz(hz: number): number {
-        return Math.max(0, Math.min(Config.filterFreqRange - 1, Math.round(FilterControlPoint.getSettingValueFromHz(hz))));
-    }
 
     public getLinearGain(peakMult: number = 1.0): number {
         const power: number = (this.gain - Config.filterGainCenter) * Config.filterGainStep;
@@ -1077,8 +1074,8 @@ export class FilterControlPoint {
         const interpolatedPower: number = neutral + (power - neutral) * peakMult;
         return Math.pow(2.0, interpolatedPower);
     }
-    public static getRoundedSettingValueFromLinearGain(linearGain: number): number {
-        return Math.max(0, Math.min(Config.filterGainRange - 1, Math.round(Math.log2(linearGain) / Config.filterGainStep + Config.filterGainCenter)));
+    public static getSettingValueFromLinearGain(linearGain: number): number {
+        return Math.max(0, Math.min(Config.filterGainRange - 1, Math.log2(linearGain) / Config.filterGainStep + Config.filterGainCenter));
     }
 
     public toCoefficients(filter: FilterCoefficients, sampleRate: number, freqMult: number = 1.0, peakMult: number = 1.0): void {
@@ -1178,12 +1175,12 @@ export class FilterSettings {
                 point.type = Config.filterTypeNames.indexOf(pointObject["type"]);
                 if (<any>point.type == -1) point.type = FilterType.peak;
                 if (pointObject["cutoffHz"] != undefined) {
-                    point.freq = FilterControlPoint.getRoundedSettingValueFromHz(pointObject["cutoffHz"]);
+                    point.freq = FilterControlPoint.getSettingValueFromHz(pointObject["cutoffHz"]);
                 } else {
                     point.freq = 0;
                 }
                 if (pointObject["linearGain"] != undefined) {
-                    point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(pointObject["linearGain"]);
+                    point.gain = FilterControlPoint.getSettingValueFromLinearGain(pointObject["linearGain"]);
                 } else {
                     point.gain = Config.filterGainCenter;
                 }
@@ -1275,7 +1272,7 @@ export class FilterSettings {
             const targetRadians: number = legacyRadians * Math.pow(2.0, extraOctaves);
             const curvedRadians: number = targetRadians / (1.0 + targetRadians / Math.PI);
             const curvedHz: number = standardSampleRate * curvedRadians / (2.0 * Math.PI)
-            const freqSetting: number = FilterControlPoint.getRoundedSettingValueFromHz(curvedHz);
+            const freqSetting: number = FilterControlPoint.getSettingValueFromHz(curvedHz);
             const finalHz: number = FilterControlPoint.getHzFromSettingValue(freqSetting);
             const finalRadians: number = 2.0 * Math.PI * finalHz / standardSampleRate;
 
@@ -1291,7 +1288,7 @@ export class FilterSettings {
             // Decaying envelopes move the cutoff frequency back into an area where the best approximation of the first order slope requires a lower gain setting.
             if (envDecays) logGain = Math.min(logGain, -1.0);
             const convertedGain: number = Math.pow(2.0, logGain);
-            const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
+            const gainSetting: number = FilterControlPoint.getSettingValueFromLinearGain(convertedGain);
 
             this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
         } else {
@@ -1307,7 +1304,7 @@ export class FilterSettings {
             } else {
                 curvedHz = standardSampleRate * curvedRadians / (2.0 * Math.PI);
             }
-            const freqSetting: number = FilterControlPoint.getRoundedSettingValueFromHz(curvedHz);
+            const freqSetting: number = FilterControlPoint.getSettingValueFromHz(curvedHz);
 
             let legacyFilterGain: number;
             if (envDecays) {
@@ -1320,7 +1317,7 @@ export class FilterSettings {
                 legacyFilterGain = response.magnitude();
             }
             if (!resonant) legacyFilterGain = Math.min(legacyFilterGain, Math.sqrt(0.5));
-            const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
+            const gainSetting: number = FilterControlPoint.getSettingValueFromLinearGain(legacyFilterGain);
 
             this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
         }
@@ -1355,7 +1352,7 @@ export class FilterSettings {
             const targetRadians: number = legacyRadians * Math.pow(2.0, extraOctaves);
             const curvedRadians: number = targetRadians / (1.0 + targetRadians / Math.PI);
             const curvedHz: number = standardSampleRate * curvedRadians / (2.0 * Math.PI)
-            const freqSetting: number = FilterControlPoint.getRoundedSettingValueFromHz(curvedHz);
+            const freqSetting: number = FilterControlPoint.getSettingValueFromHz(curvedHz);
             const finalHz: number = FilterControlPoint.getHzFromSettingValue(freqSetting);
             const finalRadians: number = 2.0 * Math.PI * finalHz / standardSampleRate;
 
@@ -1369,7 +1366,7 @@ export class FilterSettings {
             // Bias slightly toward 2^(-extraOctaves):
             logGain = -extraOctaves + (logGain + extraOctaves) * 0.82;
             const convertedGain: number = Math.pow(2.0, logGain);
-            const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(convertedGain);
+            const gainSetting: number = FilterControlPoint.getSettingValueFromLinearGain(convertedGain);
 
             this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
         } else {
@@ -1391,7 +1388,7 @@ export class FilterSettings {
             const response: FrequencyResponse = new FrequencyResponse();
             response.analyze(legacyFilter, curvedRadians);
             legacyFilterGain = response.magnitude();
-            const gainSetting: number = FilterControlPoint.getRoundedSettingValueFromLinearGain(legacyFilterGain);
+            const gainSetting: number = FilterControlPoint.getSettingValueFromLinearGain(legacyFilterGain);
 
             this.addPoint(FilterType.lowPass, freqSetting, gainSetting);
         }
@@ -14005,8 +14002,8 @@ export class Synth {
 
             const point: FilterControlPoint = this.tempDrumSetControlPoint;
             point.type = FilterType.lowPass;
-            point.gain = FilterControlPoint.getRoundedSettingValueFromLinearGain(0.50);
-            point.freq = FilterControlPoint.getRoundedSettingValueFromHz(8000.0);
+            point.gain = FilterControlPoint.getSettingValueFromLinearGain(0.50);
+            point.freq = FilterControlPoint.getSettingValueFromHz(8000.0);
             // Drumset envelopes are warped to better imitate the legacy simplified 2nd order lowpass at ~48000Hz that I used to use.
             point.toCoefficients(Synth.tempFilterStartCoefficients, this.samplesPerSecond, drumsetFilterEnvelopeStart * (1.0 + drumsetFilterEnvelopeStart), 1.0);
             point.toCoefficients(Synth.tempFilterEndCoefficients, this.samplesPerSecond, drumsetFilterEnvelopeEnd * (1.0 + drumsetFilterEnvelopeEnd), 1.0);
