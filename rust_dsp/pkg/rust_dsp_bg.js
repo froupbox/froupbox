@@ -415,11 +415,10 @@ export class DspBuffer {
         return this;
     }
     /**
-     * @returns {number}
+     * @param {number} run_length
      */
-    get run_length() {
-        const ret = wasm.__wbg_get_dspbuffer_run_length(this.__wbg_ptr);
-        return ret >>> 0;
+    set run_length(run_length) {
+        wasm.dspbuffer_set_run_length(this.__wbg_ptr, run_length);
     }
     /**
      * @returns {number}
@@ -427,12 +426,6 @@ export class DspBuffer {
     get sample_rate() {
         const ret = wasm.__wbg_get_dspbuffer_sample_rate(this.__wbg_ptr);
         return ret;
-    }
-    /**
-     * @param {number} arg0
-     */
-    set run_length(arg0) {
-        wasm.__wbg_set_dspbuffer_run_length(this.__wbg_ptr, arg0);
     }
     /**
      * @param {number} arg0

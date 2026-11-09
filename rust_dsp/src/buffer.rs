@@ -1,12 +1,11 @@
-
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[derive(Default)]
 pub struct DspBuffer {
     buffer: Box<[f32]>,
+    run_length: usize,
     pub sample_rate: f32,
-    pub run_length: usize,
 }
 #[wasm_bindgen]
 impl DspBuffer {
@@ -21,8 +20,21 @@ impl DspBuffer {
     pub fn buffer(&mut self) -> js_sys::Float32Array {
         unsafe { js_sys::Float32Array::view(&self.buffer) }
     }
+    #[wasm_bindgen(setter)]
+    pub fn set_run_length(&mut self, run_length: usize) {
+        self.run_length = run_length;
+        if self.buffer.len() / 2 < run_length {
+            // when bpm changes fast, run length can occasionally grow above the buffer size during export.
+            // i don't know why this only breaks during export and not playing in the editor
+            self.buffer = vec![0.0; run_length.next_power_of_two() * 2].into_boxed_slice()
+        }
+    }
 }
 impl DspBuffer {
+    pub fn run_length(&self) -> usize {
+        self.run_length
+    }
+
     pub fn frame_size(&self) -> usize {
         self.buffer.len() / 2
     }

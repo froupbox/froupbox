@@ -15577,10 +15577,10 @@ export class Synth {
           const usesRustDsp = instrumentState.dspBuffer !== undefined;
           let dspBufL, dspBufR;
           if(usesRustDsp) {
+            instrumentState.dspBuffer.run_length = runLength;
             const arr = instrumentState.dspBuffer.buffer;
             dspBufL = arr.subarray(0, runLength);
             dspBufR = arr.subarray(arr.length / 2, arr.length / 2 + runLength);
-            instrumentState.dspBuffer.run_length = runLength;
             instrumentState.dspBuffer.sample_rate = synth.samplesPerSecond;
           }
           `;

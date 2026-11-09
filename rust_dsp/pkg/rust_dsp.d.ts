@@ -60,7 +60,7 @@ export class DspBuffer {
     [Symbol.dispose](): void;
     constructor(frame_size: number);
     readonly buffer: Float32Array;
-    run_length: number;
+    set run_length(value: number);
     sample_rate: number;
 }
 

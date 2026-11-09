@@ -147,7 +147,7 @@ impl ColourizerInstance {
         if self.output_buf.frame_size() != buffer.frame_size() {
             self.output_buf = DspBuffer::new(buffer.frame_size());
         }
-        self.output_buf.run_length = buffer.run_length;
+        self.output_buf.set_run_length(buffer.run_length());
 
         let flangers = &mut self.flangers[..self.num_active_flangers];
         if cfg!(debug_assertions) {
