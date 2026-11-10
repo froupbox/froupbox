@@ -15531,6 +15531,8 @@ export class Synth {
         // TODO: If automation is involved, don't assume sliders will stay at zero.
         // @jummbus - ^ Correct, removed the non-zero checks as modulation can change them.
 
+        const hasRustDsp = rustDsp !== undefined;
+        
         const usesDistortion: boolean = effectsIncludeDistortion(instrumentState.effects);
         const usesBitcrusher: boolean = effectsIncludeBitcrusher(instrumentState.effects);
         const usesEqFilter: boolean = instrumentState.eqFilterCount > 0;
@@ -15540,11 +15542,12 @@ export class Synth {
         const usesReverb: boolean = effectsIncludeReverb(instrumentState.effects);
         const usesGranular: boolean = effectsIncludeGranular(instrumentState.effects);
         const usesRingModulation: boolean = effectsIncludeRingModulation(instrumentState.effects);
-        const usesPhaser: boolean = effectsIncludePhaser(instrumentState.effects);
-        const usesFlanger: boolean = effectsIncludeFlanger(instrumentState.effects);
-        const usesColorizer: boolean = effectsIncludeColorizer(instrumentState.effects);
+        const usesPhaser: boolean = hasRustDsp && effectsIncludePhaser(instrumentState.effects);
+        const usesFlanger: boolean = hasRustDsp && effectsIncludeFlanger(instrumentState.effects);
+        const usesColorizer: boolean = hasRustDsp && effectsIncludeColorizer(instrumentState.effects);
         const usesInvertWave: boolean = effectsIncludeInvertWave(instrumentState.effects) && instrumentState.invertWave;
-        const usesCompressor: boolean = effectsIncludeCompressor(instrumentState.effects);
+        const usesCompressor: boolean = hasRustDsp && effectsIncludeCompressor(instrumentState.effects);
+        
         let signature: number = 0; if (usesDistortion) signature = signature | 1;
         signature = signature << 1; if (usesBitcrusher) signature = signature | 1;
         signature = signature << 1; if (usesEqFilter) signature = signature | 1;
@@ -15562,8 +15565,8 @@ export class Synth {
 
         const usesRustDsp = usesFlanger || usesColorizer || usesCompressor;
         if (usesRustDsp) {
-          if (rustDsp && !instrumentState.dspBuffer)
-            instrumentState.dspBuffer = new rustDsp.DspBuffer(4096); // max frame size is currently 4096
+          if (!instrumentState.dspBuffer)
+            instrumentState.dspBuffer = new rustDsp.DspBuffer(4096);
         } else if (instrumentState.dspBuffer) {
           instrumentState.dspBuffer.free();
           instrumentState.dspBuffer = undefined;
@@ -15573,17 +15576,17 @@ export class Synth {
         if (effectsFunction == undefined) {
           let effectsSource: string = "return (synth, outputDataL, outputDataR, bufferIndex, runLength, instrumentState) => {";
 
-          effectsSource += `
-          const usesRustDsp = instrumentState.dspBuffer !== undefined;
-          let dspBufL, dspBufR;
           if(usesRustDsp) {
+          effectsSource += `
+            if (!instrumentState.dspBuffer)
+                instrumentState.dspBuffer = new rustDsp.DspBuffer(4096);
             instrumentState.dspBuffer.run_length = runLength;
-            const arr = instrumentState.dspBuffer.buffer;
-            dspBufL = arr.subarray(0, runLength);
-            dspBufR = arr.subarray(arr.length / 2, arr.length / 2 + runLength);
             instrumentState.dspBuffer.sample_rate = synth.samplesPerSecond;
-          }
+            const arr = instrumentState.dspBuffer.buffer;
+            let dspBufL = arr.subarray(0, runLength);
+            let dspBufR = arr.subarray(arr.length / 2, arr.length / 2 + runLength);
           `;
+          }
 
             const usesDelays: boolean = usesChorus || usesReverb || usesEcho || usesGranular;
 
@@ -16236,15 +16239,25 @@ export class Synth {
                 `
             }
 
+        if(usesRustDsp) {
+            // these may have to be recalculated because reallocating (e.g. setting phaser.num_stages) can invalidate the buffer
           effectsSource += `
-          if (usesRustDsp) {
-  					dspBufL[sampleIndex - bufferIndex] = sampleL;
-  					dspBufR[sampleIndex - bufferIndex] = sampleR;
-          } else {
-            outputDataL[sampleIndex] += sampleL * mixVolume;
-  					outputDataR[sampleIndex] += sampleR * mixVolume;
-  					mixVolume += mixVolumeDelta;
-          }`;
+          if(dspBufL.length !== runLength) {
+            const arr = instrumentState.dspBuffer.buffer;
+            dspBufL = arr.subarray(0, runLength);
+            dspBufR = arr.subarray(arr.length / 2, arr.length / 2 + runLength);
+          }
+          dspBufL[sampleIndex - bufferIndex] = sampleL;
+          dspBufR[sampleIndex - bufferIndex] = sampleR;
+          `;
+        
+        } else {
+        effectsSource += `
+        outputDataL[sampleIndex] += sampleL * mixVolume;
+			outputDataR[sampleIndex] += sampleR * mixVolume;
+			mixVolume += mixVolumeDelta;
+			`
+        }
           
             if (usesDelays) {
                 effectsSource += `
@@ -16257,8 +16270,6 @@ export class Synth {
 				`;
 
         if (usesRustDsp) {
-          effectsSource += "if(usesRustDsp) {"
-          
           if (usesFlanger) {
             effectsSource += "instrumentState.flanger?.process(instrumentState.dspBuffer);";
           }
@@ -16275,7 +16286,6 @@ export class Synth {
               outputDataR[bufferIndex + i] += dspBufR[i] * mixVolume;
               mixVolume += mixVolumeDelta;
             }
-          }
           `;
         }
 				
